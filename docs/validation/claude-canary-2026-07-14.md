@@ -48,3 +48,15 @@ Both runtime payloads were installed together only in this isolated diagnostic c
 The earlier `ipzitalk-local` MCP server name above records the original canary and is superseded by the unified contract. The runtime plugin remains `ipzitalk-local`, but its MCP server ID and npm package are now `presale-mcp`.
 
 `claude plugin validate --strict plugins/ipzitalk-local` passed after the change. A fresh isolated Claude configuration installed the Local plugin without secret values and reported zero Skills plus exactly one MCP server named `presale-mcp`; all four required `userConfig` values remained unset.
+
+## Authenticated user-profile CLI E2E
+
+The current Claude Code `2.1.208` user profile initially contained only unrelated Telegram and Warp plugins. The local Ipzi Talk marketplace was added, then launcher `0.1.1` and Remote `0.1.2` were installed at user scope. Plugin inventory reported launcher Skills 1 / MCP 0 and Remote Skills 5 / MCP 1 (`ipzitalk`); the unrelated plugins remained enabled and unchanged.
+
+A new non-interactive Claude Code process invoked `/ipzitalk:setup status only`. It derived a clean `Remote` state, confirmed that Local was absent, identified all five `ipzitalk-remote:*` Skills, and made no plugin, settings, credential, MCP, cache, or file changes.
+
+The plugin MCP initially reported `Needs authentication`. The official `claude mcp login plugin:ipzitalk-remote:ipzitalk` browser flow completed, after which `claude mcp get` reported `Connected`. No authorization URL, redirect value, or credential is recorded here.
+
+An allowlisted single-tool print session then called `mcp__plugin_ipzitalk-remote_ipzitalk__get_geocode` exactly once for 서울특별시 중구 세종대로 110. It returned the exact 서울시청 match at latitude `37.5666103`, longitude `126.9783882`, with legal-dong code `1114010300`. No web, shell, file, or second MCP tool was allowed.
+
+This completes the Claude Code CLI install, setup status, OAuth, namespace, and representative Remote call gates. Interactive `/reload-plugins`, approval-policy matrices, sensitive Local `userConfig`, and Claude Code Desktop Code-tab checks remain incomplete and are not inferred from the print-session result.
