@@ -96,7 +96,8 @@ const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC skill lock must be marked local-only');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
-assert(lockedSkills.length === 5, 'Remote PoC must contain exactly five skills');
+assert(lockedSkills.length === 6, 'Remote PoC must contain exactly six skills');
+assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
 const lockedSkillArtifacts = [...(sourceLock.sources.skills.artifacts ?? [])].sort();
 assert(JSON.stringify(lockedSkillArtifacts) === JSON.stringify([
   'scripts/html_artifact_contract.mjs',
