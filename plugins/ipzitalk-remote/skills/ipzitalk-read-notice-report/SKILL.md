@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-read-notice-report
 description: "공식 모집공고문 PDF/HWP 하나에서 1분 브리핑·청약 일정 체크리스트·자금 조달 타임라인·제한사항 요약을 한 번에 뽑아 통합 공고 리포트 HTML을 만든다. 일부 섹션만 요청하면 해당 섹션만 렌더한다. (구 read-brief/read-dday/read-funding/read-limits 통합)"
-version: 1.1.2
+version: 1.2.0
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -119,10 +119,21 @@ out/ipzitalk-read-notice-report/
   backdata.xlsx        # 섹션 통합 1개 (원천파일·공급대상·공급금액·일정·제한사항·납부조건·DB크로스체크·검증결과·한계사항)
 ```
 
+## 분석 목적 맞춤 요약
+
+- 사용자가 목적을 이미 밝혔으면 그대로 사용하고 다시 묻지 않는다.
+- 목적이 없으면 분석 전에 한 번만 묻고 건너뛸 수 있음을 알린다. 끝내 목적을 주지 않으면 `goal:null`로 두고 목적 섹션 없이 진행하며 목적을 지어내지 않는다.
+- `goal`은 `purpose`, `conclusions`(3~5), `evidence`(1~3), `cautions`(0~2), `nextActions`(1~3)로 구성한다.
+- 목적 요약은 본문에서 이미 조회·판정한 값만 재구성한다. 새 데이터나 없는 수치를 창작하지 않고 본문 판정·누락·경고를 목적에 맞춰 바꾸지 않는다.
+- 결론에는 실제 근거를 최소 1개 연결하고, 다음 행동에는 URL이나 원시 Skill ID 대신 한글 Skill 이름과 자연어 질의 예시를 쓴다.
+- 템플릿은 배열 상한을 잘라내고 빈 단계는 숨긴다. `goal:null`이면 `goal-box` 전체를 숨긴다.
+
+
 ## 변경 이력
 
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.2.0 | 2026-07-14 | 목적 맞춤 요약 `goal`과 내러티브 레일 추가. 원문 preflight·XLSX·공통 audit 계약 유지 |
 | 1.0.0 | 2026-07-09 | read-brief/read-dday/read-funding/read-limits 4개 스킬 통합. 공고 pin·PDF 추출·크로스체크 1회 공유, 섹션 토글(`__DATA__` 키 null=숨김), 백데이터 XLSX 1개로 통합. 템플릿 CSS 토큰은 4개 원본과 동일 유지 |
 | 1.1.0 | 2026-07-13 | 브리핑 가격표 열 라벨 정정: `층구간 평균`→`주택형별 평균 분양가`, `최고 평당가`→`주택형별 평균 평당가`(값은 원래 세대수 가중평균이었으나 라벨이 최고가로 오기재됨). 표 아래 가중평균 기준 안내문 추가, 가중평균 산식·검산·백데이터 열 규칙 명문화 |
 | 1.1.1 | 2026-07-14 | PDF/HWP 선확인·불일치 안전 중단, 고유 HTML 출력·비실행 JSON 렌더, 표준 라이브러리 XLSX 생성·검증 계약 추가 |

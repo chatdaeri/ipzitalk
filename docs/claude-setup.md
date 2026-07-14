@@ -23,7 +23,7 @@ The approved install command is:
 claude plugin install ipzitalk-remote@ipzitalk --scope user
 ```
 
-In the CLI, run `/reload-plugins`, open `/mcp`, and complete OAuth for the plugin-provided `ipzitalk` server. In the Desktop Code tab, confirm the plugin in `+` → `Plugins`, open a new local session, and complete any OAuth prompt before a representative Remote call. Remote includes five Skills and the hosted data path.
+In the CLI, run `/reload-plugins`, open `/mcp`, and complete OAuth for the plugin-provided `ipzitalk` server. In the Desktop Code tab, confirm the plugin in `+` → `Plugins`, open a new local session, and complete any OAuth prompt before a representative Remote call. Remote includes six Skills and the hosted data path.
 
 ## OSS
 

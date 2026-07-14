@@ -8,7 +8,7 @@
     },
     "remote": {
       "id": "ipzitalk-remote",
-      "version": "0.1.5"
+      "version": "0.1.6"
     },
     "local": {
       "id": "ipzitalk-local",
@@ -18,7 +18,7 @@
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": "a8c89a0d6c0afd0a154f3dee90d2af3970d5bf9a",
+      "commit": "f30b4a595159c366dd7975bb795528a14e4f9d09",
       "availability": "local-only",
       "artifacts": [
         "scripts/html_artifact_contract.mjs",
@@ -29,7 +29,8 @@
         "ipzitalk-location-report",
         "ipzitalk-presale-report",
         "ipzitalk-read-notice-compare",
-        "ipzitalk-read-notice-report"
+        "ipzitalk-read-notice-report",
+        "ipzitalk-recent-market-trend"
       ]
     },
     "remoteMcp": {

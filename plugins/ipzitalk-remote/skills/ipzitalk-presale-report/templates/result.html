@@ -104,6 +104,37 @@
   .foot b{color:var(--ink)}
   .foot .row{display:flex;align-items:center;gap:7px;margin-bottom:3px}
   @media(max-width:720px){ .duo{grid-template-columns:1fr} }
+
+  /* 목적 맞춤 요약 — 내러티브 레일(자기완결). goal 이 null 이면 통째 숨김. 빈 섹션은 렌더가 단계째 뺀다. */
+  .goal{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin:18px 22px 22px;padding:20px 22px 10px}
+  .goal .gh{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
+  .goal .gh>svg{width:18px;height:18px;flex:0 0 auto;color:var(--brand)}
+  .goal .purpose{display:inline-flex;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:12px;margin:11px 0 4px}
+  .goal .purpose .k{color:var(--sub2);font-weight:700}
+  .goal .purpose .v{color:var(--ink);font-weight:600}
+  .goal .rail{position:relative;padding:16px 0 8px}
+  .goal .rail .line{position:absolute;left:17px;top:30px;bottom:38px;width:2px;background:var(--line)}
+  .goal .step{position:relative;display:flex;gap:16px;padding-bottom:22px}
+  .goal .step:last-child{padding-bottom:8px}
+  .goal .node{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 4px var(--card)}
+  .goal .node svg{width:18px;height:18px}
+  .goal .node.solid{background:var(--brand);color:#fff}
+  .goal .node.chip{background:var(--chip);border:1px solid var(--line);color:var(--sub)}
+  .goal .node.tint-o{background:var(--o-s);border:1px solid var(--line);color:var(--o)}
+  .goal .node.solid-g{background:var(--g);color:#fff}
+  .goal .gbody{flex:1 1 0;min-width:0;padding-top:2px}
+  .goal .gbody .h{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .goal .gbody .h .lbl{font-size:13px;font-weight:800}
+  .goal .gbody .h .hint{font-size:10.5px;font-weight:700;color:var(--sub2)}
+  .goal .lbl.c{color:var(--brand)} .goal .lbl.e{color:var(--sub)} .goal .lbl.w{color:var(--o)} .goal .lbl.a{color:var(--g)}
+  .goal .items{display:flex;flex-direction:column;gap:9px}
+  .goal .it-concl{font-size:13px;line-height:1.6;color:var(--ink);border-left:2px solid var(--brand-s);padding-left:12px}
+  .goal .it-bullet{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
+  .goal .it-bullet .dot{width:5px;height:5px;border-radius:50%;background:var(--sub2);flex:0 0 auto;margin-top:7px}
+  .goal .it-warn{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
+  .goal .it-warn svg{width:13px;height:13px;color:var(--o);flex:0 0 auto;margin-top:4px}
+  .goal .it-action{display:flex;gap:9px;align-items:flex-start;background:var(--g-s);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12.5px;line-height:1.55;color:var(--ink)}
+  .goal .it-action svg{width:14px;height:14px;color:var(--g);flex:0 0 auto;margin-top:3px}
 </style>
 </head>
 <body>
@@ -129,6 +160,19 @@
     </div>
     <div class="chips" id="chips"></div>
   </div>
+  <!-- 목적 맞춤 요약 (내러티브 레일) — 자기완결 아이콘 스프라이트 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-target" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="4"></circle><circle cx="12" cy="12" r=".7" fill="currentColor" stroke="none"></circle></g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"></path></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4m0 4h.01"></path></symbol>
+  <symbol id="i-evidence" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"></path></symbol>
+  </svg>
+  <div class="goal" id="goal-box" style="display:none">
+    <div class="gh"><svg><use href="#i-target"/></svg> <span>목적 맞춤 요약</span></div>
+    <div class="purpose" id="goal-purpose" style="display:none"><span class="k">분석 목적</span> <span class="v" id="goal-purpose-v"></span></div>
+    <div class="rail" id="goal-rail"></div>
+  </div>
   <div class="panel" id="panel"></div>
 </div>
 
@@ -150,6 +194,7 @@
    - 도구·API 이름을 화면에 쓰지 않는다. 출처는 기관명만.
    ──────────────────────────────────────────────────────────────── */
 const templateDataShape = {
+  goal: null, // 목적 맞춤 요약(내러티브 레일) — null=숨김. {purpose, conclusions[3~5], evidence[1~3], cautions[0~2], nextActions[1~3]}. 빈 섹션은 단계째 숨김.
   brand: "IPZI TALK",
   title: "",                 // 리포트 제목
   subtitle: "",              // "<b>OO시</b> · 청약홈에 등록된 분양공고 N건 · 조회일 YYYY-MM-DD"  (HTML 허용)
@@ -401,6 +446,44 @@ const templateDataShape = {
 
   document.getElementById("panel").innerHTML = P.filter(Boolean).join("") ||
     '<div class="empty">청약홈에 등록된 공고가 없습니다.</div>';
+})();
+
+/* 목적 맞춤 요약 — 내러티브 레일. 자기완결(자체 esc). ipzi-data JSON의 goal만 읽는다.
+   각 섹션은 배열 길이만큼 렌더, 빈 섹션은 레일 단계(노드)째 숨김. 상한 결론5·근거3·주의2·행동3. */
+(()=>{
+  var g = (function(){ try { return JSON.parse(document.getElementById("ipzi-data").textContent) || {}; } catch(e){ return {}; } })().goal;
+  if (!(g && (g.purpose || (g.conclusions || []).length))) return;
+  function esc(v){ return String(v).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function useIcon(id){ return '<svg><use href="#' + esc(id) + '"/></svg>'; }
+  function item(kind, text){
+    var t = esc(text);
+    if (kind === "concl")  return '<div class="it-concl">' + t + "</div>";
+    if (kind === "bullet") return '<div class="it-bullet"><span class="dot"></span><span>' + t + "</span></div>";
+    if (kind === "warn")   return '<div class="it-warn">' + useIcon("i-warn") + "<span>" + t + "</span></div>";
+    return '<div class="it-action">' + useIcon("i-arrow") + "<span>" + t + "</span></div>";
+  }
+  var box = document.getElementById("goal-box"); if (!box) return;
+  box.style.display = "";
+  if (g.purpose){
+    var p = document.getElementById("goal-purpose"); if (p) p.style.display = "";
+    var pv = document.getElementById("goal-purpose-v"); if (pv) pv.textContent = g.purpose;
+  }
+  var CATS = [
+    { arr:g.conclusions, cap:5, cls:"c", lbl:"맞춤 결론",      hint:"핵심 답",     node:"solid",   icon:"i-check",    kind:"concl"  },
+    { arr:g.evidence,    cap:3, cls:"e", lbl:"근거",          hint:"뒷받침 수치", node:"chip",    icon:"i-evidence", kind:"bullet" },
+    { arr:g.cautions,    cap:2, cls:"w", lbl:"주의사항",       hint:"확인 필요",   node:"tint-o",  icon:"i-warn",     kind:"warn"   },
+    { arr:g.nextActions, cap:3, cls:"a", lbl:"다음 행동 제안", hint:"바로 할 일",  node:"solid-g", icon:"i-arrow",    kind:"action" }
+  ];
+  var steps = CATS.map(function(c){
+    var items = (c.arr || []).filter(function(x){ return x != null && x !== ""; }).slice(0, c.cap);
+    if (!items.length) return "";
+    return '<div class="step"><span class="node ' + c.node + '">' + useIcon(c.icon) + "</span>"
+      + '<div class="gbody"><div class="h"><span class="lbl ' + c.cls + '">' + esc(c.lbl) + "</span>"
+      + '<span class="hint">' + esc(c.hint) + "</span></div>"
+      + '<div class="items">' + items.map(function(x){ return item(c.kind, x); }).join("") + "</div></div></div>";
+  }).join("");
+  var rail = document.getElementById("goal-rail"); if (rail) rail.innerHTML = '<div class="line"></div>' + steps;
 })();
 </script>
 </body>

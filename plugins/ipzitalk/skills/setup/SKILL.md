@@ -25,7 +25,7 @@ For a status-only request, report the derived state and stop without changing an
 
 Before making a change, explain:
 
-- Remote uses the hosted Ipzi Talk MCP, OAuth, hosted data, and the five packaged Remote Skills.
+- Remote uses the hosted Ipzi Talk MCP, OAuth, hosted data, and the six packaged Remote Skills.
 - OSS runs `presale-mcp` locally through Node.js and requires the user's four API keys. OSS is MCP-only, exposes ten tools, and does not include or claim compatibility with Remote Skills.
 - Codex CLI forwards the four API keys only from its existing process environment through `env_vars`. Do not ask the user to paste them into chat, command arguments, manifests, or configuration examples with real values.
 - Codex Desktop OSS is not supported in this proof of concept until a safe secret-delivery path is verified. Do not assume a Finder/Dock-launched app inherits shell exports.

@@ -1,11 +1,11 @@
-# ipzitalk-read-notice-compare `window.__DATA__` schema
+# ipzitalk-read-notice-compare `ipzi-data` / `templateDataShape` schema
 
 `notices` 길이가 2 미만이면 본문 섹션 전체가 숨겨진다(hero만 렌더).
 섹션 키(`schedule`/`funding`/`limits`/`axes`)는 **null이면 해당 섹션이 통째로 숨겨진다.**
 팀색은 인덱스 순서로 자동(A 파랑 · B 빨강 · C 보라 · D 청록) — 데이터에 색을 넣지 않는다.
 
 ```js
-window.__DATA__ = {
+const templateDataShape = {
   chips: [],                  // hero 칩, e.g. ["84㎡ 기준", "공고 2건", "모집공고문 기준"]
   notices: [                  // 2~4개, 배열 순서 = 모든 섹션의 값/이벤트 인덱스 기준
     { name: "", noticeDate: "" }   // noticeDate = 공고일 (YYYY-MM-DD)

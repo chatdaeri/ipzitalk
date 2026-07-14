@@ -7,7 +7,7 @@ Ipzi Talk plugin marketplace for Codex and Claude Code.
 ## PoC contents
 
 - `ipzitalk`: setup-only launcher with no business MCP.
-- `ipzitalk-remote`: hosted OAuth MCP plus five locked Remote Skills.
+- `ipzitalk-remote`: hosted OAuth MCP plus six locked Remote Skills.
 - `ipzitalk-local`: MCP-only Node.js payload with ten tools and zero Skills; its MCP server ID and npm package are `presale-mcp`.
 
 The setup Skill asks the user to choose exactly one runtime. It derives status from `codex plugin list --json`; it does not create a separate state file or alter unrelated MCP servers.
@@ -21,7 +21,7 @@ codex plugin marketplace add /path/to/ipzitalk --json
 codex plugin add ipzitalk@ipzitalk --json
 ```
 
-Remote uses `https://ipzi-talk.synergylabs.kr/mcp`, OAuth, hosted data, and the five packaged Skills. OSS uses `npx -y presale-mcp@0.1.0` and forwards only these existing Codex process environment variables:
+Remote uses `https://ipzi-talk.synergylabs.kr/mcp`, OAuth, hosted data, and the six packaged Skills. OSS uses `npx -y presale-mcp@0.1.0` and forwards only these existing Codex process environment variables:
 
 - `KAKAO_REST_API_KEY`
 - `NAVER_MAPS_CLIENT_ID`

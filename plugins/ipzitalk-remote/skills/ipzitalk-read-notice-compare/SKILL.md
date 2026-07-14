@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-read-notice-compare
 description: "모집공고 2~4개를 공고문 원문 기준으로 비교한다. 청약 일정 겹침 캘린더·계약금/중도금/잔금 납부조건·전매제한/거주의무/재당첨제한·축별 비교표를 한 장 HTML로 낸다. '공고 비교', 'A 공고랑 B 공고 비교', '어느 청약부터 넣을까', '청약 일정 겹쳐?' 등의 표현이 있으면 이 스킬을 사용한다. 단지 자체(DB 기준 분양가·세대·입주월) 비교는 ipzitalk-presale-compare-card, 공고 1개 정리는 ipzitalk-read-notice-report."
-version: 1.1.4
+version: 1.2.0
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -139,10 +139,21 @@ out/ipzitalk-read-notice-compare/
   backdata.xlsx        # 공고별 시트(원천파일~한계사항) + 비교 시트
 ```
 
+## 분석 목적 맞춤 요약
+
+- 사용자가 목적을 이미 밝혔으면 그대로 사용하고 다시 묻지 않는다.
+- 목적이 없으면 분석 전에 한 번만 묻고 건너뛸 수 있음을 알린다. 끝내 목적을 주지 않으면 `goal:null`로 두고 목적 섹션 없이 진행하며 목적을 지어내지 않는다.
+- `goal`은 `purpose`, `conclusions`(3~5), `evidence`(1~3), `cautions`(0~2), `nextActions`(1~3)로 구성한다.
+- 목적 요약은 본문에서 이미 조회·판정한 값만 재구성한다. 새 데이터나 없는 수치를 창작하지 않고 본문 판정·누락·경고를 목적에 맞춰 바꾸지 않는다.
+- 결론에는 실제 근거를 최소 1개 연결하고, 다음 행동에는 URL이나 원시 Skill ID 대신 한글 Skill 이름과 자연어 질의 예시를 쓴다.
+- 템플릿은 배열 상한을 잘라내고 빈 단계는 숨긴다. `goal:null`이면 `goal-box` 전체를 숨긴다.
+
+
 ## 변경 이력
 
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.2.0 | 2026-07-14 | 목적 맞춤 요약 `goal`과 내러티브 레일 추가. Remote-only·pin·XLSX·공통 audit 계약 유지 |
 | 1.0.0 | 2026-07-09 | 신규 작성. ipzitalk-read-notice-report 추출 파이프라인을 `references/notice-pipeline.md` 복사본으로 승계(공고당 1회 실행), ipzitalk-presale-compare-card의 공정성 규칙(같은 전용타입·공고일 6개월 룰·종합 우열 금지) 승계. 고유 축 = 일정 겹침·납부조건·제한사항 |
 | 1.1.0 | 2026-07-13 | 가격 축을 전용타입 **전체 세대수 가중평균**으로 변경(기존: 최고가 주택형 1개 대표값 → 소수 세대 타입이 단지를 대표하는 편향). 백데이터에 `가중평균검증` 시트 추가, 자금 축 기준을 최다 세대수 주택형으로 명시 |
 | 1.1.1 | 2026-07-14 | Remote MCP 도구의 base-name·plugin/server provenance·로컬 제외·모호성 중단 규칙을 SKILL 본문에 명시하고 상세 pipeline reference를 유지 |

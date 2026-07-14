@@ -6,7 +6,7 @@ This document describes the internal proof-of-concept flow. It is not a public r
 
 Run `$ipzitalk:setup` in a new Codex process after installing the `ipzitalk` launcher. The setup Skill explains both modes and waits for an explicit choice before changing plugins.
 
-- **Remote** — hosted data, OAuth, eleven Remote tools, and five Remote Skills.
+- **Remote** — hosted data, OAuth, eleven Remote tools, and six Remote Skills.
 - **OSS** — local Node.js process, ten tools, four user-supplied API keys, and no Skills.
 
 Only one of `ipzitalk-remote@ipzitalk` and `ipzitalk-local@ipzitalk` is supported at a time. If both are present, setup stops without removing either. Runtime status comes only from `codex plugin list --json`.

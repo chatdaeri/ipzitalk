@@ -1,10 +1,10 @@
-# ipzitalk-read-notice-report `window.__DATA__` schema
+# ipzitalk-read-notice-report `ipzi-data` / `templateDataShape` schema
 
 4개 섹션 키(`brief`/`dday`/`funding`/`limits`)는 **null이면 해당 섹션이 통째로 숨겨진다.**
 사용자가 요청한 섹션만 채운다.
 
 ```js
-window.__DATA__ = {
+const templateDataShape = {
   title: "",                // 공고명 (템플릿이 " 공고 리포트"를 자동으로 붙임)
   desc: "",                  // hero 설명
   chips: [],                 // hero 아래 칩 문자열 배열, e.g. ["084.9794A 기준", "D-12"]
