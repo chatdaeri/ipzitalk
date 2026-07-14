@@ -13,7 +13,7 @@ claude plugin install ipzitalk@ipzitalk --scope user
 
 In Claude Code CLI, run `/reload-plugins`, then invoke `/ipzitalk:setup`. The setup Skill explains Remote and OSS and waits for an explicit choice before installing a runtime payload.
 
-In Claude Desktop's local Code tab, use `+` → `Plugins` to add or manage plugins. The Code tab has no `/reload-plugins` command. After installation, enablement, disablement, or removal, open a new local session and invoke `/ipzitalk:setup` there. Plugins are not available in Desktop remote sessions.
+In Claude Desktop's local Code tab, use `+` → `Plugins` to add, manage, and invoke plugin Skills. After installation, enablement, disablement, or removal, open a new local session and select `ipzitalk` → `setup` in that menu. Do not paste `/ipzitalk:setup` or `/ipzitalk-remote:*` as a raw command; the current Desktop surface may classify those strings as CLI-only. The Code tab has no `/reload-plugins` command, and plugins are not available in Desktop remote sessions.
 
 ## Remote
 
