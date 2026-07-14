@@ -77,3 +77,11 @@ Node.js `v26.3.1` and npm/npx `11.16.0` were available. All four required OSS en
 Claude's repository audit found that the Local runtime plugin ID `ipzitalk-local` had also been used as the MCP server key even though the plan and source lock identify the executable package as `presale-mcp`. The contract now separates those identities: plugin state uses `ipzitalk-local`, while MCP state and the npm package use `presale-mcp`.
 
 The package validator first failed against the old key, then passed after both Codex and Claude manifests changed to `presale-mcp`. A new isolated Codex profile installed `ipzitalk-local@ipzitalk`; `codex mcp list --json` exposed exactly one `presale-mcp` stdio server with the registry command and four environment-variable names. No `ipzitalk-local` MCP server key remained and no secret value was supplied or printed.
+
+## User-profile cache refresh
+
+After the server identity correction passed, all three plugin manifests advanced from `0.1.0` to `0.1.1`; the unpublished npm command remains `presale-mcp@0.1.0`. The current user profile removed Remote, verified its absence, removed the launcher, verified that no Ipzi Talk plugin remained, and then installed launcher `0.1.1` followed by Remote `0.1.1`. No unrelated plugin or MCP server was changed.
+
+The refreshed profile preserved the hosted `ipzitalk` MCP with `auth_status: o_auth`. A new `codex debug prompt-input` exposed all five expected `ipzitalk-remote:<skill-name>` entries from the `0.1.1` plugin cache. It also exposed the same five base names from the existing global Skill source.
+
+An actual `$ipzitalk:setup status only` run made no changes and returned the expected safe verdict: runtime state `Remote` with `skill provenance conflict`; Skill-driven work must stop until the duplicate global source is resolved explicitly. Setup did not remove or rewrite the global Skills, plugin cache, MCP configuration, or files.
