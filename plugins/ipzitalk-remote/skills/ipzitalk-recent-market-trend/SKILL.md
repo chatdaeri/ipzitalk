@@ -5,7 +5,7 @@ description: >
   "최근 시장동향", "요즘 시장 어때", "거래 늘었어?", "어느 구가 오르나", "지역별 비교"
   등의 표현이 있으면 이 스킬을 사용한다.
   시군구 집계는 전용타입을 통일할 수 없어 구성 편향이 있으므로 "참고 신호"로만 제시한다.
-version: 1.2.0
+version: 1.2.1
 license: proprietary
 ---
 
@@ -71,8 +71,12 @@ license: proprietary
 - `out/ipzitalk-recent-market-trend/result.json`과 `out/ipzitalk-recent-market-trend/audit.json`을 먼저 만들고 HTML은 `out/ipzitalk-recent-market-trend/result.html`에 저장한다.
 - 셸 허용 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs`로 렌더·검증한다. shell-free 또는 셸 금지 환경에서는 File Read/Write로 `ipzi-data` 블록만 교체하고 fixed template region을 비교한다.
 - validator가 통과하지 않거나 고정 영역을 비교할 수 없으면 완료 처리하지 않는다.
-- `audit.json`에는 `skillBaseDirectory`, `baseToolName`, 입력 요약, `resultCount`, `truncated`, `provenance`, `shellUsed`, `webUsed`, `generatedFiles`를 호출 직후 누적한다.
-- 최종 응답은 `audit.json`에서 도구별 호출 횟수·Remote provenance·Skill base directory·shell/web 사용 여부·생성 파일을 계산한다. 감사 누락을 보완하려고 MCP를 재호출하지 않는다.
+- `audit.json` 최상위에는 `skillBaseDirectory`, 입력 요약, `calls`, `auditIncomplete`, `shellUsed`, `webUsed`, `generatedFiles`를 둔다.
+- 각 MCP 호출의 최초 반환 직후 `calls`에 한 행을 추가한다. 행 필드는 `sequence`, `baseToolName`, `region`, `regionCode`, `yearMonth`, `tradeType`, `limit`, `resultCount`, `sampleCount`, `truncated`, `provenance`다. 해당하지 않는 값은 `null`로 두고 필드를 생략하지 않는다.
+- `get_complex_trades`는 지역 N곳마다 기준월·비교월을 조회하므로 정확히 **2N회**다. 지역명이어서 코드 해소가 필요한 곳의 수를 R이라 하면 `get_region_code`는 R회이고 정상 총 호출 수는 **2N + R회**다. 입력이 이미 `region_code`면 해당 지역의 해소 호출은 0회다.
+- 최종 도구별 호출 수와 총합은 `calls`에서 자동 계산한다. 수기 집계나 별도 실행 기록을 감사 원장보다 우선하지 않는다.
+- 감사 누락 복구·보완을 위한 MCP 재호출은 금지한다. 기존 최초 반환으로 행을 복구할 수 없으면 `auditIncomplete:true`로 남기고 재조회하지 않는다.
+- 최종 응답은 `audit.json`의 `calls`에서 도구별 호출 횟수·Remote provenance·Skill base directory·shell/web 사용 여부·생성 파일을 계산한다.
 
 ## 필수 단서 · 금지 표현
 - 필수: **구성 미보정** 명시 · 표본(거래량) 표기 · 최근월 제외 사유 · 전용면적 기준 평당가 · 목록 개수 제한과 무관하게 중위값·거래량은 전체 거래 기준이라는 설명 · 출처·조회일.
@@ -142,6 +146,7 @@ license: proprietary
 ## 변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.2.1 | 2026-07-14 | 지역·월·호출 인자를 보존하는 호출별 `calls` 감사 원장과 2N + R 호출식 추가 |
 | 1.2.0 | 2026-07-14 | main 승격. 비실행 JSON·고유 출력·공통 audit 계약과 목적 맞춤 요약 내러티브 레일 추가 |
 | 1.1.0 | 2026-07-14 | 목적 맞춤 요약 `goal` 스키마 추가 |
 | 1.0.0 | 2026-07-09 | 패키지 확정. 데모를 `templates/result.html` 템플릿(고정 마크업 + `__DATA__` 렌더)으로 이식. 차트를 `regions` 데이터에서 그리도록 전환 |
