@@ -16,7 +16,7 @@
 
 The bundled plugin validator could not run because neither available Python interpreter includes PyYAML (`ModuleNotFoundError: No module named 'yaml'`). No dependency was installed for this canary. The inspected validator was:
 
-- `/Users/synergylabs/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py`
+- `${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py`
 - SHA-256: `ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228`
 
 ## Marketplace and install canary
@@ -24,7 +24,7 @@ The bundled plugin validator could not run because neither available Python inte
 The repository marketplace loaded in an isolated `CODEX_HOME` and in the authenticated user profile. Both payloads installed from the repository marketplace without editing Codex configuration or plugin caches:
 
 ```text
-codex plugin marketplace add /Users/synergylabs/Documents/GitHub/ipzitalk --json
+codex plugin marketplace add <repo-root> --json
 codex plugin add ipzitalk@ipzitalk --json
 codex plugin add ipzitalk-remote@ipzitalk --json
 ```
