@@ -32,13 +32,20 @@ Never paste their values into chat, plugin commands, manifests, or committed fil
 
 See [Codex setup and lifecycle](docs/codex-setup.md) for selection, OAuth, switching, updating, and complete removal.
 
+## Claude Code setup
+
+Add the repository marketplace, install the launcher, and run `/reload-plugins`. The launcher is exposed as `/ipzitalk:setup`. After it installs the selected payload, run `/reload-plugins` a second time and verify Remote OAuth or OSS configuration through `/mcp`.
+
+Claude OSS keys are four required, sensitive `userConfig` values stored through Claude Code secure storage. Enter them only in the plugin configure UI; do not use `--config KEY=value` for secrets. See [Claude Code setup and lifecycle](docs/claude-setup.md).
+
 ## Validate
 
 ```bash
 node scripts/validate-package.mjs
+claude plugin validate --strict .
 python3 /path/to/plugin-creator/scripts/validate_plugin.py plugins/ipzitalk
 python3 /path/to/plugin-creator/scripts/validate_plugin.py plugins/ipzitalk-remote
 python3 /path/to/plugin-creator/scripts/validate_plugin.py plugins/ipzitalk-local
 ```
 
-The final three commands are compatibility checks against the installed `plugin-creator` validator. Do not install missing Python dependencies without approval.
+The final three Python commands are compatibility checks against the installed `plugin-creator` validator. Do not install missing Python dependencies without approval.

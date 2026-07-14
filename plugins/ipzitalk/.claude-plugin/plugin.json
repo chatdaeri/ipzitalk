@@ -1,0 +1,13 @@
+{
+  "name": "ipzitalk",
+  "version": "0.1.0",
+  "description": "Choose, inspect, switch, or remove the Ipzi Talk Remote or OSS runtime.",
+  "author": {
+    "name": "SynergyLabs"
+  },
+  "homepage": "https://ipzi-talk.synergylabs.kr",
+  "repository": "https://github.com/chatdaeri/ipzitalk",
+  "license": "UNLICENSED",
+  "keywords": ["real-estate", "presale", "korea", "setup"],
+  "skills": "./skills/"
+}

@@ -110,9 +110,39 @@ assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.localMcp.commit), 'local MCP com
 assert(sourceLock.sources.localMcp.availability === 'local-only', 'unpublished local MCP lock must be marked local-only');
 assert(sourceLock.sources.localMcp.toolsSnapshotSha256 === '08df02512148d67604a375c5fef689170e795093eeaf2fbe50dc5335a33f26e3', 'local tool snapshot mismatch');
 
+const claudeMarketplace = await readJson('.claude-plugin/marketplace.json');
+assert(claudeMarketplace.name === 'ipzitalk', 'unexpected Claude marketplace name');
+assert(claudeMarketplace.plugins?.map((entry) => entry.name).join(',') === 'ipzitalk,ipzitalk-remote,ipzitalk-local', 'unexpected Claude marketplace entries');
+for (const entry of claudeMarketplace.plugins) {
+  assert(entry.source === `./plugins/${entry.name}`, `unexpected Claude source path: ${entry.name}`);
+  assert(entry.version === sourceLock.plugins[entry.name === 'ipzitalk' ? 'launcher' : entry.name === 'ipzitalk-remote' ? 'remote' : 'local'].version, `Claude version mismatch: ${entry.name}`);
+}
+
+const claudeLauncher = await readJson('plugins/ipzitalk/.claude-plugin/plugin.json');
+assert(claudeLauncher.skills === './skills/', 'Claude launcher must expose setup skill');
+assert(!('mcpServers' in claudeLauncher), 'Claude launcher must not expose an MCP server');
+
+const claudeRemote = await readJson('plugins/ipzitalk-remote/.claude-plugin/plugin.json');
+assert(claudeRemote.skills === './skills/', 'Claude Remote must expose the locked skills');
+assert(claudeRemote.mcpServers?.ipzitalk?.type === 'http', 'Claude Remote MCP must use HTTP');
+assert(claudeRemote.mcpServers.ipzitalk.url === 'https://ipzi-talk.synergylabs.kr/mcp', 'Claude Remote URL mismatch');
+
+const claudeLocal = await readJson('plugins/ipzitalk-local/.claude-plugin/plugin.json');
+assert(!('skills' in claudeLocal), 'Claude local payload must contain zero skills');
+assert(Object.keys(claudeLocal.userConfig ?? {}).join(',') === expectedEnvVars.join(','), 'Claude local userConfig keys mismatch');
+for (const name of expectedEnvVars) {
+  assert(claudeLocal.userConfig[name]?.type === 'string', `Claude userConfig type mismatch: ${name}`);
+  assert(claudeLocal.userConfig[name]?.required === true, `Claude userConfig must be required: ${name}`);
+  assert(claudeLocal.userConfig[name]?.sensitive === true, `Claude userConfig must be sensitive: ${name}`);
+  assert(claudeLocal.mcpServers?.['ipzitalk-local']?.env?.[name] === `\${user_config.${name}}`, `Claude userConfig interpolation mismatch: ${name}`);
+}
+assert(claudeLocal.mcpServers['ipzitalk-local'].command === 'npx', 'Claude local MCP command mismatch');
+assert(JSON.stringify(claudeLocal.mcpServers['ipzitalk-local'].args) === JSON.stringify(['-y', 'presale-mcp@0.1.0']), 'Claude local MCP args mismatch');
+
 const scannedFiles = [
   ...(await walk('plugins')),
   resolve(root, '.agents/plugins/marketplace.json'),
+  resolve(root, '.claude-plugin/marketplace.json'),
   resolve(root, 'source-lock.json'),
 ];
 for (const file of scannedFiles) {

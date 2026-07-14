@@ -1,0 +1,33 @@
+{
+  "name": "ipzitalk",
+  "description": "Ipzi Talk launcher and selectable Remote or OSS runtime payloads.",
+  "owner": {
+    "name": "SynergyLabs"
+  },
+  "plugins": [
+    {
+      "name": "ipzitalk",
+      "source": "./plugins/ipzitalk",
+      "description": "Recommended setup launcher for choosing an Ipzi Talk runtime.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "tags": ["real-estate", "korea", "setup"]
+    },
+    {
+      "name": "ipzitalk-remote",
+      "source": "./plugins/ipzitalk-remote",
+      "description": "Hosted Ipzi Talk MCP with OAuth and five Remote Skills.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "tags": ["real-estate", "korea", "mcp", "remote"]
+    },
+    {
+      "name": "ipzitalk-local",
+      "source": "./plugins/ipzitalk-local",
+      "description": "Local OSS presale-mcp runtime with secure user configuration and no Skills.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "tags": ["real-estate", "korea", "mcp", "local"]
+    }
+  ]
+}
