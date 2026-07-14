@@ -27,6 +27,8 @@ After installation, start a new Codex process and use `codex mcp login ipzitalk`
 
 OSS requires Node.js 18 or later and `npx`. Export the four API keys in the environment that launches Codex CLI. Check only whether each name is set; do not print values.
 
+The runtime plugin ID is `ipzitalk-local`; its MCP server ID and npm package are both `presale-mcp`. Keep these identities distinct when checking plugin state versus MCP state.
+
 ```bash
 codex plugin add ipzitalk-local@ipzitalk --json
 ```

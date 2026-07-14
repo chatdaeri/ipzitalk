@@ -42,3 +42,9 @@ The plugin inventory showed zero Skills and exactly one `ipzitalk-local` MCP ser
 The CLI suggested either `/plugin configure` or `--config KEY=VALUE`. Ipzi Talk documentation permits only the configure UI for sensitive values because command arguments may be logged. Actual secure-storage masking, subprocess substitution, `/reload-plugins`, `/mcp`, OAuth, and local Code-tab behavior still require an authenticated interactive validation pass.
 
 Both runtime payloads were installed together only in this isolated diagnostic config to inspect provenance. This is not a supported operating state; setup must report `conflict` and must not remove either automatically.
+
+## Local server identity correction
+
+The earlier `ipzitalk-local` MCP server name above records the original canary and is superseded by the unified contract. The runtime plugin remains `ipzitalk-local`, but its MCP server ID and npm package are now `presale-mcp`.
+
+`claude plugin validate --strict plugins/ipzitalk-local` passed after the change. A fresh isolated Claude configuration installed the Local plugin without secret values and reported zero Skills plus exactly one MCP server named `presale-mcp`; all four required `userConfig` values remained unset.

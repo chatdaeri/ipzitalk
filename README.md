@@ -8,7 +8,7 @@ Ipzi Talk plugin marketplace for Codex and Claude Code.
 
 - `ipzitalk`: setup-only launcher with no business MCP.
 - `ipzitalk-remote`: hosted OAuth MCP plus five locked Remote Skills.
-- `ipzitalk-local`: MCP-only Node.js payload with ten tools and zero Skills.
+- `ipzitalk-local`: MCP-only Node.js payload with ten tools and zero Skills; its MCP server ID and npm package are `presale-mcp`.
 
 The setup Skill asks the user to choose exactly one runtime. It derives status from `codex plugin list --json`; it does not create a separate state file or alter unrelated MCP servers.
 

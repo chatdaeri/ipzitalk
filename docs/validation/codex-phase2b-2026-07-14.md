@@ -71,3 +71,9 @@ No user profile, global Skill, plugin cache, or Codex configuration was modified
 ## Local secret boundary
 
 Node.js `v26.3.1` and npm/npx `11.16.0` were available. All four required OSS environment-variable names were missing in the verification process. No value was requested, printed, or written, so an external-API success call was not attempted. The fixed local tarball's ten-tool listing and API-key-missing error regression remain the completed secret-free checks; Codex Desktop OSS remains unsupported and registry-backed runtime verification remains Phase 4 work.
+
+## Local server identity correction
+
+Claude's repository audit found that the Local runtime plugin ID `ipzitalk-local` had also been used as the MCP server key even though the plan and source lock identify the executable package as `presale-mcp`. The contract now separates those identities: plugin state uses `ipzitalk-local`, while MCP state and the npm package use `presale-mcp`.
+
+The package validator first failed against the old key, then passed after both Codex and Claude manifests changed to `presale-mcp`. A new isolated Codex profile installed `ipzitalk-local@ipzitalk`; `codex mcp list --json` exposed exactly one `presale-mcp` stdio server with the registry command and four environment-variable names. No `ipzitalk-local` MCP server key remained and no secret value was supplied or printed.

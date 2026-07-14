@@ -40,7 +40,7 @@ The plugin declares four `string` options that are both `required` and `sensitiv
 
 Sensitive values are masked and stored through Claude Code secure storage. Do not pass them through `--config KEY=value`, paste them into chat, or place them in settings, manifests, logs, or documentation.
 
-After configuration, run `/reload-plugins` and verify the plugin-provided `ipzitalk-local` server through `/mcp`. The committed command remains registry-backed and cannot be marked complete until `presale-mcp@0.1.0` is published. OSS contains ten tools and no Skills.
+After configuration, run `/reload-plugins` and verify the `ipzitalk-local` plugin's `presale-mcp` server through `/mcp`. The committed command remains registry-backed and cannot be marked complete until `presale-mcp@0.1.0` is published. OSS contains ten tools and no Skills.
 
 ## Switch and remove
 

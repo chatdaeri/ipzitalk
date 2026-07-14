@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "ipzitalk-local": {
+    "presale-mcp": {
       "command": "npx",
       "args": ["-y", "presale-mcp@0.1.0"],
       "env_vars": [
