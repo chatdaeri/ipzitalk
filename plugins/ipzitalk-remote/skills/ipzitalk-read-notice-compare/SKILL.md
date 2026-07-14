@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-read-notice-compare
 description: "모집공고 2~4개를 공고문 원문 기준으로 비교한다. 청약 일정 겹침 캘린더·계약금/중도금/잔금 납부조건·전매제한/거주의무/재당첨제한·축별 비교표를 한 장 HTML로 낸다. '공고 비교', 'A 공고랑 B 공고 비교', '어느 청약부터 넣을까', '청약 일정 겹쳐?' 등의 표현이 있으면 이 스킬을 사용한다. 단지 자체(DB 기준 분양가·세대·입주월) 비교는 ipzitalk-presale-compare-card, 공고 1개 정리는 ipzitalk-read-notice-report."
-version: 1.1.2
+version: 1.1.3
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -28,6 +28,7 @@ ipzitalk-presale-compare-card(청약홈 DB 기준 단지 비교)와 역할이 �
 
 > 공고명이 여러 공고에 매칭되면 후보 제시 후 선택(자동 확정 금지).
 > 공식 모집공고문 PDF/HWP를 공고마다 확보해야 한다. 한쪽이라도 실패하면 해당 축은 `공고문 원문 확인 필요`.
+> **`Remote-only`는 MCP·DB·외부 조회의 출처(provenance)를 Remote 서버로 제한한다는 뜻이다.** 사용자 제공·첨부 PDF/HWP는 비교의 필수 공식 원문이므로 File/PDF 도구로 직접 읽으며, 이를 로컬 파일이라는 이유로 거부하지 않는다.
 
 ## Default test input
 
@@ -46,12 +47,14 @@ ipzitalk-presale-compare-card(청약홈 DB 기준 단지 비교)와 역할이 �
 - `presale-mcp` 또는 다른 로컬 MCP provenance의 동명 도구는 Remote Skill의 대체 수단으로 사용하지 않는다. provenance를 확인할 수 없거나 같은 기본 도구명이 여러 서버에 있어 모호하면 임의 선택하지 말고 중단한다.
 - provenance를 구조적으로 확인할 수 없을 때만 `mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>`, `mcp__ipzitalk_mcp__<도구명>`, `mcp__ipzitalk__<도구명>`, `mcp__claude_ai_ipzitalk__<도구명>` 순서의 명시적 fallback을 확인한다. fallback으로도 Remote 출처가 유일하지 않으면 중단한다.
 - 공고 pin·원문 확보·구조화에 필요한 구체적인 도구와 실행 순서는 `references/notice-pipeline.md`의 **MCP 도구 네임스페이스와 출처** 절을 포함해 읽고 따른다.
+- 사용자 제공·첨부 PDF/HWP 열람은 MCP 대체 조회가 아니라 공식 원문 처리다. `Remote-only` 조건에서도 허용하며, PDF 내용은 Remote MCP 응답으로 추정하거나 대체하지 않는다.
 
 ## 워크플로우
 
 1. **공고 pin** — 입력에 `house_manage_no`가 있으면 이름 검색보다 관리번호를 우선해 결과를 필터링하고 `announcement_id`를 확정한다. 후보 다수 → 선택.
    - 관리번호가 없으면 공백·지역 접두어·브랜드 표기를 정규화한 공고명으로 조회한다.
    - 정확명 0건이면 지역과 정규화 공고명을 함께 쓰는 fallback만 수행한다. `에피트` 같은 광역 공통 브랜드명 단독 검색은 금지한다.
+   - fallback 지역은 PDF 첫 페이지의 공급위치, 청약홈 URL/입력에 명시된 지역, 또는 이미 pin된 공식 필드에서만 가져온다. **단지명 토큰을 행정 지역으로 추론하지 않는다**(`안동 에피트`의 `안동`을 안동시로 해석하는 식의 보정 금지).
    - 기대 관리번호 없이 fallback 결과가 여러 개면 자동 선택하지 않는다.
    - 감사 로그에는 **시도 횟수와 성공 pin 횟수를 분리**해 기록한다. `공고마다 1회`는 성공 pin 수가 아니라 실제 MCP 시도 예산과 혼동하지 않는다.
 2. **공고별 추출** — `references/notice-pipeline.md`대로 PDF 확보·pdftotext·구조화·크로스체크. **공고당 1회만, 재추출 금지.**
@@ -138,3 +141,4 @@ out/ipzitalk-read-notice-compare/
 | 1.1.0 | 2026-07-13 | 가격 축을 전용타입 **전체 세대수 가중평균**으로 변경(기존: 최고가 주택형 1개 대표값 → 소수 세대 타입이 단지를 대표하는 편향). 백데이터에 `가중평균검증` 시트 추가, 자금 축 기준을 최다 세대수 주택형으로 명시 |
 | 1.1.1 | 2026-07-14 | Remote MCP 도구의 base-name·plugin/server provenance·로컬 제외·모호성 중단 규칙을 SKILL 본문에 명시하고 상세 pipeline reference를 유지 |
 | 1.1.2 | 2026-07-14 | 관리번호 우선·지역+정규화명 fallback·pin 시도/성공 분리 감사, 고유 HTML·비실행 JSON 렌더, 표준 라이브러리 XLSX 생성·검증 계약 추가 |
+| 1.1.3 | 2026-07-14 | Remote-only를 MCP provenance 제한으로 명확화하고 사용자 제공 PDF/HWP 열람 허용·단지명 토큰의 지역 추론 금지 규칙 추가 |
