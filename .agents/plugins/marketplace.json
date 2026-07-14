@@ -1,0 +1,32 @@
+{
+  "name": "ipzitalk",
+  "interface": {
+    "displayName": "Ipzi Talk"
+  },
+  "plugins": [
+    {
+      "name": "ipzitalk",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ipzitalk"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "ipzitalk-remote",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ipzitalk-remote"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

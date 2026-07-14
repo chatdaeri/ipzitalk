@@ -1,0 +1,24 @@
+{
+  "name": "ipzitalk-remote",
+  "version": "0.1.0",
+  "description": "Connect Codex to the hosted Ipzi Talk Remote MCP.",
+  "author": {
+    "name": "SynergyLabs",
+    "url": "https://synergylabs.kr"
+  },
+  "homepage": "https://ipzi-talk.synergylabs.kr",
+  "repository": "https://github.com/chatdaeri/ipzitalk",
+  "keywords": ["real-estate", "presale", "korea", "mcp"],
+  "interface": {
+    "displayName": "Ipzi Talk Remote",
+    "shortDescription": "Hosted Ipzi Talk MCP runtime",
+    "longDescription": "Connect to the hosted Ipzi Talk MCP with OAuth. Install through the Ipzi Talk setup launcher.",
+    "developerName": "SynergyLabs",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "defaultPrompt": [
+      "Use Ipzi Talk Remote to inspect a Korean apartment complex."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "ipzitalk",
+  "version": "0.1.0",
+  "description": "Choose and configure one Ipzi Talk runtime for Codex.",
+  "author": {
+    "name": "SynergyLabs",
+    "url": "https://synergylabs.kr"
+  },
+  "homepage": "https://ipzi-talk.synergylabs.kr",
+  "repository": "https://github.com/chatdaeri/ipzitalk",
+  "keywords": ["real-estate", "presale", "korea", "setup"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Ipzi Talk",
+    "shortDescription": "Choose the Remote or OSS runtime",
+    "longDescription": "A setup-only launcher that explains and installs one Ipzi Talk runtime payload after approval.",
+    "developerName": "SynergyLabs",
+    "category": "Productivity",
+    "capabilities": ["Setup"],
+    "defaultPrompt": [
+      "Help me choose and set up Ipzi Talk Remote or OSS mode."
+    ]
+  }
+}
