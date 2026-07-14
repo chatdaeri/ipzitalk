@@ -1,0 +1,19 @@
+{
+  "name": "ipzitalk-remote",
+  "version": "0.1.7",
+  "description": "Connect Claude Code to the hosted Ipzi Talk MCP and six Remote Skills.",
+  "author": {
+    "name": "SynergyLabs"
+  },
+  "homepage": "https://ipzi-talk.synergylabs.kr",
+  "repository": "https://github.com/chatdaeri/ipzitalk",
+  "license": "UNLICENSED",
+  "keywords": ["real-estate", "presale", "korea", "mcp"],
+  "skills": "./skills/",
+  "mcpServers": {
+    "ipzitalk": {
+      "type": "http",
+      "url": "https://ipzi-talk.synergylabs.kr/mcp"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "ipzitalk-local",
+  "version": "0.1.1",
+  "description": "Run the open-source presale-mcp locally with securely stored API keys.",
+  "author": {
+    "name": "SynergyLabs"
+  },
+  "homepage": "https://github.com/chatdaeri/presale-mcp-oss",
+  "repository": "https://github.com/chatdaeri/ipzitalk",
+  "license": "MIT",
+  "keywords": ["real-estate", "presale", "korea", "mcp", "local"],
+  "userConfig": {
+    "KAKAO_REST_API_KEY": {
+      "type": "string",
+      "title": "Kakao REST API key",
+      "description": "Kakao Developers REST API key for address and nearby-place lookup.",
+      "sensitive": true,
+      "required": true
+    },
+    "NAVER_MAPS_CLIENT_ID": {
+      "type": "string",
+      "title": "Naver Maps client ID",
+      "description": "Naver Cloud Maps client ID for geocoding and static maps.",
+      "sensitive": true,
+      "required": true
+    },
+    "NAVER_MAPS_CLIENT_SECRET": {
+      "type": "string",
+      "title": "Naver Maps client secret",
+      "description": "Naver Cloud Maps client secret.",
+      "sensitive": true,
+      "required": true
+    },
+    "DATA_GO_KR_SERVICE_KEY": {
+      "type": "string",
+      "title": "data.go.kr service key",
+      "description": "Service key for ApplyHome, K-apt, and transaction APIs.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "mcpServers": {
+    "presale-mcp": {
+      "command": "npx",
+      "args": ["-y", "presale-mcp@0.1.0"],
+      "env": {
+        "KAKAO_REST_API_KEY": "${user_config.KAKAO_REST_API_KEY}",
+        "NAVER_MAPS_CLIENT_ID": "${user_config.NAVER_MAPS_CLIENT_ID}",
+        "NAVER_MAPS_CLIENT_SECRET": "${user_config.NAVER_MAPS_CLIENT_SECRET}",
+        "DATA_GO_KR_SERVICE_KEY": "${user_config.DATA_GO_KR_SERVICE_KEY}"
+      }
+    }
+  }
+}

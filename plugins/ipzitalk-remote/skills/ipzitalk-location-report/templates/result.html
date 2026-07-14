@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>세부 입지 보고서</title>
+<style>
+  :root{
+    --bg:#e9ebf0; --card:#ffffff; --ink:#14181e; --sub:#5c6673; --sub2:#8a94a2;
+    --line:#e7eaef; --line2:#f1f3f7; --chip:#f3f5f9; --zebra:#fafbfc;
+    --g:#12a150; --g-s:#e7f6ec; --y:#e0a107; --y-s:#fbf3dd; --o:#e56f1f; --o-s:#fbeee2;
+    --r:#e5484d; --r-s:#fbeaeb; --x:#9aa4b2; --x-s:#eef1f5;
+    --brand:#2f6bff; --brand-s:#e8f0ff;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 14px 36px -16px rgba(16,24,40,.22);
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0c0f14; --card:#161b22; --ink:#e8ecf2; --sub:#9aa4b2; --sub2:#6b7684;
+      --line:#2a313d; --line2:#1b212a; --chip:#1e242e; --zebra:#181d25;
+      --g:#38cf7a; --g-s:#0f2a1d; --y:#e8b53f; --y-s:#2b2410; --o:#f0813e; --o-s:#2c1d12;
+      --r:#f05a5f; --r-s:#301619; --x:#8b95a3; --x-s:#212832; --brand:#5b8bff; --brand-s:#17233d;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 20px 46px -18px rgba(0,0,0,.75); }
+  }
+  :root[data-theme="light"]{ --bg:#e9ebf0; --card:#fff; --ink:#14181e; --sub:#5c6673; --line:#e7eaef; --zebra:#fafbfc; --g:#12a150; --y:#e0a107; --o:#e56f1f; --r:#e5484d; --x:#9aa4b2; --brand:#2f6bff; }
+  :root[data-theme="dark"]{ --bg:#0c0f14; --card:#161b22; --ink:#e8ecf2; --sub:#9aa4b2; --line:#2a313d; --zebra:#181d25; --g:#38cf7a; --y:#e8b53f; --o:#f0813e; --r:#f05a5f; --x:#8b95a3; --brand:#5b8bff; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;padding:20px 14px;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+  .ic{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none}
+
+  .topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:24px 24px 20px;border-bottom:1px solid var(--line)}
+  .ttl{display:flex;flex-direction:column;font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .eyebrow{font:700 12px/1 var(--mono);color:var(--brand);letter-spacing:.04em;margin-bottom:10px}
+  .ttl .row{display:flex;align-items:center;gap:10px}
+  .ttl .sub{font-size:14px;color:var(--sub);font-weight:500;letter-spacing:0;margin-top:6px}
+  .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pill{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:13px;background:var(--bg)}
+  .open-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;background:var(--brand);color:#fff;border-radius:9px;text-decoration:none;font-size:12.5px;font-weight:700;white-space:nowrap}
+
+  /* 지도 iframe 최소폭 720px: /map 사이드바 280px 고정 탓에 좁은 화면에서 fitBounds가 최소 줌으로 떨어진다. */
+  .map{position:relative;width:100%;height:50vh;min-height:360px;max-height:600px;overflow-x:auto;overflow-y:hidden;background:var(--line2)}
+  .map iframe{display:block;width:100%;min-width:720px;height:100%;border:0}
+  .panel{padding:20px 22px 26px}
+  .cap{font-size:11.5px;color:var(--sub);margin:0 0 18px;line-height:1.7}
+
+  /* 목적 맞춤 요약 — 내러티브 레일(제목 아래·지도 위 최상단). goal 이 null 이면 통째 숨김(여백도 사라짐).
+     결론→근거→주의→행동 세로 흐름. 빈 섹션은 렌더 JS가 그 단계(노드)째 뺀다. */
+  .goal{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin:18px 22px 22px;padding:20px 22px 10px}
+  .goal .gh{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
+  .goal .purpose{display:inline-flex;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:12px;margin:11px 0 4px}
+  .goal .purpose .k{color:var(--sub2);font-weight:700}
+  .goal .purpose .v{color:var(--ink);font-weight:600}
+  .goal .rail{position:relative;padding:16px 0 8px}
+  .goal .rail .line{position:absolute;left:17px;top:30px;bottom:38px;width:2px;background:var(--line)}
+  .goal .step{position:relative;display:flex;gap:16px;padding-bottom:22px}
+  .goal .step:last-child{padding-bottom:8px}
+  .goal .node{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 4px var(--card)}
+  .goal .node svg{width:18px;height:18px}
+  .goal .node.solid{background:var(--brand);color:#fff}
+  .goal .node.chip{background:var(--chip);border:1px solid var(--line);color:var(--sub)}
+  .goal .node.tint-o{background:var(--o-s);border:1px solid var(--line);color:var(--o)}
+  .goal .node.solid-g{background:var(--g);color:#fff}
+  .goal .body{flex:1 1 0;min-width:0;padding-top:2px}
+  .goal .body .h{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .goal .body .h .lbl{font-size:13px;font-weight:800}
+  .goal .body .h .hint{font-size:10.5px;font-weight:700;color:var(--sub2)}
+  .goal .lbl.c{color:var(--brand)} .goal .lbl.e{color:var(--sub)} .goal .lbl.w{color:var(--o)} .goal .lbl.a{color:var(--g)}
+  .goal .items{display:flex;flex-direction:column;gap:9px}
+  .goal .it-concl{font-size:13px;line-height:1.6;color:var(--ink);border-left:2px solid var(--brand-s);padding-left:12px}
+  .goal .it-bullet{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
+  .goal .it-bullet .dot{width:5px;height:5px;border-radius:50%;background:var(--sub2);flex:0 0 auto;margin-top:7px}
+  .goal .it-warn{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
+  .goal .it-warn svg{width:13px;height:13px;color:var(--o);flex:0 0 auto;margin-top:4px}
+  .goal .it-action{display:flex;gap:9px;align-items:flex-start;background:var(--g-s);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12.5px;line-height:1.55;color:var(--ink)}
+  .goal .it-action svg{width:14px;height:14px;color:var(--g);flex:0 0 auto;margin-top:3px}
+
+  .summary{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:20px}
+  .summary p{margin:0;font-size:13.5px;line-height:1.7}
+  .axes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:14px}
+  .ax{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .ax .h{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;margin-bottom:6px}
+  .ax .stars{font-size:15px;font-weight:800;letter-spacing:1px;margin-left:auto}
+  .ax .k{font-size:11.5px;color:var(--sub);line-height:1.6}
+  .st-g{color:var(--g)} .st-y{color:var(--y)} .st-o{color:var(--o)} .st-r{color:var(--r)} .st-x{color:var(--x)}
+
+  h2{font-size:15px;margin:24px 0 8px;display:flex;align-items:center;gap:8px}
+  h2 .tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px}
+  .t-g{background:var(--g-s);color:var(--g)} .t-y{background:var(--y-s);color:var(--y)}
+  .t-o{background:var(--o-s);color:var(--o)} .t-r{background:var(--r-s);color:var(--r)} .t-x{background:var(--x-s);color:var(--sub)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{font-size:11.5px;color:var(--sub);font-weight:600}
+  td.n{font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap;text-align:right}
+  td.na{color:var(--sub2)}
+  tbody tr:nth-child(even){background:var(--zebra)}
+  .flag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;margin-left:6px;background:var(--o-s);color:var(--o)}
+  .band{font-size:11.5px;color:var(--sub);margin:0 0 8px}
+  .empty{font-size:12.5px;color:var(--sub2);padding:14px 10px;border:1.5px dashed var(--line);border-radius:10px;text-align:center}
+
+  .callout{border:1px solid var(--line);border-left:3px solid var(--o);border-radius:12px;padding:13px 16px;margin:18px 0;background:var(--o-s)}
+  .callout.gray{border-left-color:var(--x);background:var(--x-s)}
+  .callout h3{margin:0 0 6px;font-size:12.5px;color:var(--o);display:flex;align-items:center;gap:7px}
+  .callout.gray h3{color:var(--sub)}
+  .callout p{margin:0;font-size:12.5px;line-height:1.7}
+  code{font-family:var(--mono);font-size:11px;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+
+  .manual{border:1.5px dashed var(--line);border-radius:12px;padding:14px 16px;margin:20px 0 6px}
+  .manual .t{font-weight:800;font-size:13px;display:flex;align-items:center;gap:7px;margin-bottom:6px}
+  .manual ul{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--sub)}
+
+  .foot{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--sub);line-height:1.75}
+  .foot b{color:var(--ink)}
+  .foot a{color:var(--brand)}
+  .foot .row{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+  .src{font-size:10.5px;color:var(--sub2);margin:6px 0 0;text-align:right;letter-spacing:-.01em}
+</style>
+</head>
+<body>
+<!--
+  아이콘 스프라이트 — 인라인이어야 한다.
+  <use href="#i-…"> 는 같은 문서 안의 <symbol> 만 찾는다. 산출물은 사용자가 혼자 여는 단일 HTML이라
+  옆에 sprite.svg 를 둬도 따라가지 않는다. CDN 도 금지다. 즉 이 블록이 아이콘의 유일한 운반체다.
+
+  [주의] 심볼을 임의로 지우지 말 것.
+  16개 중 마크업이 직접 참조하는 것은 6개(i-report·i-target·i-ruler·i-doc·i-source·i-calendar2)이고,
+  목적 레일이 4개(i-check·i-evidence·i-warn·i-arrow)를 렌더 JS의 <use>로 참조하며,
+  나머지 6개(i-transit·i-living·i-education·i-map·i-info·i-truncated)는 __DATA__ 의 icon 문자열로만
+  참조된다. "안 쓰는 심볼"로 보고 지우면 축 카드·pill·목적 레일 아이콘이 에러 없이 조용히 사라진다.
+  아래 ICONS 배열과 이 블록은 항상 같이 고친다.
+-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-report" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"></path><path d="M15 3v4h4"></path><path d="M9 12h7M9 16h5"></path></g></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="4"></circle><circle cx="12" cy="12" r=".7" fill="currentColor" stroke="none"></circle></g></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"></path></symbol>
+<symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4m0 4h.01"></path></symbol>
+<symbol id="i-evidence" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"></path></symbol>
+<symbol id="i-transit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"></rect><path d="M5 11h14"></path><path d="M8 17l-2 4M16 17l2 4"></path><circle cx="9" cy="14" r=".7" fill="currentColor" stroke="none"></circle><circle cx="15" cy="14" r=".7" fill="currentColor" stroke="none"></circle></g></symbol>
+<symbol id="i-living" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M6 10v10h12V10"></path><path d="M10 20v-6h4v6"></path></g></symbol>
+<symbol id="i-education" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5z"></path><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"></path></g></symbol>
+<symbol id="i-map" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"></path><path d="M9 4v14M15 6v14"></path></g></symbol>
+<symbol id="i-ruler" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="8" rx="1.6"></rect><path d="M7 8v3M11 8v4M15 8v3M19 8v4"></path></g></symbol>
+<symbol id="i-truncated" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h9"></path><path d="M17 15.5l2 1.5-2 1.5"></path></g></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.6"></path></g></symbol>
+<symbol id="i-source" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h9l5 5V19a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19z"></path><path d="M14 4.5V10h5"></path></g></symbol>
+<symbol id="i-calendar2" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"></rect><path d="M3.5 10h17"></path><path d="M8 3v3.5"></path><path d="M16 3v3.5"></path></g></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6V3Z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h4"></path></g></symbol>
+</svg>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="ttl">
+      <span class="eyebrow" id="h-brand">IPZI TALK</span>
+      <span class="row">
+        <svg class="ic" style="color:var(--brand)"><use href="#i-report"/></svg>
+        <span id="h-title">–</span>
+      </span>
+      <span class="sub" id="h-sub"></span>
+    </div>
+    <div class="actions" id="h-actions"></div>
+  </div>
+
+  <div class="goal" id="goal-box" style="display:none">
+    <div class="gh"><svg class="ic" style="color:var(--brand)"><use href="#i-target"/></svg> <span>목적 맞춤 요약</span></div>
+    <div class="purpose" id="goal-purpose" style="display:none"><span class="k">분석 목적</span> <span class="v" id="goal-purpose-v"></span></div>
+    <div class="rail" id="goal-rail"></div>
+  </div>
+
+  <div id="map-panel">
+    <div class="map"><iframe id="map-iframe" src="about:blank" title="세부입지 종합 지도" loading="lazy"></iframe></div>
+    <p class="src" style="padding:0 22px 10px">네이버 지도 · 카카오맵</p>
+  </div>
+
+  <div class="panel">
+    <p class="cap" id="map-cap" style="display:none"></p>
+
+    <div class="summary" id="summary-box" style="display:none">
+      <p id="summary-text"></p>
+      <div class="axes" id="axes"></div>
+    </div>
+
+    <div id="sections"></div>
+    <p class="src">카카오맵</p>
+
+    <div id="wide-box" style="display:none">
+      <h2><svg class="ic" style="color:var(--sub)"><use href="#i-ruler"/></svg> <span id="wide-title">광역 축</span></h2>
+      <p class="band" id="wide-note"></p>
+      <table><thead id="wide-head"></thead><tbody id="wide-body"></tbody></table>
+      <p class="src">카카오맵</p>
+    </div>
+
+    <div class="manual" id="manual-box" style="display:none">
+      <div class="t"><svg class="ic" style="color:var(--sub)"><use href="#i-doc"/></svg> 수기 편집 영역</div>
+      <ul id="manual-list"></ul>
+    </div>
+
+    <div class="foot">
+      <div class="row" id="foot-collected" style="display:none">
+        <svg class="ic"><use href="#i-calendar2"/></svg><span id="foot-collected-text"></span>
+      </div>
+      <div class="row" id="foot-sources" style="display:none">
+        <svg class="ic"><use href="#i-source"/></svg><span id="foot-sources-text"></span>
+      </div>
+      <div id="foot-hedges"></div>
+      <div class="row">입지톡 베타 결과물입니다. 공식 데이터에 없는 값은 임의로 채우지 않지만, 신고·갱신 지연이나 조회 실패, 단지명 매칭 문제, 검색 건수 제한으로 일부 정보가 누락될 수 있습니다. 기준년월과 공식 원문을 확인해 주세요.</div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="ipzi-data">{}</script>
+<script>
+/* ────────────────────────────────────────────────────────────────
+   이 템플릿은 고정이다. 마크업·CSS·렌더 JS는 실행마다 바뀌지 않는다.
+   수정하는 곳은 위 ipzi-data JSON 블록 하나뿐이다.
+
+   규칙 (SKILL.md 승계)
+   - 점수를 매기지 않는다. 등급(stars)만 싣는다. 총점은 location-score 담당.
+   - 값이 없으면 "정보없음". 절대 0으로 채우지 않는다.
+   - 표본·데이터 부족은 stars:null → "판정 유보".
+   - 45건 캡에 걸리면 section.truncated:true → "목록 불완전" 배지.
+   - 광역 축(철도·터미널·대학)은 지도에 넣지 않는다. wide 표로만 다룬다.
+   - map.url 이 null 이면 지도 패널이 통째로 숨는다.
+   ──────────────────────────────────────────────────────────────── */
+const templateDataShape = {
+  brand: "IPZI TALK",
+  title: "",                 // "세부 입지 보고서"
+  subtitle: "",              // "단지명 · 주소 · 조회 YYYY-MM-DD"
+  pills: [],                 // [{icon:"i-transit", tone:"g", label:"트리플 역세권"}]
+
+  goal: null,                // 목적 맞춤 요약(내러티브 레일). null 이면 섹션 통째 숨김. 있으면:
+                             // {
+                             //   purpose: "",       // 사용자가 말한 분석 목적 한 문장
+                             //   conclusions: [],   // 맞춤 결론 3~5 (초과분은 렌더가 잘라냄)
+                             //   evidence: [],      // 근거 1~3 (본문에 실재하는 값만)
+                             //   cautions: [],      // 주의사항 0~2 (목적 관련 hedge)
+                             //   nextActions: []    // 다음 행동 제안 1~3 (URL 금지, 텍스트만)
+                             // }
+                             // 각 섹션은 배열 길이만큼 렌더되고, 빈 섹션은 레일 단계(노드)째 숨는다.
+
+  map: {
+    url: null,               // get_map_embed_url 결과. null 이면 지도 패널 숨김
+    caption: "",             // 색상 범례 · 반경 설명
+    ttlNote: "지도 링크는 발급 후 7일간 유효합니다. 만료되면 지도가 빈 화면으로 뜨므로 재발급이 필요합니다."
+  },
+
+  summary: "",               // 종합 요약 한 문단 (우열 단정 금지)
+  axes: [],                  // [{icon:"i-transit", label:"교통", stars:3, tone:"g", note:"최근접 지하철 OOOm"}]
+                             //   stars: 3|2|1|null  (null = 판정 유보)
+
+  sections: [],              // [{
+                             //   icon:"i-transit", title:"교통 환경",
+                             //   tone:"g", gradeLabel:"★★★ 우수",
+                             //   band:"밴드: ≤500 우수 / 500–1000 양호 / >1000 미흡",
+                             //   columns:["시설","명칭","직선거리"],
+                             //   rows:[["지하철","OO역(N호선)", {n:"OOOm"}]],   // {n:...} = 우측정렬 숫자셀
+                             //                                                // null = "정보없음"
+                             //   truncated:false,
+                             //   note:""
+                             // }]
+
+  wide: null,                // {title, note, columns, rows}  광역 축 표 (지도에 넣지 않음)
+
+  manual: [],                // ["개통예정 노선은 자동 반영하지 않는다. 확인 후 직접 기재."]
+
+  hedges: [],                // ["직선거리 기준(도보 경로 아님)", "초등학교 배정은 미확인 — 학구도 확인 필요"]
+  sources: [],               // ["카카오맵"]
+  collectedAt: ""            // "YYYY-MM-DD"
+};
+
+(function(){
+  var D = JSON.parse(document.getElementById("ipzi-data").textContent);
+  var NA = "정보없음";
+  /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
+     링크·iframe 은 http/https 만 허용한다. 아니면 링크를 걸지 않는다. */
+  function safeUrl(u){ return /^https?:\/\//i.test(String(u == null ? "" : u)) ? String(u) : null; }
+
+  function esc(v){
+    return String(v).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  /* 스프라이트에 실재하는 심볼만 허용한다. 없는 id 를 <use> 로 가리키면 브라우저는
+     에러 없이 빈 자리를 그린다 — 오타가 조용히 통과하지 않도록 여기서 막는다.
+     심볼을 추가/삭제하면 위 <svg> 블록과 이 배열을 함께 고칠 것. */
+  var ICONS = ["i-report","i-target","i-check","i-evidence","i-warn","i-arrow",
+               "i-transit","i-living","i-education","i-map",
+               "i-ruler","i-truncated","i-info","i-source","i-calendar2","i-doc"];
+  function icon(id, tone){
+    if(!id) return "";
+    if(ICONS.indexOf(id) === -1){
+      console.warn('[result.html] 스프라이트에 없는 아이콘 id: "' + id + '" — 아이콘을 생략합니다.');
+      return "";
+    }
+    var color = tone ? ' style="color:var(--' + esc(tone) + ')"' : "";
+    return '<svg class="ic"' + color + '><use href="#' + esc(id) + '"/></svg>';
+  }
+  /* 결측은 0이 아니라 "정보없음"이다. 0으로 채우면 데이터 부재가 나쁜 값으로 둔갑한다. */
+  function cell(v){
+    if(v === null || v === undefined || v === "") return '<td class="na">' + NA + '</td>';
+    if(typeof v === "object" && v.n !== undefined) return '<td class="n">' + esc(v.n) + '</td>';
+    return "<td>" + esc(v) + "</td>";
+  }
+  function stars(n){
+    if(n === null || n === undefined) return {html:"판정 유보", tone:"x"};
+    n = Math.max(0, Math.min(3, n|0));
+    return {html:"★★★☆☆☆".slice(3 - n, 6 - n), tone:null};
+  }
+  function show(id){ document.getElementById(id).style.display = ""; }
+
+  /* 헤더 */
+  document.getElementById("h-brand").textContent = D.brand || "IPZI TALK";
+  document.getElementById("h-title").textContent = D.title || "–";
+  document.getElementById("h-sub").textContent = D.subtitle || "";
+
+  var acts = (D.pills || []).map(function(p){
+    return '<span class="pill">' + icon(p.icon, p.tone) + " " + esc(p.label) + "</span>";
+  });
+  if (D.map && D.map.url){
+    acts.push('<a class="open-btn" target="_blank" rel="noopener" href="'+esc(safeUrl(D.map.url)||"#")+'">'
+      + icon("i-map") + " 지도 크게 열기</a>");
+  }
+  document.getElementById("h-actions").innerHTML = acts.join("");
+
+  /* 목적 맞춤 요약 — 내러티브 레일. goal 이 null 이면 통째 숨긴다. 새 데이터가 아니라 본문 값의 재구성이다.
+     각 섹션은 배열 길이만큼 렌더하고, 빈 섹션은 레일 단계(노드)째 뺀다.
+     개수 상한(결론5·근거3·주의2·행동3)은 여기서 한 번 더 잘라낸다(스킬이 넘겨도 방어). */
+  function useIcon(id){ return '<svg><use href="#' + esc(id) + '"/></svg>'; }
+  function goalItem(kind, text){
+    var t = esc(text);
+    if (kind === "concl")  return '<div class="it-concl">' + t + "</div>";
+    if (kind === "bullet") return '<div class="it-bullet"><span class="dot"></span><span>' + t + "</span></div>";
+    if (kind === "warn")   return '<div class="it-warn">' + useIcon("i-warn") + "<span>" + t + "</span></div>";
+    return '<div class="it-action">' + useIcon("i-arrow") + "<span>" + t + "</span></div>";
+  }
+  if (D.goal && (D.goal.purpose || (D.goal.conclusions || []).length)){
+    show("goal-box");
+    if (D.goal.purpose){
+      show("goal-purpose");
+      document.getElementById("goal-purpose-v").textContent = D.goal.purpose;
+    }
+    var CATS = [
+      { arr:D.goal.conclusions, cap:5, cls:"c", lbl:"맞춤 결론",      hint:"핵심 답",     node:"solid",   icon:"i-check",    kind:"concl"  },
+      { arr:D.goal.evidence,    cap:3, cls:"e", lbl:"근거",          hint:"뒷받침 수치", node:"chip",    icon:"i-evidence", kind:"bullet" },
+      { arr:D.goal.cautions,    cap:2, cls:"w", lbl:"주의사항",       hint:"확인 필요",   node:"tint-o",  icon:"i-warn",     kind:"warn"   },
+      { arr:D.goal.nextActions, cap:3, cls:"a", lbl:"다음 행동 제안", hint:"바로 할 일",  node:"solid-g", icon:"i-arrow",    kind:"action" }
+    ];
+    var steps = CATS.map(function(c){
+      var items = (c.arr || []).filter(function(x){ return x != null && x !== ""; }).slice(0, c.cap);
+      if (!items.length) return "";                 // 빈 섹션 → 단계(노드)째 숨김
+      return '<div class="step"><span class="node ' + c.node + '">' + useIcon(c.icon) + "</span>"
+        + '<div class="body"><div class="h"><span class="lbl ' + c.cls + '">' + esc(c.lbl) + "</span>"
+        + '<span class="hint">' + esc(c.hint) + "</span></div>"
+        + '<div class="items">' + items.map(function(x){ return goalItem(c.kind, x); }).join("") + "</div></div></div>";
+    }).join("");
+    document.getElementById("goal-rail").innerHTML = '<div class="line"></div>' + steps;
+  }
+
+  /* 지도 — url 이 없으면 패널째 숨긴다 */
+  if (D.map && D.map.url){
+    document.getElementById("map-iframe").src = safeUrl(D.map.url) || "about:blank";
+    var cap = [D.map.caption, D.map.ttlNote].filter(Boolean);
+    if (cap.length){
+      var el = document.getElementById("map-cap");
+      el.innerHTML = esc(cap[0]) + (cap[1] ? "<br><strong>" + esc(cap[1]) + "</strong>" : "");
+      el.style.display = "";
+    }
+  } else {
+    document.getElementById("map-panel").style.display = "none";
+  }
+
+  /* 종합 요약 + 축 카드 (점수 없음 — 등급만) */
+  if (D.summary || (D.axes || []).length){
+    show("summary-box");
+    document.getElementById("summary-text").textContent = D.summary || "";
+    document.getElementById("axes").innerHTML = (D.axes || []).map(function(a){
+      var s = stars(a.stars);
+      var toneClass = "st-" + (s.tone || a.tone || "x");
+      return '<div class="ax"><div class="h">' + icon(a.icon, a.tone)
+        + "<span>" + esc(a.label) + "</span>"
+        + '<span class="stars ' + toneClass + '">' + s.html + "</span></div>"
+        + '<div class="k">' + esc(a.note || NA) + "</div></div>";
+    }).join("");
+  }
+
+  /* 분야 섹션 */
+  document.getElementById("sections").innerHTML = (D.sections || []).map(function(sec){
+    var h = "<h2>" + icon(sec.icon, sec.tone) + "<span>" + esc(sec.title) + "</span>"
+      + (sec.gradeLabel ? '<span class="tag t-' + esc(sec.tone || "x") + '">' + esc(sec.gradeLabel) + "</span>" : "")
+      + "</h2>";
+    var band = sec.band ? '<p class="band">' + esc(sec.band) + "</p>" : "";
+    var body;
+    if (!(sec.rows || []).length){
+      body = '<div class="empty">해당 반경 내 결과 없음 — 거리를 추정하지 않는다.</div>';
+    } else {
+      body = "<table><thead><tr>"
+        + (sec.columns || []).map(function(c){ return "<th>" + esc(c) + "</th>"; }).join("")
+        + "</tr></thead><tbody>"
+        + sec.rows.map(function(r){ return "<tr>" + r.map(cell).join("") + "</tr>"; }).join("")
+        + "</tbody></table>";
+    }
+    /* 45건 캡: 최근접은 정확하므로 등급은 유지하고, 목록만 불완전으로 표기한다. */
+    var trunc = sec.truncated
+      ? '<p class="cap">' + icon("i-truncated", "x")
+        + " 검색 상한(45건)에 도달해 목록이 불완전할 수 있습니다. 최근접 값은 정확하므로 등급은 유지됩니다.</p>"
+      : "";
+    var note = sec.note ? '<p class="cap">' + esc(sec.note) + "</p>" : "";
+    return h + band + body + trunc + note;
+  }).join("");
+
+  /* 광역 축 (지도에 넣지 않는다 — 마커 bounds 파괴) */
+  if (D.wide && (D.wide.rows || []).length){
+    show("wide-box");
+    document.getElementById("wide-title").textContent = D.wide.title || "광역 축";
+    document.getElementById("wide-note").textContent = D.wide.note || "";
+    document.getElementById("wide-head").innerHTML = "<tr>"
+      + (D.wide.columns || []).map(function(c){ return "<th>" + esc(c) + "</th>"; }).join("") + "</tr>";
+    document.getElementById("wide-body").innerHTML = D.wide.rows.map(function(r){
+      return "<tr>" + r.map(cell).join("") + "</tr>";
+    }).join("");
+  }
+
+  /* 수기 편집 영역 — 개통예정 호재 등은 자동 반영하지 않는다 */
+  if ((D.manual || []).length){
+    show("manual-box");
+    document.getElementById("manual-list").innerHTML = D.manual.map(function(m){
+      return "<li>" + esc(m) + "</li>";
+    }).join("");
+  }
+
+  /* 푸터: 출처 · 조회일 · hedge (하위 3분야 hedge 전부 승계) */
+  if (D.collectedAt){
+    show("foot-collected");
+    document.getElementById("foot-collected-text").textContent = "조회일 " + D.collectedAt;
+  }
+  if ((D.sources || []).length){
+    show("foot-sources");
+    document.getElementById("foot-sources-text").textContent = "출처: " + D.sources.join(" · ");
+  }
+  document.getElementById("foot-hedges").innerHTML = (D.hedges || []).map(function(x){
+    return "<div>· " + esc(x) + "</div>";
+  }).join("");
+})();
+</script>
+</body>
+</html>

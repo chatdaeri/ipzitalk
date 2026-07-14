@@ -1,0 +1,7 @@
+interface:
+  display_name: "Ipzi Talk Setup"
+  short_description: "Choose and configure the Ipzi Talk runtime"
+  default_prompt: "Help me choose and set up Ipzi Talk Remote or OSS mode."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ipzi Talk · 공고 리포트</title>
+<style>
+  :root{
+    --bg:#e9ebf0; --card:#ffffff; --ink:#14181e; --sub:#5c6673; --sub2:#8a94a2;
+    --line:#e7eaef; --line2:#f1f3f7; --chip:#f3f5f9;
+    --g:#12a150; --g-s:#e7f6ec; --y:#e0a107; --y-s:#fbf3dd;
+    --o:#e56f1f; --o-s:#fbeee2; --x:#9aa4b2; --x-s:#eef1f5;
+    --brand:#2f6bff; --brand-s:#e8f0ff;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 14px 36px -16px rgba(16,24,40,.22);
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0e1116; --card:#161b22; --ink:#eef1f5; --sub:#98a2b0; --sub2:#6b7480;
+           --line:#232a33; --line2:#1c222a; --chip:#1c222a;
+           --g-s:#12251a; --y-s:#2a2410; --o-s:#2a1c10; --x-s:#1c222a; --brand-s:#16233f;
+           --shadow:0 8px 30px rgba(0,0,0,.5); }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(130% 70% at 50% -5%, color-mix(in srgb,var(--card) 30%,var(--bg)), var(--bg) 55%);
+    color:var(--ink);min-height:100vh;
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;padding:22px 14px;}
+  .wrap{max-width:1180px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+
+  .hero{padding:28px 26px;margin-bottom:16px}
+  .eyebrow{font:700 12px/1 var(--mono);color:var(--brand);letter-spacing:.04em}
+  .hero h1{margin:12px 0 6px;font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .hero p{margin:0;color:var(--sub);font-size:14px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:var(--brand-s);color:var(--brand);font-size:12px;font-weight:700}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .kpi{padding:16px 18px}
+  .kpi .l{font-size:12px;color:var(--sub)}
+  .kpi .n{font:800 20px/1.3 var(--mono);margin-top:6px}
+  .kpi .s{font-size:11.5px;color:var(--sub2);margin-top:2px}
+
+  .sechead{display:flex;align-items:baseline;gap:10px;margin:26px 4px 12px}
+  .sechead .no{font:800 12px/1 var(--mono);color:var(--brand)}
+  .sechead h2{margin:0;font-size:18px;font-weight:800;letter-spacing:-.01em}
+  .sechead .src{color:var(--sub2);font-size:12px}
+
+  .panel{padding:22px;margin-bottom:16px}
+  .panel h3{margin:0 0 4px;font-size:15.5px;font-weight:800}
+  .panel .desc{color:var(--sub);font-size:13px;margin:0 0 14px}
+  .summary{font-size:15px;line-height:1.6;margin:8px 0 0}
+  .note{color:var(--sub2);font-size:12px;margin-top:10px}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+
+  .vtl{position:relative;padding-left:18px;margin-top:10px}
+  .vtl:before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
+  .vtl .step{position:relative;margin:0 0 12px;padding:10px 14px;background:var(--chip);border:1px solid var(--line);border-radius:10px;font-size:13px}
+  .vtl .step:before{content:"";position:absolute;left:-17px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--brand)}
+  .vtl .step b{display:block;font-size:13.5px;margin-bottom:2px}
+  .vtl .step span{color:var(--sub);font-size:12px}
+
+  .htl{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-top:10px}
+  .htl .step{min-width:150px;background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .htl .step b{display:block;font-size:13px;margin-bottom:4px}
+  .htl .step span{color:var(--sub);font-size:12px}
+
+  .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;font-size:11.5px;font-weight:800}
+  .pill.g{background:var(--g-s);color:var(--g)} .pill.a{background:var(--y-s);color:var(--y)} .pill.o{background:var(--o-s);color:var(--o)}
+
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+  .rcard{padding:20px}
+  .rcard h3{margin:10px 0 4px;font-size:16px;font-weight:800}
+  .rcard .val{font-size:16px;font-weight:800;margin:0 0 10px}
+  .quote{background:var(--chip);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;color:var(--sub);font-size:12.5px;line-height:1.6;margin-top:10px}
+  .incl{font-size:13.5px;margin:8px 0 10px}
+
+  table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th{background:var(--chip);color:var(--sub);text-align:left;font-size:12px;font-weight:700;padding:10px 12px}
+  td{border-top:1px solid var(--line2);padding:10px 12px;vertical-align:middle;font-size:13.5px}
+  td.box{width:32px;text-align:center;font-size:15px;color:var(--sub2)}
+
+  .panel ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;line-height:1.8}
+  .foot{font-size:12px;color:var(--sub);padding:6px 4px}
+  section[hidden]{display:none}
+
+  @media(max-width:860px){ .kpis{grid-template-columns:repeat(2,1fr)} .two{grid-template-columns:1fr} .grid2{grid-template-columns:1fr} }
+
+  /* 목적 맞춤 요약 — 내러티브 레일(자기완결). goal 이 null 이면 통째 숨김. 빈 섹션은 렌더가 단계째 뺀다. */
+  .goal{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin:0 0 16px;padding:20px 22px 10px}
+  .goal .gh{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
+  .goal .gh>svg{width:18px;height:18px;flex:0 0 auto;color:var(--brand)}
+  .goal .purpose{display:inline-flex;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:12px;margin:11px 0 4px}
+  .goal .purpose .k{color:var(--sub2);font-weight:700}
+  .goal .purpose .v{color:var(--ink);font-weight:600}
+  .goal .rail{position:relative;padding:16px 0 8px}
+  .goal .rail .line{position:absolute;left:17px;top:30px;bottom:38px;width:2px;background:var(--line)}
+  .goal .step{position:relative;display:flex;gap:16px;padding-bottom:22px}
+  .goal .step:last-child{padding-bottom:8px}
+  .goal .node{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 4px var(--card)}
+  .goal .node svg{width:18px;height:18px}
+  .goal .node.solid{background:var(--brand);color:#fff}
+  .goal .node.chip{background:var(--chip);border:1px solid var(--line);color:var(--sub)}
+  .goal .node.tint-o{background:var(--o-s);border:1px solid var(--line);color:var(--o)}
+  .goal .node.solid-g{background:var(--g);color:#fff}
+  .goal .gbody{flex:1 1 0;min-width:0;padding-top:2px}
+  .goal .gbody .h{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .goal .gbody .h .lbl{font-size:13px;font-weight:800}
+  .goal .gbody .h .hint{font-size:10.5px;font-weight:700;color:var(--sub2)}
+  .goal .lbl.c{color:var(--brand)} .goal .lbl.e{color:var(--sub)} .goal .lbl.w{color:var(--o)} .goal .lbl.a{color:var(--g)}
+  .goal .items{display:flex;flex-direction:column;gap:9px}
+  .goal .it-concl{font-size:13px;line-height:1.6;color:var(--ink);border-left:2px solid var(--brand-s);padding-left:12px}
+  .goal .it-bullet{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
+  .goal .it-bullet .dot{width:5px;height:5px;border-radius:50%;background:var(--sub2);flex:0 0 auto;margin-top:7px}
+  .goal .it-warn{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
+  .goal .it-warn svg{width:13px;height:13px;color:var(--o);flex:0 0 auto;margin-top:4px}
+  .goal .it-action{display:flex;gap:9px;align-items:flex-start;background:var(--g-s);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12.5px;line-height:1.55;color:var(--ink)}
+  .goal .it-action svg{width:14px;height:14px;color:var(--g);flex:0 0 auto;margin-top:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="card hero">
+    <div class="eyebrow">IPZI TALK · 모집공고문 기준</div>
+    <h1 id="h-title">–</h1>
+    <p id="h-desc">–</p>
+    <div class="chips" id="h-chips"></div>
+  </section>
+
+  <!-- 목적 맞춤 요약 (내러티브 레일) — 자기완결 아이콘 스프라이트 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-target" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="4"></circle><circle cx="12" cy="12" r=".7" fill="currentColor" stroke="none"></circle></g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"></path></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4m0 4h.01"></path></symbol>
+  <symbol id="i-evidence" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"></path></symbol>
+  </svg>
+  <div class="goal" id="goal-box" style="display:none">
+    <div class="gh"><svg><use href="#i-target"/></svg> <span>목적 맞춤 요약</span></div>
+    <div class="purpose" id="goal-purpose" style="display:none"><span class="k">분석 목적</span> <span class="v" id="goal-purpose-v"></span></div>
+    <div class="rail" id="goal-rail"></div>
+  </div>
+  <section class="kpis" id="kpis"></section>
+
+  <section id="sec-brief" hidden>
+    <div class="sechead"><span class="no">01</span><h2>1분 브리핑</h2><span class="src">모집공고문 기준</span></div>
+    <div class="card panel">
+      <h3>1분 요약</h3>
+      <p class="summary" id="brief-summary"></p>
+      <p class="note" id="brief-note"></p>
+    </div>
+    <div class="card panel">
+      <h3 id="brief-table-title">주택형/가격 요약</h3>
+      <table>
+        <thead><tr><th>주택형</th><th>최고 분양가</th><th>주택형별 평균 분양가</th><th>주택형별 평균 평당가</th></tr></thead>
+        <tbody id="brief-table-body"></tbody>
+      </table>
+      <p class="note">평균 분양가·평균 평당가는 층별 세대수 가중평균 기준입니다. (층구간 단순평균 아님 · 평당가 = 평균 분양가 ÷ 공급면적)</p>
+    </div>
+  </section>
+
+  <section id="sec-dday" hidden>
+    <div class="sechead"><span class="no">02</span><h2>청약 일정 체크리스트</h2><span class="src">청약홈·모집공고문 기준</span></div>
+    <div class="card panel">
+      <h3>일정 체크리스트</h3>
+      <table>
+        <thead><tr><th>체크</th><th>일정</th><th>날짜</th><th>해야 할 일</th></tr></thead>
+        <tbody id="dday-checklist"></tbody>
+      </table>
+      <div class="htl" id="dday-timeline" style="margin-top:16px"></div>
+    </div>
+    <div class="card panel">
+      <h3>준비물/주의사항</h3>
+      <p class="desc" id="dday-prep" style="margin:8px 0 0"></p>
+    </div>
+  </section>
+
+  <section id="sec-funding" hidden>
+    <div class="sechead"><span class="no">03</span><h2>자금 조달 타임라인</h2><span class="src" id="funding-basis">모집공고문 납부조건 기준</span></div>
+    <div class="two">
+      <div class="card panel">
+        <h3>납부 타임라인</h3>
+        <div class="vtl" id="funding-timeline"></div>
+      </div>
+      <div class="card panel">
+        <h3>포함/미포함</h3>
+        <p class="incl"><span class="pill g">포함</span> <span id="funding-incl"></span></p>
+        <p class="incl"><span class="pill o">미포함</span> <span id="funding-excl"></span></p>
+        <div class="quote" id="funding-note"></div>
+      </div>
+    </div>
+    <div class="card panel">
+      <h3>회차별 납부표</h3>
+      <table>
+        <thead><tr><th>구분</th><th>납부일</th><th>비율</th><th>금액</th><th>근거</th></tr></thead>
+        <tbody id="funding-table"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="sec-limits" hidden>
+    <div class="sechead"><span class="no">04</span><h2>제한사항 요약</h2><span class="src">공고문 원문 문장 기준</span></div>
+    <div class="grid2" id="limits-cards"></div>
+    <div class="card panel">
+      <h3>상담 시 바로 확인할 질문</h3>
+      <ul id="limits-questions"></ul>
+    </div>
+  </section>
+
+  <p class="foot" id="foot-note"></p>
+</div>
+
+<script type="application/json" id="ipzi-data">{}</script>
+<script>
+const templateDataShape = {
+  goal: null, // 목적 맞춤 요약(내러티브 레일) — null=숨김. {purpose, conclusions[3~5], evidence[1~3], cautions[0~2], nextActions[1~3]}. 빈 섹션은 단계째 숨김.
+  title: "",                 // 공고명
+  desc: "",                   // hero 설명
+  chips: [],                   // ["084.9794A 기준", "D-12"] 등
+  kpis: [],                    // 요약 카드 (최대 4개): { label, value, sub }
+  // 아래 4개 섹션 키는 null이면 해당 섹션이 통째로 숨겨진다.
+  brief: null,                 // { summary, summaryNote, unitTable: [{type,maxPrice,floorAvg,perPyeong}] }
+  dday: null,                  // { checklist: [{label,date,todo}], prepNote }
+  funding: null,               // { basis, schedule: [{label,date,amount}], included, excluded, basisNote,
+                               //   paymentTable: [{label,date,ratio,amount,basis}] }
+  limits: null,                // { restrictions: [{label,value,status,cls,quote}], questions: [] }
+  footNote: "공식 모집공고문 PDF 기준 · 실제 청약 전 모집공고문과 청약홈 원문을 반드시 확인하세요."
+};
+
+(function(){
+  var D = JSON.parse(document.getElementById("ipzi-data").textContent);
+  function el(id){ return document.getElementById(id); }
+
+  el("h-title").textContent = (D.title||"–") + " 공고 리포트";
+  el("h-desc").textContent = D.desc || "";
+  el("h-chips").innerHTML = (D.chips||[]).map(function(c){ return '<span class="chip">'+c+'</span>'; }).join("");
+
+  el("kpis").innerHTML = (D.kpis||[]).map(function(k){
+    return '<div class="card kpi"><div class="l">'+k.label+'</div><div class="n">'+k.value+'</div>'
+      + (k.sub? '<div class="s">'+k.sub+'</div>' : '') + '</div>';
+  }).join("");
+
+  if (D.brief){
+    el("sec-brief").hidden = false;
+    el("brief-summary").textContent = D.brief.summary || "";
+    el("brief-note").textContent = D.brief.summaryNote || "";
+    el("brief-table-body").innerHTML = (D.brief.unitTable||[]).map(function(u){
+      return '<tr><td>'+u.type+'</td><td>'+u.maxPrice+'</td><td>'+u.floorAvg+'</td><td>'+u.perPyeong+'</td></tr>';
+    }).join("");
+  }
+
+  if (D.dday){
+    el("sec-dday").hidden = false;
+    el("dday-checklist").innerHTML = (D.dday.checklist||[]).map(function(c){
+      return '<tr><td class="box">□</td><td>'+c.label+'</td><td>'+c.date+'</td><td>'+c.todo+'</td></tr>';
+    }).join("");
+    el("dday-timeline").innerHTML = (D.dday.checklist||[]).map(function(c){
+      return '<div class="step"><b>'+c.label+'</b><span>'+c.date+'</span></div>';
+    }).join("");
+    el("dday-prep").textContent = D.dday.prepNote || "";
+  }
+
+  if (D.funding){
+    el("sec-funding").hidden = false;
+    if (D.funding.basis) el("funding-basis").textContent = D.funding.basis;
+    el("funding-timeline").innerHTML = (D.funding.schedule||[]).map(function(s){
+      return '<div class="step"><b>'+s.label+'</b><span>'+s.date+' · '+s.amount+'</span></div>';
+    }).join("");
+    el("funding-incl").textContent = D.funding.included || "";
+    el("funding-excl").textContent = D.funding.excluded || "";
+    el("funding-note").textContent = D.funding.basisNote || "";
+    el("funding-table").innerHTML = (D.funding.paymentTable||[]).map(function(p){
+      return '<tr><td>'+p.label+'</td><td>'+p.date+'</td><td>'+p.ratio+'</td><td>'+p.amount+'</td><td>'+p.basis+'</td></tr>';
+    }).join("");
+  }
+
+  if (D.limits){
+    el("sec-limits").hidden = false;
+    el("limits-cards").innerHTML = (D.limits.restrictions||[]).map(function(r){
+      return '<div class="card rcard"><span class="pill '+(r.cls||"a")+'">'+(r.status||"확인됨")+'</span>'
+        + '<h3>'+r.label+'</h3><p class="val">'+r.value+'</p>'
+        + (r.quote? '<div class="quote">'+r.quote+'</div>' : '') + '</div>';
+    }).join("");
+    el("limits-questions").innerHTML = (D.limits.questions||[]).map(function(q){ return '<li>'+q+'</li>'; }).join("");
+  }
+
+  el("foot-note").textContent = D.footNote || "";
+})();
+
+/* 목적 맞춤 요약 — 내러티브 레일. 자기완결(자체 esc). ipzi-data JSON의 goal만 읽는다.
+   각 섹션은 배열 길이만큼 렌더, 빈 섹션은 레일 단계(노드)째 숨김. 상한 결론5·근거3·주의2·행동3. */
+(()=>{
+  var g = (function(){ try { return JSON.parse(document.getElementById("ipzi-data").textContent) || {}; } catch(e){ return {}; } })().goal;
+  if (!(g && (g.purpose || (g.conclusions || []).length))) return;
+  function esc(v){ return String(v).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function useIcon(id){ return '<svg><use href="#' + esc(id) + '"/></svg>'; }
+  function item(kind, text){
+    var t = esc(text);
+    if (kind === "concl")  return '<div class="it-concl">' + t + "</div>";
+    if (kind === "bullet") return '<div class="it-bullet"><span class="dot"></span><span>' + t + "</span></div>";
+    if (kind === "warn")   return '<div class="it-warn">' + useIcon("i-warn") + "<span>" + t + "</span></div>";
+    return '<div class="it-action">' + useIcon("i-arrow") + "<span>" + t + "</span></div>";
+  }
+  var box = document.getElementById("goal-box"); if (!box) return;
+  box.style.display = "";
+  if (g.purpose){
+    var p = document.getElementById("goal-purpose"); if (p) p.style.display = "";
+    var pv = document.getElementById("goal-purpose-v"); if (pv) pv.textContent = g.purpose;
+  }
+  var CATS = [
+    { arr:g.conclusions, cap:5, cls:"c", lbl:"맞춤 결론",      hint:"핵심 답",     node:"solid",   icon:"i-check",    kind:"concl"  },
+    { arr:g.evidence,    cap:3, cls:"e", lbl:"근거",          hint:"뒷받침 수치", node:"chip",    icon:"i-evidence", kind:"bullet" },
+    { arr:g.cautions,    cap:2, cls:"w", lbl:"주의사항",       hint:"확인 필요",   node:"tint-o",  icon:"i-warn",     kind:"warn"   },
+    { arr:g.nextActions, cap:3, cls:"a", lbl:"다음 행동 제안", hint:"바로 할 일",  node:"solid-g", icon:"i-arrow",    kind:"action" }
+  ];
+  var steps = CATS.map(function(c){
+    var items = (c.arr || []).filter(function(x){ return x != null && x !== ""; }).slice(0, c.cap);
+    if (!items.length) return "";
+    return '<div class="step"><span class="node ' + c.node + '">' + useIcon(c.icon) + "</span>"
+      + '<div class="gbody"><div class="h"><span class="lbl ' + c.cls + '">' + esc(c.lbl) + "</span>"
+      + '<span class="hint">' + esc(c.hint) + "</span></div>"
+      + '<div class="items">' + items.map(function(x){ return item(c.kind, x); }).join("") + "</div></div></div>";
+  }).join("");
+  var rail = document.getElementById("goal-rail"); if (rail) rail.innerHTML = '<div class="line"></div>' + steps;
+})();
+</script>
+</body>
+</html>
