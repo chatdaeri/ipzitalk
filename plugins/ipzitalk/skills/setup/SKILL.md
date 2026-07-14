@@ -16,6 +16,7 @@ This build is an internal Codex proof of concept. Both payloads are packaged, bu
 3. Derive one of four states: `Remote`, `OSS`, `not installed`, or `conflict`.
 4. If both payloads are installed or enabled, stop. Explain the conflict and do not remove either automatically.
 5. Ignore unrelated plugins and user-managed MCP servers. Never delete or rewrite them.
+6. In Codex, treat the expected `ipzitalk-remote:<skill-name>` entries as the only packaged Remote Skill provenance. If an expected prefixed Skill is missing, or the same base name is also exposed from a global/non-plugin source, report `skill provenance conflict` and stop before a Skill-driven request. Do not remove or rewrite the global Skill automatically.
 
 For a status-only request, report the derived state and stop without changing anything.
 
@@ -60,8 +61,9 @@ For a future Remote-to-OSS or OSS-to-Remote switch:
 1. Show and approve the exact remove command.
 2. Remove the old payload.
 3. If removal fails, stop before installation.
-4. Show and approve the exact add command for the new payload.
-5. If addition fails, derive the state as `not installed` and offer the old payload's reinstall command as another separately approved action.
+4. Re-run the platform plugin list and confirm that the exact old payload is absent. A successful remove exit status alone is insufficient; Codex may report success when the plugin was already absent.
+5. Show and approve the exact add command for the new payload.
+6. If addition fails, derive the state as `not installed` and offer the old payload's reinstall command as another separately approved action.
 
 Removing the `ipzitalk` launcher must not automatically remove a runtime payload. For complete removal, remove the runtime first and the launcher second, with separate approval for each action.
 

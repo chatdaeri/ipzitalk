@@ -49,3 +49,25 @@ The API-key-missing call exposed a blocker. `get_geocode` returned an error obje
 After explicit approval, `presale-mcp-oss` added a RED regression test at commit `40ea84a` and changed `jsonToolResult` to omit `structuredContent` when `isError` is true at commit `adacd5d2f40e64c9f87cd35f7017e07929acd2bd`.
 
 The targeted test passed, and the full gates again passed: typecheck, 18 test files/149 tests, and build. A newly packed tarball then passed the real MCP SDK check: ten tools were listed, and `get_geocode` returned a normal `isError=true` API-key-missing result that named the required environment variable without exposing a value. The local MCP lock is marked `local-only` until this fix is available from a reachable release commit.
+
+## Payload lifecycle
+
+A fresh isolated `CODEX_HOME` installed the launcher and Remote payload, then intentionally installed OSS to create a diagnostic conflict. Codex listed both runtime plugins as installed and enabled and exposed both MCP servers; the platform does not prevent this unsupported state. Setup therefore must derive `conflict` and stop without removing either payload automatically.
+
+The same profile verified both switch directions with explicit state checks:
+
+- Remote removal left only OSS and `ipzitalk-local`.
+- OSS removal followed by Remote installation left only Remote and `ipzitalk`.
+- Removing the launcher left the Remote runtime and MCP server installed.
+
+Codex returned a successful JSON result when asked to remove an OSS plugin that was already absent. The lifecycle contract now requires a follow-up `codex plugin list --json` check; remove exit status alone is not accepted as evidence that the old payload was present or removed.
+
+## Skill provenance isolation
+
+`codex debug prompt-input` in the fresh isolated profile exposed exactly the five `ipzitalk-remote:<skill-name>` entries from the plugin cache. The current user profile exposed global Skills with the same five base names while the installed Remote payload's prefixed Skills were absent from the rendered prompt, consistent with a stale `0.1.0` canary cache or duplicate-source collision.
+
+No user profile, global Skill, plugin cache, or Codex configuration was modified. Setup now stops before Skill-driven work when an expected plugin-prefixed Skill is missing or a same-base global Skill is also exposed. Resolution requires an explicit user-managed cleanup or a clean profile; setup never deletes the global copy automatically.
+
+## Local secret boundary
+
+Node.js `v26.3.1` and npm/npx `11.16.0` were available. All four required OSS environment-variable names were missing in the verification process. No value was requested, printed, or written, so an external-API success call was not attempted. The fixed local tarball's ten-tool listing and API-key-missing error regression remain the completed secret-free checks; Codex Desktop OSS remains unsupported and registry-backed runtime verification remains Phase 4 work.

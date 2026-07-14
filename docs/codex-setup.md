@@ -11,6 +11,8 @@ Run `$ipzitalk:setup` in a new Codex process after installing the `ipzitalk` lau
 
 Only one of `ipzitalk-remote@ipzitalk` and `ipzitalk-local@ipzitalk` is supported at a time. If both are present, setup stops without removing either. Runtime status comes only from `codex plugin list --json`.
 
+When Remote is selected, the packaged Skills must appear with the `ipzitalk-remote:<skill-name>` prefix. If an expected prefixed Skill is missing, or a global Skill with the same base name is also exposed, stop before using that Skill and report a provenance conflict. Do not delete global Skills automatically; verify in a clean profile or let the user resolve the duplicate source explicitly.
+
 ## Remote
 
 The approved install command is:
@@ -43,6 +45,8 @@ codex plugin add ipzitalk-local@ipzitalk --json
 ```
 
 Use the reverse pair for OSS to Remote. If removal fails or is declined, do not add the other payload. If addition fails, report `not installed` and offer the previous payload's add command as a separate recovery action.
+
+Always re-run `codex plugin list --json` after removal and confirm the exact old payload is absent before adding the replacement. Codex CLI can return a successful remove result for a plugin that was already absent, so the command exit status is not sufficient state evidence.
 
 ## Update
 

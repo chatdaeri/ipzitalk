@@ -60,6 +60,10 @@ for (const entry of marketplace.plugins) {
 const launcher = await readJson('plugins/ipzitalk/.codex-plugin/plugin.json');
 assert(launcher.skills === './skills/', 'launcher must expose setup skill');
 assert(!('mcpServers' in launcher), 'launcher must not expose an MCP server');
+const setupSkill = await readFile(resolve(root, 'plugins/ipzitalk/skills/setup/SKILL.md'), 'utf8');
+assert(setupSkill.includes('successful remove exit status alone is insufficient'), 'setup must verify state after remove');
+assert(setupSkill.includes('skill provenance conflict'), 'setup must stop on duplicate or missing Remote Skill provenance');
+assert(setupSkill.includes('Do not remove or rewrite the global Skill automatically'), 'setup must preserve global Skills');
 
 const remote = await readJson('plugins/ipzitalk-remote/.codex-plugin/plugin.json');
 assert(remote.mcpServers === './.mcp.json', 'remote companion path mismatch');
