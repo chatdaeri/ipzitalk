@@ -97,6 +97,11 @@ assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit mu
 assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC skill lock must be marked local-only');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 5, 'Remote PoC must contain exactly five skills');
+const lockedSkillArtifacts = [...(sourceLock.sources.skills.artifacts ?? [])].sort();
+assert(JSON.stringify(lockedSkillArtifacts) === JSON.stringify([
+  'scripts/html_artifact_contract.mjs',
+  'scripts/xlsx_artifact.py',
+]), 'unexpected locked Skill artifacts');
 const packagedSkills = (await readdir(resolve(root, 'plugins/ipzitalk-remote/skills'), { withFileTypes: true }))
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
@@ -108,6 +113,14 @@ for (const skill of packagedSkills) {
   assert(skillText.includes('ipzitalk-remote'), `missing Remote provenance rule: ${skill}`);
   assert(skillText.includes('mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>'), `missing plugin namespace fallback: ${skill}`);
   assert(skillText.includes('presale-mcp'), `missing local provenance exclusion: ${skill}`);
+  assert(skillText.includes('../../scripts/html_artifact_contract.mjs'), `missing HTML artifact renderer contract: ${skill}`);
+  const template = await readFile(resolve(root, `plugins/ipzitalk-remote/skills/${skill}/templates/result.html`), 'utf8');
+  assert(template.includes('<script type="application/json" id="ipzi-data">'), `missing inert JSON data block: ${skill}`);
+  assert(!template.includes('window.__DATA__ ='), `executable data assignment remains: ${skill}`);
+}
+for (const artifact of lockedSkillArtifacts) {
+  const content = await readFile(resolve(root, 'plugins/ipzitalk-remote', artifact), 'utf8');
+  assert(content.length > 0, `empty packaged Skill artifact: ${artifact}`);
 }
 assert(sourceLock.plugins.local?.id === 'ipzitalk-local', 'local plugin lock missing');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.localMcp.commit), 'local MCP commit must be a full SHA');
