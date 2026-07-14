@@ -79,8 +79,8 @@ assert(!('skills' in local), 'local payload must contain zero skills');
 assert(local.mcpServers === './.mcp.json', 'local companion path mismatch');
 
 const localMcp = await readJson('plugins/ipzitalk-local/.mcp.json');
-assert(Object.keys(localMcp.mcpServers ?? {}).join(',') === 'ipzitalk-local', 'unexpected local MCP server IDs');
-const localServer = localMcp.mcpServers['ipzitalk-local'];
+assert(Object.keys(localMcp.mcpServers ?? {}).join(',') === 'presale-mcp', 'unexpected local MCP server IDs');
+const localServer = localMcp.mcpServers['presale-mcp'];
 assert(localServer.command === 'npx', 'local MCP command mismatch');
 assert(JSON.stringify(localServer.args) === JSON.stringify(['-y', 'presale-mcp@0.1.0']), 'local MCP args mismatch');
 const expectedEnvVars = [
@@ -112,6 +112,7 @@ for (const skill of packagedSkills) {
 assert(sourceLock.plugins.local?.id === 'ipzitalk-local', 'local plugin lock missing');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.localMcp.commit), 'local MCP commit must be a full SHA');
 assert(sourceLock.sources.localMcp.availability === 'local-only', 'unpublished local MCP lock must be marked local-only');
+assert(sourceLock.sources.localMcp.package === 'presale-mcp', 'local MCP package mismatch');
 assert(sourceLock.sources.localMcp.toolsSnapshotSha256 === '08df02512148d67604a375c5fef689170e795093eeaf2fbe50dc5335a33f26e3', 'local tool snapshot mismatch');
 
 const claudeMarketplace = await readJson('.claude-plugin/marketplace.json');
@@ -138,10 +139,11 @@ for (const name of expectedEnvVars) {
   assert(claudeLocal.userConfig[name]?.type === 'string', `Claude userConfig type mismatch: ${name}`);
   assert(claudeLocal.userConfig[name]?.required === true, `Claude userConfig must be required: ${name}`);
   assert(claudeLocal.userConfig[name]?.sensitive === true, `Claude userConfig must be sensitive: ${name}`);
-  assert(claudeLocal.mcpServers?.['ipzitalk-local']?.env?.[name] === `\${user_config.${name}}`, `Claude userConfig interpolation mismatch: ${name}`);
+  assert(claudeLocal.mcpServers?.['presale-mcp']?.env?.[name] === `\${user_config.${name}}`, `Claude userConfig interpolation mismatch: ${name}`);
 }
-assert(claudeLocal.mcpServers['ipzitalk-local'].command === 'npx', 'Claude local MCP command mismatch');
-assert(JSON.stringify(claudeLocal.mcpServers['ipzitalk-local'].args) === JSON.stringify(['-y', 'presale-mcp@0.1.0']), 'Claude local MCP args mismatch');
+assert(Object.keys(claudeLocal.mcpServers ?? {}).join(',') === 'presale-mcp', 'unexpected Claude local MCP server IDs');
+assert(claudeLocal.mcpServers['presale-mcp'].command === 'npx', 'Claude local MCP command mismatch');
+assert(JSON.stringify(claudeLocal.mcpServers['presale-mcp'].args) === JSON.stringify(['-y', 'presale-mcp@0.1.0']), 'Claude local MCP args mismatch');
 
 const scannedFiles = [
   ...(await walk('plugins')),
