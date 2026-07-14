@@ -166,10 +166,11 @@
   </div>
 </div>
 
+<script type="application/json" id="ipzi-data">{}</script>
 <script>
 /* ────────────────────────────────────────────────────────────────
    이 템플릿은 고정이다. 마크업·CSS·렌더 JS는 실행마다 바뀌지 않는다.
-   수정하는 곳은 아래 window.__DATA__ 블록 하나뿐이다.
+   수정하는 곳은 위 ipzi-data JSON 블록 하나뿐이다.
 
    규칙 (SKILL.md 승계)
    - 점수를 매기지 않는다. 등급(stars)만 싣는다. 총점은 location-score 담당.
@@ -179,7 +180,7 @@
    - 광역 축(철도·터미널·대학)은 지도에 넣지 않는다. wide 표로만 다룬다.
    - map.url 이 null 이면 지도 패널이 통째로 숨는다.
    ──────────────────────────────────────────────────────────────── */
-window.__DATA__ = {
+const templateDataShape = {
   brand: "IPZI TALK",
   title: "",                 // "세부 입지 보고서"
   subtitle: "",              // "단지명 · 주소 · 조회 YYYY-MM-DD"
@@ -216,7 +217,7 @@ window.__DATA__ = {
 };
 
 (function(){
-  var D = window.__DATA__ || {};
+  var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   var NA = "정보없음";
   /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
      링크·iframe 은 http/https 만 허용한다. 아니면 링크를 걸지 않는다. */

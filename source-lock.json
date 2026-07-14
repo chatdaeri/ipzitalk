@@ -18,8 +18,12 @@
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": "31afa60d2473c10c09e329de073badf6670f7ac6",
+      "commit": "dcd087647c0db3a1b5e4eff443313bd7c14fba40",
       "availability": "local-only",
+      "artifacts": [
+        "scripts/html_artifact_contract.mjs",
+        "scripts/xlsx_artifact.py"
+      ],
       "allowlist": [
         "ipzitalk-complex-overview-all",
         "ipzitalk-location-report",

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { cp, mkdir, readFile, readdir } from 'node:fs/promises';
-import { basename, relative, resolve } from 'node:path';
+import { basename, dirname, relative, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 
@@ -15,11 +15,13 @@ if (sourceFlag < 0 || !args[sourceFlag + 1]) {
 const root = resolve(import.meta.dirname, '..');
 const source = resolve(args[sourceFlag + 1]);
 const target = resolve(root, 'plugins/ipzitalk-remote/skills');
+const pluginRoot = resolve(root, 'plugins/ipzitalk-remote');
 const lock = JSON.parse(await readFile(resolve(root, 'source-lock.json'), 'utf8'));
 const expectedCommit = lock.sources.skills.commit;
 const allowlist = [...lock.sources.skills.allowlist].sort();
+const artifactAllowlist = [...(lock.sources.skills.artifacts ?? [])].sort();
 
-if (!expectedCommit || !allowlist.length) throw new Error('skills source lock is empty');
+if (!expectedCommit || !allowlist.length || !artifactAllowlist.length) throw new Error('skills source lock is empty');
 
 const actualCommit = execFileSync('git', ['-C', source, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 if (actualCommit !== expectedCommit) {
@@ -54,6 +56,19 @@ for (const skill of allowlist) {
   if (targetSnapshot !== sourceSnapshot) throw new Error(`copied skill mismatch: ${skill}`);
 }
 
+for (const artifact of artifactAllowlist) {
+  const from = resolve(source, artifact);
+  const to = resolve(pluginRoot, artifact);
+  execFileSync('git', ['-C', source, 'diff', '--quiet', expectedCommit, '--', artifact]);
+  await mkdir(dirname(to), { recursive: true });
+  await cp(from, to, { force: true });
+  const [sourceDigest, targetDigest] = await Promise.all([
+    readFile(from).then((content) => createHash('sha256').update(content).digest('hex')),
+    readFile(to).then((content) => createHash('sha256').update(content).digest('hex')),
+  ]);
+  if (sourceDigest !== targetDigest) throw new Error(`copied artifact mismatch: ${artifact}`);
+}
+
 const copied = (await readdir(target, { withFileTypes: true }))
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
@@ -63,4 +78,4 @@ if (copied.join('\n') !== allowlist.join('\n')) {
   throw new Error(`target allowlist mismatch: ${copied.map(basename).join(', ')}`);
 }
 
-console.log(`Synced ${copied.length} skills from ${actualCommit}.`);
+console.log(`Synced ${copied.length} skills and ${artifactAllowlist.length} artifacts from ${actualCommit}.`);

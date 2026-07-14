@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-read-notice-report
 description: "공식 모집공고문 PDF/HWP 하나에서 1분 브리핑·청약 일정 체크리스트·자금 조달 타임라인·제한사항 요약을 한 번에 뽑아 통합 공고 리포트 HTML을 만든다. 일부 섹션만 요청하면 해당 섹션만 렌더한다. (구 read-brief/read-dday/read-funding/read-limits 통합)"
-version: 1.1.0
+version: 1.1.1
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -55,9 +55,10 @@ metadata:
 
 Use **ipzitalk mcp** for live 청약공고/지도/공급정보 lookup when regenerating the screen.
 
+0. **입력 preflight** — 공식 모집공고문 PDF/HWP 첨부 여부와 기준 주택형을 MCP 호출 전에 먼저 확인한다. 필수 PDF/HWP가 없으면 사용자에게 첨부를 요청하고 MCP를 호출하지 않는다.
 1. 공고 pin — `house_manage_no` + `announcement_id` 확정 (1회)
-2. 공식 모집공고문 PDF/HWP 확보 (1회)
-3. pdftotext(-layout) 또는 HWPX 텍스트 추출 (1회)
+2. 공식 모집공고문 PDF/HWP와 pin 결과의 공고명·관리번호·위치를 대조 (1회). 불일치하면 추출·값 혼합 없이 중단한다.
+3. pdftotext(-layout) 또는 HWPX 텍스트 추출 (유효 원문만 1회)
 4. 요청된 섹션별 구조화 — 공급대상/공급금액/일정/제한사항/납부조건
    - 🚨 **가격 평균은 층별 세대수 가중평균으로만 낸다.** 주택형별 평균 분양가 = `Σ(층구간 세대수 × 층구간 공급금액) ÷ 주택형 총세대수`.
      층구간 단순평균(구간 수로 나누기) 금지. 평균 평당가 = `평균 분양가 ÷ (공급면적㎡ ÷ 3.3058)` — 최고가 기준 아님.
@@ -66,12 +67,25 @@ Use **ipzitalk mcp** for live 청약공고/지도/공급정보 lookup when regen
    - `공급금액` 시트에 층구간별 세대수·공급금액 원본 행을 그대로 남기고, `공급대상` 시트에 `세대수가중평균(원)`·`평균평당가(만원)` 열로 계산 결과를 남긴다.
 6. 사용자 HTML에는 원문 기준 요약만 노출
 
+### XLSX 산출물 계약 🚨
+- 먼저 `out/ipzitalk-read-notice-report/backdata.json`을 `{ "sheets": [{ "name": "...", "columns": [...], "rows": [[...]] }] }` 구조로 만든다. 셀 값은 문자열·숫자·불리언·null만 허용한다.
+- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/xlsx_artifact.py`를 사용한다: `python3 <script> --input out/ipzitalk-read-notice-report/backdata.json --output out/ipzitalk-read-notice-report/backdata.xlsx`.
+- 생성 직후 같은 스크립트의 `--check`와 `--require-sheet 공급대상 --require-sheet 공급금액 --require-sheet 검증결과`로 ZIP 무결성·필수 시트를 검증한다.
+- 생성기는 Python 표준 라이브러리만 사용한다. `openpyxl` 등 패키지 설치 시도는 금지한다. 생성기가 없거나 실행할 수 없으면 임시 Python 생성기를 새로 쓰지 말고 `backdata.xlsx`를 완료 처리하지 않는다.
+- `shell-free` 또는 셸 금지 환경에서는 바이너리 XLSX 생성이 허용되지 않은 것이므로 HTML만 완료하고, XLSX 미생성과 이유를 명시한다.
+
 ## HTML template
 
 - Included template: `templates/result.html`
 - Sample input/backdata: `references/sample-input.json`, field reference: `references/data-schema.md`
-- The template is **fixed**: markup, CSS, and rendering JS never change between runs. The only edit is the `window.__DATA__` object inside the bottom `<script>` block. Do not add/remove HTML elements or touch the render function.
-- Layout: hero(공고명 + chips) → 요약 KPI 4개 → ①1분 브리핑 → ②일정 체크리스트 → ③자금 타임라인 → ④제한사항 → 푸터. 각 섹션은 `__DATA__.<key>`가 null이면 숨김.
+- The template is **fixed**: markup, CSS, and rendering JS never change between runs. The only edit is the non-executable `ipzi-data` JSON block. Do not add/remove HTML elements or touch the render function.
+- Layout: hero(공고명 + chips) → 요약 KPI 4개 → ①1분 브리핑 → ②일정 체크리스트 → ③자금 타임라인 → ④제한사항 → 푸터. 각 섹션은 `ipzi-data.<key>`가 null이면 숨김.
+
+### HTML 산출물 계약 🚨
+- 최종 HTML은 반드시 `out/ipzitalk-read-notice-report/result.html`에 저장하고 다른 스킬의 공유 `result.html`을 덮어쓰지 않는다.
+- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 완성한 JSON 파일, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
+- `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 직접 읽고 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
+- 검증기가 통과하기 전에는 완료로 주장하지 않는다. File Read/Write나 고정 영역 비교를 수행할 수 없거나 금지된 도구를 사용했다면 완료 처리하지 말고 제약과 실제 사용 도구를 보고한다.
 
 ## User-facing HTML rules
 
@@ -84,11 +98,11 @@ Use **ipzitalk mcp** for live 청약공고/지도/공급정보 lookup when regen
 
 ## Acceptance checklist
 
-- [ ] `templates/result.html` exists and only the `window.__DATA__` block was edited.
+- [ ] `templates/result.html` exists and only the `ipzi-data` JSON block was edited.
 - [ ] HTML opens locally without external build steps.
 - [ ] 요청된 섹션만 보이고, 요청 안 된 섹션은 완전히 숨겨진다(빈 카드 노출 금지).
 - [ ] Visible HTML contains no `DB크로스체크`, `근거대조`, or implementation debug labels.
-- [ ] No leftover sample/test data (presale names, PDF figures, dates) from `references/` remains in `__DATA__`.
+- [ ] No leftover sample/test data (presale names, PDF figures, dates) from `references/` remains in `ipzi-data`.
 - [ ] Any backdata/XLSX review material is delivered separately from the user-facing HTML.
 
 ## Output structure
@@ -104,6 +118,8 @@ out/ipzitalk-read-notice-report/
 | 버전 | 날짜 | 내용 |
 |---|---|---|
 | 1.0.0 | 2026-07-09 | read-brief/read-dday/read-funding/read-limits 4개 스킬 통합. 공고 pin·PDF 추출·크로스체크 1회 공유, 섹션 토글(`__DATA__` 키 null=숨김), 백데이터 XLSX 1개로 통합. 템플릿 CSS 토큰은 4개 원본과 동일 유지 |
+| 1.1.0 | 2026-07-13 | 브리핑 가격표 열 라벨 정정: `층구간 평균`→`주택형별 평균 분양가`, `최고 평당가`→`주택형별 평균 평당가`(값은 원래 세대수 가중평균이었으나 라벨이 최고가로 오기재됨). 표 아래 가중평균 기준 안내문 추가, 가중평균 산식·검산·백데이터 열 규칙 명문화 |
+| 1.1.1 | 2026-07-14 | PDF/HWP 선확인·불일치 안전 중단, 고유 HTML 출력·비실행 JSON 렌더, 표준 라이브러리 XLSX 생성·검증 계약 추가 |
 
 
 ## MCP 도구 네임스페이스와 출처
@@ -124,5 +140,3 @@ ipzitalk MCP 도구의 네임스페이스는 실행 환경(Codex, Claude Code, H
 4. `mcp__claude_ai_ipzitalk__<도구명>`
 
 fallback으로도 Remote 출처를 유일하게 확인할 수 없으면 값을 추정하지 말고, 사용자에게 ipzitalk Remote MCP 연결 상태를 확인하도록 안내한 뒤 중단한다.
-
-| 1.1.0 | 2026-07-13 | 브리핑 가격표 열 라벨 정정: `층구간 평균`→`주택형별 평균 분양가`, `최고 평당가`→`주택형별 평균 평당가`(값은 원래 세대수 가중평균이었으나 라벨이 최고가로 오기재됨). 표 아래 가중평균 기준 안내문 추가, 가중평균 산식·검산·백데이터 열 규칙 명문화 |

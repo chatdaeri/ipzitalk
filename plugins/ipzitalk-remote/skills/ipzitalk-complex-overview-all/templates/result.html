@@ -145,10 +145,11 @@
   <div class="panel" id="panel"></div>
 </div>
 
+<script type="application/json" id="ipzi-data">{}</script>
 <script>
 /* ────────────────────────────────────────────────────────────────
    이 템플릿은 고정이다. 마크업·CSS·렌더 JS는 실행마다 바뀌지 않는다.
-   수정하는 곳은 아래 window.__DATA__ 블록 하나뿐이다.
+   수정하는 곳은 위 ipzi-data JSON 블록 하나뿐이다.
 
    규칙 (SKILL.md 승계)
    - null 은 "확인되지 않음"이다. 절대 0 으로 채우지 않는다.
@@ -158,7 +159,7 @@
    - 도구·API 이름을 화면에 쓰지 않는다. 출처는 기관명만.
    - 상승 --up(빨강) / 하락 --down(파랑) — 국내 관행.
    ──────────────────────────────────────────────────────────────── */
-window.__DATA__ = {
+const templateDataShape = {
   brand: "IPZI TALK",
   title: "",                 // "이 아파트 한눈에 보기"
   subtitle: "",              // "<b>단지명</b> · 주소 · 조회일 YYYY-MM-DD"  (HTML 허용)
@@ -236,7 +237,7 @@ window.__DATA__ = {
 };
 
 (function(){
-  var D = window.__DATA__ || {};
+  var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   var NA = "확인되지 않음";
   /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
      링크·iframe 은 http/https 만 허용한다. 아니면 링크를 걸지 않는다. */

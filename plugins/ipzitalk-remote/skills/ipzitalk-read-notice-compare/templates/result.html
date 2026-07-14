@@ -125,8 +125,9 @@
   <p class="foot" id="foot-note"></p>
 </div>
 
+<script type="application/json" id="ipzi-data">{}</script>
 <script>
-window.__DATA__ = {
+const templateDataShape = {
   chips: [],                 // ["84㎡ 기준", "공고 2건"] 등
   notices: [],               // 2~4개. { name: "", noticeDate: "" } — 2개 미만이면 본문 섹션 전체 숨김
   // 아래 4개 섹션 키는 null이면 해당 섹션이 통째로 숨겨진다.
@@ -139,7 +140,7 @@ window.__DATA__ = {
 };
 
 (function(){
-  var D = window.__DATA__;
+  var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   var TEAM = ["a","b","c","d"], TAG = ["A","B","C","D"];
   function el(id){ return document.getElementById(id); }
   function tcolor(i){ return "var(--"+TEAM[i%4]+")"; }

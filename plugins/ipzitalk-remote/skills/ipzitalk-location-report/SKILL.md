@@ -5,7 +5,7 @@ description: >
   종합 지도)를 생성한다. "세부 입지", "입지 분석", "입지 보고서", "이 사업지 입지 어때",
   "입지 종합", "주변 환경 종합" 등의 표현이 있으면 이 스킬을 사용한다.
   단일 분야만 물으면(교통만/학군만) 해당 단일 스킬을 쓴다. 점수화는 입지 평가 스킬로 분리한다.
-version: 1.2.0
+version: 1.2.1
 license: proprietary
 ---
 
@@ -31,7 +31,7 @@ license: proprietary
 | 파라미터 | 필수 | 기본 | 설명 |
 |---|---|---|---|
 | `address` 또는 `complex_query` | ✅(택1) | - | 주소 또는 단지명 |
-| `radius_m` | ✕ | 1500 | **근린 축 표시 반경.** 최대 5,000m. 광역 축(철도·터미널·대학)에는 미적용 |
+| `radius_m` | ✕ | 1500 | **근린 축 검색·사용자 표시·통합 지도 원의 공통 반경.** 최대 5,000m. 광역 축(철도·터미널·대학)에는 미적용 |
 
 > 후보 다수면 자동 확정 말고 선택받는다. ⚠️ 3개 분야 종합 = 검색 다수 → 크레딧·시간 소요 큼.
 
@@ -51,8 +51,15 @@ references/education-workflow.md    교육 환경
 2. **교통 환경** — `references/transit-workflow.md`를 읽어 검색·밴드·등급 단계를 center로 실행.
 3. **생활 환경** — `references/living-workflow.md`를 읽어 실행.
 4. **교육 환경** — `references/education-workflow.md`를 읽어 실행.
-5. **종합 지도 (1콜)** — 근린 1km 원 + 3분야 대표 마커. 아래 **지도 규칙** 준수.
-6. **조립·출력** — 채팅 요약 + `result.json` 저장 → **출력 형식(html/pptx/docx) 1개 필수 선택** 후 렌더. 아래 **출력 포맷** 참조.
+5. **종합 지도 (1콜)** — 입력 `radius_m`과 같은 반경 원 + 3분야 대표 마커. 아래 **지도 규칙** 준수.
+6. **조립·출력** — 채팅 요약 + `result.json` 및 호출 ledger `out/ipzitalk-location-report/audit.json` 저장 → **출력 형식(html/pptx/docx) 1개 필수 선택** 후 렌더. 아래 **출력 포맷** 참조.
+
+### 호출 ledger·검색 사실 계약 🚨
+- 각 MCP 호출 직후 `audit.json`에 `axis`, `baseToolName`, `query` 또는 `category`, `radius_m`, `resultCount`, `truncated`, `provenance`를 한 행씩 누적한다. 조건부 재호출은 `reason`도 기록한다.
+- 최종 도구별 횟수와 총합은 `audit.json` 행에서 자동 집계한다. 중간 자연어 메모를 더해 수기로 합계를 만들지 않는다.
+- `radius_m`은 근린 검색·통합 지도 원·지도 캡션에서 같은 의미와 값을 사용한다. 광역 축은 `radius_m: null`로 ledger에 구분한다.
+- 구청은 검색하지 않는다. 검색 신뢰도 한계로 평가 제외라고만 쓰며, 호출하지 않은 구청을 `0건`으로 표현하지 않는다.
+- 최근접 시설은 운영상태 제외 전 후보, 제외 후 후보, 최종 선택 사유를 `audit.json`의 `selection`에 남긴다. 고정 fixture는 값 자체가 아니라 center·검색 인자·필터·정렬의 재현성을 검증한다.
 
 ## 등급 · tone 매핑 (🚨 임의 판단 금지)
 `axes[].stars` / `axes[].tone` / `sections[].tone` / `sections[].gradeLabel` 은 아래 표대로만 쓴다.
@@ -108,9 +115,9 @@ references/education-workflow.md    교육 환경
 ### 1단계 — `result.json` (항상 만든다)
 분석이 끝나면 **먼저 `result.json` 하나를 저장**한다. 모든 렌더러의 유일한 입력이다.
 
-- 스키마 = `templates/result.html` 의 `window.__DATA__` 객체와 **동일한 필드**(그게 곧 JSON 스키마다) + `disclaimer`.
+- 스키마 = `templates/result.html` 의 `templateDataShape` 객체와 **동일한 필드**(그게 곧 JSON 스키마다) + `disclaimer`.
   필드: `brand · title · subtitle · pills[] · map{url,caption,ttlNote} · summary · axes[] · sections[] · wide · manual[] · hedges[] · sources[] · collectedAt · disclaimer`
-  각 필드의 의미·허용값은 템플릿 `__DATA__` 블록의 주석이 정본이다(값 없으면 `null`, 절대 0·추정값으로 채우지 않는다).
+  각 필드의 의미·허용값은 템플릿 `templateDataShape`의 주석이 정본이다(값 없으면 `null`, 절대 0·추정값으로 채우지 않는다).
 - `disclaimer` 값(고정):
   `입지톡 베타 결과물입니다. 공식 데이터에 없는 값은 임의로 채우지 않지만, 신고·갱신 지연이나 조회 실패, 단지명 매칭 문제, 검색 건수 제한으로 일부 정보가 누락될 수 있습니다. 기준년월과 공식 원문을 확인해 주세요.`
 - 채팅에는 축별 등급 + 한줄평 + 강점/약점 각 1개를 요약한다.
@@ -124,12 +131,18 @@ references/education-workflow.md    교육 환경
 
 | 선택 | 절차 | 산출 |
 |---|---|---|
-| (1) HTML | `templates/result.html` 복사 → `window.__DATA__ = { ... };` 블록의 객체를 `result.json` 내용으로 **통째 치환**. 마크업·CSS·렌더 JS는 손대지 않는다 | `result.html` (동적 지도 iframe) |
+| (1) HTML | `templates/result.html` 복사 → 비실행 `ipzi-data` JSON 블록을 `result.json` 내용으로 **통째 치환**. 마크업·CSS·렌더 JS는 손대지 않는다 | `result.html` (동적 지도 iframe) |
 | (2) PPTX | `python3 templates/build_pptx.py result.json result.pptx` (`pip install python-pptx`) | `result.pptx` — **HTML 리포트와 같은 다크 스타일**(동일 토큰). 표지 → 종합요약(**좌: 지도 / 우: 요약·축 카드** 2분할) → 섹션별 표(등급 pill·밴드·회색 각주) → 광역축 → 유의사항. 표는 한 장에 8행까지 |
 | (3) DOCX | `python3 templates/build_docx.py result.json result.docx` (`pip install python-docx`) | `result.docx` — 상단에 지도 이미지 + 동적 지도 링크 |
 
 - 베타 고지 문구는 세 템플릿 모두에 이미 박혀 있다. 렌더 후 따로 덧붙이지 않는다.
 - 렌더러가 실패하면(모듈 없음 등) 조용히 다른 형식으로 바꾸지 말고 원인을 알린다.
+
+### HTML 산출물 계약 🚨
+- HTML 선택 시 공유 `result.html`을 덮어쓰지 말고 반드시 `out/ipzitalk-location-report/result.html`에 저장한다.
+- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 `result.json`, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
+- `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 직접 읽고 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
+- 검증기가 통과하기 전에는 완료로 주장하지 않는다. File Read/Write나 고정 영역 비교를 수행할 수 없거나 금지된 도구를 사용했다면 완료 처리하지 말고 제약과 실제 사용 도구를 보고한다.
 
 ### 지도: 동적 지도를 헤드리스 Chrome으로 캡처한다
 PPTX·DOCX에는 iframe을 넣을 수 없으므로 **지도 이미지 파일**이 필요하다. `templates/mapshot.py` 가 `map.url`(= `get_map_embed_url` 결과) 페이지를 **설치된 Chrome 헤드리스로 캡처**한다. 반경 원·마커 라벨이 그대로 들어온다. 두 렌더러가 알아서 호출하므로 스킬이 따로 할 일은 `result.json` 의 `map.url` 을 채우는 것뿐이다.
@@ -186,7 +199,7 @@ A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규
 | 지도 (장소 마커) | `네이버 지도 · 카카오맵` |
 | 지도 (분양공고 마커) | `네이버 지도 · 청약홈` |
 
-- 🚨 **출처 문자열은 `__DATA__` 로 받지 않고 템플릿 마크업에 직접 박는다.**
+- 🚨 **출처 문자열은 `ipzi-data`로 받지 않고 템플릿 마크업에 직접 박는다.**
   어느 블록이 어디서 왔는지는 실행마다 달라지지 않는다. 데이터로 받으면 채우는 걸 잊거나 틀리게 쓸 여지만 생긴다.
 - 🚨 **한 블록에 두 출처가 섞이면 병기한다.** 예: `세대수·주차 — 공동주택관리정보시스템(K-apt) · 위치 — 카카오맵`.
   하나로 뭉뚱그리면 어느 숫자가 어디서 왔는지 사용자가 알 수 없다.
@@ -196,6 +209,7 @@ A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규
 ## 변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.2.1 | 2026-07-14 | 고유 HTML 출력·비실행 JSON 렌더 계약 추가. 입력 반경과 통합 지도 반경을 통일하고 구조화 `audit.json` ledger·구청 평가 제외 규칙 명시 |
 | 0.1 | 2026-07-09 | 신규 작성. 마스터 워크플로우 3종 갱신(폐기 검색식 `attraction`·`구청` 제거, R1~R3, 45건 캡, 트리플 라벨, 지도 규칙) 후 9개 `references/` 재배포. 방배 검증값 재사용해 조립 데모 생성(지도 1크레딧). 점수화는 `location-score`로 분리 확정 |
 | 0.2 | 2026-07-09 | **이관 대비.** 스킬 폴더 밖 경로 의존 제거(디자인 규칙 인라인화, `_commons` 문구를 워크스페이스 전용 블록으로 격리). 지도 TTL 7일 규칙 추가(데모 캡션 반영). `.map` overflow 규칙 보강. 패키징 매핑표·frontmatter 주의 추가 |
 | 0.2 | 2026-07-10 | `references/education-workflow.md` 갱신 — **휴교·폐교 학교 제외 규칙**(카카오는 운영 상태를 장소명 문자열로만 준다). 반경 눈금 마커 제거 |

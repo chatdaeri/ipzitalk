@@ -5,7 +5,7 @@ description: >
   이어서 등록된 전량을 KPI·지도·입주 타임라인·공급유형/전용면적 도넛·연도별 물량·공고 목록으로 종합한다.
   "OO시 분양 어때", "분양 현황", "요즘 분양 뭐 있어", "이번달 신규 청약", "분양 리포트",
   "이 지역 분양물량", "분양 브리핑", "분양 대시보드" 등의 표현이 있으면 이 스킬을 사용한다.
-version: 1.0.0
+version: 1.0.1
 license: proprietary
 ---
 
@@ -132,8 +132,14 @@ search_announcement_info(sigungu="송파구", date_from="2026-01-10") → matche
 - 도구·API 이름은 화면에 쓰지 않는다.
 
 ## 출력 = 공통 템플릿
-`templates/result.html`의 `window.__DATA__`를 채운다(스킬 폴더 내부, self-contained).
-마크업·CSS·렌더 JS는 고정이다. **실행마다 바뀌는 것은 `__DATA__` 블록 하나뿐.**
+`templates/result.html`의 비실행 `ipzi-data` JSON 블록을 채운다(스킬 폴더 내부, self-contained).
+마크업·CSS·렌더 JS는 고정이다. **실행마다 바뀌는 것은 `ipzi-data` 블록 하나뿐.**
+
+### HTML 산출물 계약 🚨
+- 최종 HTML은 공유 `result.html`을 덮어쓰지 말고 반드시 `out/ipzitalk-presale-report/result.html`에 저장한다.
+- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 완성한 JSON 파일, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
+- `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 직접 읽고 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
+- 검증기가 통과하기 전에는 완료로 주장하지 않는다. File Read/Write나 고정 영역 비교를 수행할 수 없거나 금지된 도구를 사용했다면 완료 처리하지 말고 제약과 실제 사용 도구를 보고한다.
 
 섹션 순서(고정)
 1. 히어로 + 칩(지역·기간)
@@ -238,6 +244,7 @@ search_announcement_info(sigungu="송파구", date_from="2026-01-10") → matche
 | 버전 | 날짜 | 내용 |
 |---|---|---|
 | 1.0.0 | 2026-07-10 | 스킬 패키지화. `regional-presale-dashboard` + `presale-briefing` 통합. 남양주시 실데이터로 신규 작성. 전량 1콜(`include_units=true`) 전략 · 최근 블록은 클라이언트 필터 · `units` 합 ≠ `total_supply` 실증(공공분양 11/32건) · `filters`에 `date_from` 미노출(감사장치 부재) · `dong_fallback` 좌표 중복 · 공고 목록에 `detail_url` 링크 · `.box > svg` 아이콘 확대 버그 방지 |
+| 1.0.1 | 2026-07-14 | 고유 HTML 출력·고정 영역 validator·비실행 JSON 데이터 블록과 HTML 민감문자 이스케이프 계약 추가 |
 
 
 ## MCP 도구 네임스페이스와 출처

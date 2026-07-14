@@ -132,10 +132,11 @@
   <div class="panel" id="panel"></div>
 </div>
 
+<script type="application/json" id="ipzi-data">{}</script>
 <script>
 /* ────────────────────────────────────────────────────────────────
    이 템플릿은 고정이다. 마크업·CSS·렌더 JS는 실행마다 바뀌지 않는다.
-   수정하는 곳은 아래 window.__DATA__ 블록 하나뿐이다.
+   수정하는 곳은 위 ipzi-data JSON 블록 하나뿐이다.
 
    규칙 (SKILL.md 승계)
    - null 은 "확인되지 않음"이다. 절대 0 으로 채우지 않는다.
@@ -148,7 +149,7 @@
    - 링크는 http/https 만 허용. 아니면 링크를 걸지 않는다.
    - 도구·API 이름을 화면에 쓰지 않는다. 출처는 기관명만.
    ──────────────────────────────────────────────────────────────── */
-window.__DATA__ = {
+const templateDataShape = {
   brand: "IPZI TALK",
   title: "",                 // 리포트 제목
   subtitle: "",              // "<b>OO시</b> · 청약홈에 등록된 분양공고 N건 · 조회일 YYYY-MM-DD"  (HTML 허용)
@@ -206,7 +207,7 @@ window.__DATA__ = {
 };
 
 (function(){
-  var D = window.__DATA__ || {};
+  var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   var NA = "확인되지 않음";
 
   function esc(v){

@@ -167,8 +167,9 @@
   <p class="foot" id="foot-note"></p>
 </div>
 
+<script type="application/json" id="ipzi-data">{}</script>
 <script>
-window.__DATA__ = {
+const templateDataShape = {
   title: "",                 // 공고명
   desc: "",                   // hero 설명
   chips: [],                   // ["084.9794A 기준", "D-12"] 등
@@ -183,7 +184,7 @@ window.__DATA__ = {
 };
 
 (function(){
-  var D = window.__DATA__;
+  var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   function el(id){ return document.getElementById(id); }
 
   el("h-title").textContent = (D.title||"–") + " 공고 리포트";
