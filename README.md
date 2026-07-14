@@ -14,7 +14,7 @@ The setup Skill asks the user to choose exactly one runtime. It derives status f
 
 ## Codex setup
 
-Install the repository marketplace and launcher, start a new Codex process, and explicitly invoke `$setup`:
+Install the repository marketplace and launcher, start a new Codex process, and explicitly invoke `$ipzitalk:setup`:
 
 ```bash
 codex plugin marketplace add /path/to/ipzitalk --json

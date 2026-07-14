@@ -33,7 +33,7 @@ The authenticated profile resolved the installed source to this repository and r
 
 ## Setup skill canary
 
-An authenticated non-interactive Codex run invoked `$setup status only`. The run loaded `plugins/ipzitalk/skills/setup/SKILL.md`, executed `codex plugin list --json`, made no file or plugin changes, and derived:
+The first repository-local run used `$setup status only` and loaded `plugins/ipzitalk/skills/setup/SKILL.md`, but that run alone did not prove the installed plugin namespace because the repository was the working directory. Phase 2B then verified the prefixed identifier with an authenticated run of `$ipzitalk:setup status only`. It executed `codex plugin list --json`, made no file or plugin changes, and derived:
 
 ```text
 Remote
@@ -42,7 +42,7 @@ ipzitalk-local: not installed
 conflict: none
 ```
 
-`policy.allow_implicit_invocation: false` intentionally keeps the setup skill out of implicit model selection. `$setup` is the verified explicit identifier for this canary.
+`policy.allow_implicit_invocation: false` intentionally keeps the setup skill out of implicit model selection. `$ipzitalk:setup` is the verified explicit identifier. In an isolated profile, Remote Skills were exposed with the `ipzitalk-remote:<skill-name>` prefix.
 
 ## Remote MCP canary
 
