@@ -98,6 +98,9 @@ assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 6, 'Remote PoC must contain exactly six skills');
 assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
+const lockedSkillVersions = sourceLock.sources.skills.versions ?? {};
+assert(Object.keys(lockedSkillVersions).sort().join('\n') === lockedSkills.join('\n'), 'locked Skill versions must match the allowlist');
+assert(remote.version === sourceLock.plugins.remote.version, 'Codex Remote version mismatch');
 const lockedSkillArtifacts = [...(sourceLock.sources.skills.artifacts ?? [])].sort();
 assert(JSON.stringify(lockedSkillArtifacts) === JSON.stringify([
   'scripts/html_artifact_contract.mjs',
@@ -111,6 +114,8 @@ assert(packagedSkills.join('\n') === lockedSkills.join('\n'), 'packaged Remote s
 for (const skill of packagedSkills) {
   const skillFiles = (await walk(`plugins/ipzitalk-remote/skills/${skill}`)).filter((file) => file.endsWith('.md'));
   const skillText = (await Promise.all(skillFiles.map((file) => readFile(file, 'utf8')))).join('\n');
+  const skillVersion = skillText.match(/^version:\s*([^\s]+)$/m)?.[1];
+  assert(skillVersion === lockedSkillVersions[skill], `locked Skill version mismatch: ${skill}`);
   assert(skillText.includes('ipzitalk-remote'), `missing Remote provenance rule: ${skill}`);
   assert(skillText.includes('mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>'), `missing plugin namespace fallback: ${skill}`);
   assert(skillText.includes('presale-mcp'), `missing local provenance exclusion: ${skill}`);
