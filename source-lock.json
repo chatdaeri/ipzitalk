@@ -8,7 +8,7 @@
     },
     "remote": {
       "id": "ipzitalk-remote",
-      "version": "0.1.1"
+      "version": "0.1.2"
     },
     "local": {
       "id": "ipzitalk-local",
@@ -18,7 +18,7 @@
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": "24ac99f5c3756ed6be4685eaec89260c74e4e323",
+      "commit": "31afa60d2473c10c09e329de073badf6670f7ac6",
       "availability": "local-only",
       "allowlist": [
         "ipzitalk-complex-overview-all",

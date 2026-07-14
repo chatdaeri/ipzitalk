@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-read-notice-compare
 description: "모집공고 2~4개를 공고문 원문 기준으로 비교한다. 청약 일정 겹침 캘린더·계약금/중도금/잔금 납부조건·전매제한/거주의무/재당첨제한·축별 비교표를 한 장 HTML로 낸다. '공고 비교', 'A 공고랑 B 공고 비교', '어느 청약부터 넣을까', '청약 일정 겹쳐?' 등의 표현이 있으면 이 스킬을 사용한다. 단지 자체(DB 기준 분양가·세대·입주월) 비교는 ipzitalk-presale-compare-card, 공고 1개 정리는 ipzitalk-read-notice-report."
-version: 1.1.0
+version: 1.1.1
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -39,6 +39,13 @@ ipzitalk-presale-compare-card(청약홈 DB 기준 단지 비교)와 역할이 �
 
 스킬 간 호출은 불가하다. ipzitalk-read-notice-report를 부르지 않고, **`references/notice-pipeline.md` 복사본을 읽어**
 공고마다 추출 파이프라인(pin → PDF 확보 → 텍스트 추출 → 구조화 → DB 크로스체크)을 이 실행 안에서 수행한다.
+
+## MCP 도구 선택과 출처
+
+- 접두사 없는 도구 이름은 **기본 도구명(base tool name)** 이다. 연결된 도구 목록에서 같은 기본 도구명을 찾고, **`ipzitalk-remote` 플러그인의 `ipzitalk` 서버 provenance**가 확인되는 도구만 우선 사용한다. Codex에서는 실제 호출 이벤트의 `server: ipzitalk`과 기본 도구명을 함께 확인한다.
+- `presale-mcp` 또는 다른 로컬 MCP provenance의 동명 도구는 Remote Skill의 대체 수단으로 사용하지 않는다. provenance를 확인할 수 없거나 같은 기본 도구명이 여러 서버에 있어 모호하면 임의 선택하지 말고 중단한다.
+- provenance를 구조적으로 확인할 수 없을 때만 `mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>`, `mcp__ipzitalk_mcp__<도구명>`, `mcp__ipzitalk__<도구명>`, `mcp__claude_ai_ipzitalk__<도구명>` 순서의 명시적 fallback을 확인한다. fallback으로도 Remote 출처가 유일하지 않으면 중단한다.
+- 공고 pin·원문 확보·구조화에 필요한 구체적인 도구와 실행 순서는 `references/notice-pipeline.md`의 **MCP 도구 네임스페이스와 출처** 절을 포함해 읽고 따른다.
 
 ## 워크플로우
 
@@ -112,3 +119,4 @@ out/ipzitalk-read-notice-compare/
 |---|---|---|
 | 1.0.0 | 2026-07-09 | 신규 작성. ipzitalk-read-notice-report 추출 파이프라인을 `references/notice-pipeline.md` 복사본으로 승계(공고당 1회 실행), ipzitalk-presale-compare-card의 공정성 규칙(같은 전용타입·공고일 6개월 룰·종합 우열 금지) 승계. 고유 축 = 일정 겹침·납부조건·제한사항 |
 | 1.1.0 | 2026-07-13 | 가격 축을 전용타입 **전체 세대수 가중평균**으로 변경(기존: 최고가 주택형 1개 대표값 → 소수 세대 타입이 단지를 대표하는 편향). 백데이터에 `가중평균검증` 시트 추가, 자금 축 기준을 최다 세대수 주택형으로 명시 |
+| 1.1.1 | 2026-07-14 | Remote MCP 도구의 base-name·plugin/server provenance·로컬 제외·모호성 중단 규칙을 SKILL 본문에 명시하고 상세 pipeline reference를 유지 |

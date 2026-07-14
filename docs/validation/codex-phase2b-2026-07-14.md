@@ -85,3 +85,9 @@ After the server identity correction passed, all three plugin manifests advanced
 The refreshed profile preserved the hosted `ipzitalk` MCP with `auth_status: o_auth`. A new `codex debug prompt-input` exposed all five expected `ipzitalk-remote:<skill-name>` entries from the `0.1.1` plugin cache. It also exposed the same five base names from the existing global Skill source.
 
 An actual `$ipzitalk:setup status only` run made no changes and returned the expected safe verdict: runtime state `Remote` with `skill provenance conflict`; Skill-driven work must stop until the duplicate global source is resolved explicitly. Setup did not remove or rewrite the global Skills, plugin cache, MCP configuration, or files.
+
+## Notice comparison provenance contract
+
+The namespace source validator now checks all five main `SKILL.md` bodies directly. Its RED run found that `ipzitalk-read-notice-compare/SKILL.md` lacked the nine required base-name, Remote plugin/server, namespace fallback, local exclusion, and ambiguity-stop patterns even though a nested pipeline reference contained them.
+
+The Skill body now contains the concise tool-selection contract and continues to reference the unchanged detailed pipeline. The source validator passed for 24 MCP-dependent Skills at `ipzitalk-skill` local-only commit `31afa60d2473c10c09e329de073badf6670f7ac6`. The five-Skill package was resynchronized to that lock, package validation and Claude Remote strict validation passed, and only the Remote payload advanced to plugin version `0.1.2` because its packaged content changed.
