@@ -38,6 +38,7 @@ assert(marketplace.interface?.displayName === 'Ipzi Talk', 'unexpected marketpla
 const expectedEntries = new Map([
   ['ipzitalk', 'ON_USE'],
   ['ipzitalk-remote', 'ON_USE'],
+  ['ipzitalk-local', 'ON_USE'],
 ]);
 assert(marketplace.plugins?.length === expectedEntries.size, 'unexpected canary plugin count');
 
@@ -61,17 +62,51 @@ assert(launcher.skills === './skills/', 'launcher must expose setup skill');
 assert(!('mcpServers' in launcher), 'launcher must not expose an MCP server');
 
 const remote = await readJson('plugins/ipzitalk-remote/.codex-plugin/plugin.json');
-assert(!('skills' in remote), 'canary remote payload must contain zero skills');
 assert(remote.mcpServers === './.mcp.json', 'remote companion path mismatch');
+assert(remote.skills === './skills/', 'remote payload must expose the locked skills');
 
 const remoteMcp = await readJson('plugins/ipzitalk-remote/.mcp.json');
 assert(Object.keys(remoteMcp.mcpServers ?? {}).join(',') === 'ipzitalk', 'unexpected remote MCP server IDs');
 assert(remoteMcp.mcpServers.ipzitalk.type === 'http', 'remote MCP must use HTTP');
 assert(remoteMcp.mcpServers.ipzitalk.url === 'https://ipzi-talk.synergylabs.kr/mcp', 'remote MCP URL mismatch');
 
+const local = await readJson('plugins/ipzitalk-local/.codex-plugin/plugin.json');
+assert(!('skills' in local), 'local payload must contain zero skills');
+assert(local.mcpServers === './.mcp.json', 'local companion path mismatch');
+
+const localMcp = await readJson('plugins/ipzitalk-local/.mcp.json');
+assert(Object.keys(localMcp.mcpServers ?? {}).join(',') === 'ipzitalk-local', 'unexpected local MCP server IDs');
+const localServer = localMcp.mcpServers['ipzitalk-local'];
+assert(localServer.command === 'npx', 'local MCP command mismatch');
+assert(JSON.stringify(localServer.args) === JSON.stringify(['-y', 'presale-mcp@0.1.0']), 'local MCP args mismatch');
+const expectedEnvVars = [
+  'KAKAO_REST_API_KEY',
+  'NAVER_MAPS_CLIENT_ID',
+  'NAVER_MAPS_CLIENT_SECRET',
+  'DATA_GO_KR_SERVICE_KEY',
+];
+assert(JSON.stringify(localServer.env_vars) === JSON.stringify(expectedEnvVars), 'local MCP env_vars mismatch');
+assert(!('env' in localServer), 'local MCP must not embed environment values');
+
 const sourceLock = await readJson('source-lock.json');
-assert(sourceLock.sources.skills.commit === null, 'canary skill lock must be empty');
-assert(sourceLock.sources.skills.allowlist.length === 0, 'canary skill allowlist must be empty');
+assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
+assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC skill lock must be marked local-only');
+const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
+assert(lockedSkills.length === 5, 'Remote PoC must contain exactly five skills');
+const packagedSkills = (await readdir(resolve(root, 'plugins/ipzitalk-remote/skills'), { withFileTypes: true }))
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
+  .sort();
+assert(packagedSkills.join('\n') === lockedSkills.join('\n'), 'packaged Remote skills do not match source lock');
+for (const skill of packagedSkills) {
+  const skillFiles = (await walk(`plugins/ipzitalk-remote/skills/${skill}`)).filter((file) => file.endsWith('.md'));
+  const skillText = (await Promise.all(skillFiles.map((file) => readFile(file, 'utf8')))).join('\n');
+  assert(skillText.includes('ipzitalk-remote'), `missing Remote provenance rule: ${skill}`);
+  assert(skillText.includes('mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>'), `missing plugin namespace fallback: ${skill}`);
+  assert(skillText.includes('presale-mcp'), `missing local provenance exclusion: ${skill}`);
+}
+assert(sourceLock.plugins.local?.id === 'ipzitalk-local', 'local plugin lock missing');
+assert(sourceLock.sources.localMcp.toolsSnapshotSha256 === '08df02512148d67604a375c5fef689170e795093eeaf2fbe50dc5335a33f26e3', 'local tool snapshot mismatch');
 
 const scannedFiles = [
   ...(await walk('plugins')),

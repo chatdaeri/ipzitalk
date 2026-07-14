@@ -10,13 +10,23 @@
       "id": "ipzitalk-remote",
       "version": "0.1.0"
     },
-    "local": null
+    "local": {
+      "id": "ipzitalk-local",
+      "version": "0.1.0"
+    }
   },
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": null,
-      "allowlist": []
+      "commit": "24ac99f5c3756ed6be4685eaec89260c74e4e323",
+      "availability": "local-only",
+      "allowlist": [
+        "ipzitalk-complex-overview-all",
+        "ipzitalk-location-report",
+        "ipzitalk-presale-report",
+        "ipzitalk-read-notice-compare",
+        "ipzitalk-read-notice-report"
+      ]
     },
     "remoteMcp": {
       "repository": "https://github.com/chatdaeri/remote-mcp.git",
@@ -28,7 +38,7 @@
       "commit": "dce19f9b829af9bc14980ff3d55093065d533908",
       "package": "presale-mcp",
       "version": "0.1.0",
-      "toolsSnapshotSha256": null
+      "toolsSnapshotSha256": "08df02512148d67604a375c5fef689170e795093eeaf2fbe50dc5335a33f26e3"
     }
   }
 }

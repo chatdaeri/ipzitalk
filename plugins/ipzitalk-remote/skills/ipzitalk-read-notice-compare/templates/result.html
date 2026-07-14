@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ipzi Talk · 공고 비교</title>
+<style>
+  :root{
+    --bg:#e9ebf0; --card:#ffffff; --ink:#14181e; --sub:#5c6673; --sub2:#8a94a2;
+    --line:#e7eaef; --line2:#f1f3f7; --chip:#f3f5f9;
+    --g:#12a150; --g-s:#e7f6ec; --y:#e0a107; --y-s:#fbf3dd;
+    --o:#e56f1f; --o-s:#fbeee2; --x:#9aa4b2; --x-s:#eef1f5;
+    --brand:#2f6bff; --brand-s:#e8f0ff;
+    --a:#2563eb; --b:#dc2626; --c:#7c3aed; --d:#0d9488;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 14px 36px -16px rgba(16,24,40,.22);
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0e1116; --card:#161b22; --ink:#eef1f5; --sub:#98a2b0; --sub2:#6b7480;
+           --line:#232a33; --line2:#1c222a; --chip:#1c222a;
+           --g-s:#12251a; --y-s:#2a2410; --o-s:#2a1c10; --x-s:#1c222a; --brand-s:#16233f;
+           --shadow:0 8px 30px rgba(0,0,0,.5); }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(130% 70% at 50% -5%, color-mix(in srgb,var(--card) 30%,var(--bg)), var(--bg) 55%);
+    color:var(--ink);min-height:100vh;
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;padding:22px 14px;}
+  .wrap{max-width:1180px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+
+  .hero{padding:28px 26px;margin-bottom:16px}
+  .eyebrow{font:700 12px/1 var(--mono);color:var(--brand);letter-spacing:.04em}
+  .hero h1{margin:12px 0 6px;font-size:24px;font-weight:800;letter-spacing:-.02em}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:var(--brand-s);color:var(--brand);font-size:12px;font-weight:700}
+
+  .vs{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:18px}
+  .team{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:12px;border:1.5px solid;font-weight:800;font-size:14.5px}
+  .team .tag{font:800 12px/1 var(--mono)}
+  .vs .x{font:800 13px/1 var(--mono);color:var(--sub2)}
+
+  .sechead{display:flex;align-items:baseline;gap:10px;margin:26px 4px 12px}
+  .sechead .no{font:800 12px/1 var(--mono);color:var(--brand)}
+  .sechead h2{margin:0;font-size:18px;font-weight:800;letter-spacing:-.01em}
+  .sechead .src{color:var(--sub2);font-size:12px}
+
+  .panel{padding:22px;margin-bottom:16px}
+  .panel h3{margin:0 0 4px;font-size:15.5px;font-weight:800}
+  .note{color:var(--sub2);font-size:12px;margin-top:10px}
+  .warn{display:flex;gap:8px;align-items:flex-start;background:var(--o-s);color:var(--o);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;margin-top:12px}
+  .quote{background:var(--chip);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;color:var(--sub);font-size:12px;line-height:1.6;margin-top:8px}
+
+  .tblwrap{overflow-x:auto}
+  table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th{background:var(--chip);color:var(--sub);text-align:left;font-size:12px;font-weight:700;padding:10px 12px;white-space:nowrap}
+  td{border-top:1px solid var(--line2);padding:10px 12px;vertical-align:middle;font-size:13.5px}
+  td.win{background:var(--g-s);color:var(--g);font-weight:800}
+  td.evt{font-size:12.5px;white-space:nowrap}
+  th.tname{font-weight:800}
+
+  .bars{display:grid;gap:14px;margin-top:12px}
+  .barrow .bname{font-size:13px;font-weight:800;margin-bottom:6px}
+  .bar{display:flex;height:34px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+  .seg{display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden}
+  .seg.s0{background:var(--brand)} .seg.s1{background:var(--y)} .seg.s2{background:var(--x)}
+  .bmeta{font-size:12px;color:var(--sub);margin-top:5px}
+  .bmeta b{color:var(--ink)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--sub)}
+  .legend .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+  .foot{font-size:12px;color:var(--sub);padding:6px 4px}
+  section[hidden]{display:none}
+
+  @media(max-width:860px){ .hero h1{font-size:20px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="card hero">
+    <div class="eyebrow">IPZI TALK · 모집공고문 기준</div>
+    <h1>공고 비교</h1>
+    <div class="chips" id="h-chips"></div>
+    <div class="vs" id="vs"></div>
+  </section>
+
+  <section id="sec-schedule" hidden>
+    <div class="sechead"><span class="no">01</span><h2>일정 겹침 캘린더</h2><span class="src">청약홈·모집공고문 기준</span></div>
+    <div class="card panel">
+      <div class="tblwrap"><table id="sch-table"></table></div>
+      <div id="sch-warns"></div>
+    </div>
+  </section>
+
+  <section id="sec-funding" hidden>
+    <div class="sechead"><span class="no">02</span><h2>자금 부담 비교</h2><span class="src" id="fund-basis">모집공고문 납부조건 기준</span></div>
+    <div class="card panel">
+      <div class="bars" id="fund-bars"></div>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--brand)"></span>계약금</span>
+        <span><span class="sw" style="background:var(--y)"></span>중도금</span>
+        <span><span class="sw" style="background:var(--x)"></span>잔금</span>
+      </div>
+      <p class="note" id="fund-note"></p>
+    </div>
+  </section>
+
+  <section id="sec-limits" hidden>
+    <div class="sechead"><span class="no">03</span><h2>제한사항 비교</h2><span class="src">공고문 원문 문장 기준</span></div>
+    <div class="card panel">
+      <div class="tblwrap"><table id="lim-table"></table></div>
+      <div id="lim-quotes"></div>
+    </div>
+  </section>
+
+  <section id="sec-axes" hidden>
+    <div class="sechead"><span class="no">04</span><h2>축별 비교표</h2><span class="src" id="axes-basis"></span></div>
+    <div class="card panel">
+      <div class="tblwrap"><table id="axes-table"></table></div>
+      <div id="axes-warns"></div>
+      <p class="note">우위 표시가 없는 축은 값 나열만 합니다. 종합 우열은 판단하지 않으며, 어떤 축을 중요하게 볼지는 사용자 몫입니다.</p>
+    </div>
+  </section>
+
+  <p class="foot" id="foot-note"></p>
+</div>
+
+<script>
+window.__DATA__ = {
+  chips: [],                 // ["84㎡ 기준", "공고 2건"] 등
+  notices: [],               // 2~4개. { name: "", noticeDate: "" } — 2개 미만이면 본문 섹션 전체 숨김
+  // 아래 4개 섹션 키는 null이면 해당 섹션이 통째로 숨겨진다.
+  schedule: null,            // { events: [{notice:0, label:"특별공급", date:"07/14"}], warnings: [] }
+  funding: null,             // { basis, perNotice: [{segments:[{label,ratio,note}], initialCash, initialCashSub}],
+                             //   initialCashWinner: null|idx, note }
+  limits: null,              // { rows: [{label, values:[], winner:null|idx}], quotes: [{notice:0, label, text}] }
+  axes: null,                // { basis, rows: [{label, values:[], winner:null|idx, note}], warnings: [] }
+  footNote: "공식 모집공고문 기준 · 종합 우열 판단 없음 · 실제 청약 전 모집공고문과 청약홈 원문을 반드시 확인하세요."
+};
+
+(function(){
+  var D = window.__DATA__;
+  var TEAM = ["a","b","c","d"], TAG = ["A","B","C","D"];
+  function el(id){ return document.getElementById(id); }
+  function tcolor(i){ return "var(--"+TEAM[i%4]+")"; }
+
+  el("h-chips").innerHTML = (D.chips||[]).map(function(c){ return '<span class="chip">'+c+'</span>'; }).join("");
+
+  var N = D.notices||[];
+  el("vs").innerHTML = N.map(function(n,i){
+    return '<span class="team" style="border-color:'+tcolor(i)+';color:'+tcolor(i)+'">'
+      + '<span class="tag">'+TAG[i]+'</span>'+n.name
+      + (n.noticeDate? ' <span style="font-weight:600;font-size:12px;opacity:.75">공고 '+n.noticeDate+'</span>' : '')
+      + '</span>';
+  }).join('<span class="x">VS</span>');
+
+  if (N.length < 2){ el("foot-note").textContent = D.footNote || ""; return; }
+
+  function nameTh(i){ return '<th class="tname" style="color:'+tcolor(i)+'">'+TAG[i]+' · '+N[i].name+'</th>'; }
+  function warnHtml(list){ return (list||[]).map(function(w){ return '<div class="warn">⚠ <span>'+w+'</span></div>'; }).join(""); }
+
+  if (D.schedule){
+    el("sec-schedule").hidden = false;
+    var dates = [];
+    (D.schedule.events||[]).forEach(function(e){ if (dates.indexOf(e.date) < 0) dates.push(e.date); });
+    dates.sort();
+    var head = '<tr><th></th>' + dates.map(function(d){ return '<th>'+d+'</th>'; }).join("") + '</tr>';
+    var rows = N.map(function(n,i){
+      var cells = dates.map(function(d){
+        var evs = (D.schedule.events||[]).filter(function(e){ return e.notice===i && e.date===d; });
+        return '<td class="evt">' + evs.map(function(e){
+          return '<span style="color:'+tcolor(i)+';font-weight:800">■</span> '+e.label;
+        }).join("<br>") + '</td>';
+      }).join("");
+      return '<tr>'+nameTh(i)+cells+'</tr>';
+    }).join("");
+    el("sch-table").innerHTML = head + rows;
+    el("sch-warns").innerHTML = warnHtml(D.schedule.warnings);
+  }
+
+  if (D.funding){
+    el("sec-funding").hidden = false;
+    if (D.funding.basis) el("fund-basis").textContent = D.funding.basis;
+    el("fund-bars").innerHTML = (D.funding.perNotice||[]).map(function(f,i){
+      var segs = (f.segments||[]).map(function(s,si){
+        return '<div class="seg s'+(si%3)+'" style="flex:'+(s.ratio||0)+'" title="'+s.label+' '+s.ratio+'%">'
+          + s.label+' '+s.ratio+'%'+(s.note? ' · '+s.note : '')+'</div>';
+      }).join("");
+      var winCls = (D.funding.initialCashWinner===i);
+      return '<div class="barrow"><div class="bname" style="color:'+tcolor(i)+'">'+TAG[i]+' · '+N[i].name+'</div>'
+        + '<div class="bar">'+segs+'</div>'
+        + (f.initialCash? '<div class="bmeta">초기 필요 현금(계약금): <b'+(winCls? ' style="color:var(--g)"':'')+'>'+f.initialCash+'</b>'
+            + (f.initialCashSub? ' <span>· '+f.initialCashSub+'</span>':'') + (winCls? ' <b style="color:var(--g)">●부담 낮음</b>':'') + '</div>' : '')
+        + '</div>';
+    }).join("");
+    el("fund-note").textContent = D.funding.note || "";
+  }
+
+  function compareTable(tid, rows){
+    var head = '<tr><th>축</th>' + N.map(function(n,i){ return nameTh(i); }).join("") + '</tr>';
+    var body = (rows||[]).map(function(r){
+      var same = r.values.every(function(v){ return v===r.values[0]; });
+      var cells = r.values.map(function(v,i){
+        var win = (r.winner===i)? ' class="win"' : '';
+        return '<td'+win+'>'+v+((r.winner===i)? ' ●':'')+'</td>';
+      }).join("");
+      return '<tr><th>'+r.label+(same? ' <span style="font-weight:600">(동일)</span>':'')
+        +(r.note? '<br><span style="font-weight:600;font-size:11px">'+r.note+'</span>':'')+'</th>'+cells+'</tr>';
+    }).join("");
+    el(tid).innerHTML = head + body;
+  }
+
+  if (D.limits){
+    el("sec-limits").hidden = false;
+    compareTable("lim-table", D.limits.rows);
+    el("lim-quotes").innerHTML = (D.limits.quotes||[]).map(function(q){
+      return '<div class="quote"><b style="color:'+tcolor(q.notice)+'">'+TAG[q.notice]+' · '+q.label+'</b> — '+q.text+'</div>';
+    }).join("");
+  }
+
+  if (D.axes){
+    el("sec-axes").hidden = false;
+    if (D.axes.basis) el("axes-basis").textContent = D.axes.basis;
+    compareTable("axes-table", D.axes.rows);
+    el("axes-warns").innerHTML = warnHtml(D.axes.warnings);
+  }
+
+  el("foot-note").textContent = D.footNote || "";
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "ipzitalk-local",
+  "version": "0.1.0",
+  "description": "Run the open-source Ipzi Talk MCP locally through Node.js.",
+  "author": {
+    "name": "SynergyLabs",
+    "url": "https://synergylabs.kr"
+  },
+  "homepage": "https://github.com/chatdaeri/presale-mcp-oss",
+  "repository": "https://github.com/chatdaeri/ipzitalk",
+  "keywords": ["real-estate", "presale", "korea", "mcp", "local"],
+  "interface": {
+    "displayName": "Ipzi Talk Local MCP",
+    "shortDescription": "Local open-source Ipzi Talk MCP runtime",
+    "longDescription": "Run presale-mcp locally with API keys forwarded from the Codex process environment. This payload contains no Remote Skills.",
+    "developerName": "SynergyLabs",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "defaultPrompt": [
+      "Use the local Ipzi Talk MCP to geocode a Korean address."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

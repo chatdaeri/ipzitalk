@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "ipzitalk-local": {
+      "command": "npx",
+      "args": ["-y", "presale-mcp@0.1.0"],
+      "env_vars": [
+        "KAKAO_REST_API_KEY",
+        "NAVER_MAPS_CLIENT_ID",
+        "NAVER_MAPS_CLIENT_SECRET",
+        "DATA_GO_KR_SERVICE_KEY"
+      ]
+    }
+  }
+}

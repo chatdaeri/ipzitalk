@@ -20,5 +20,6 @@
       "Use Ipzi Talk Remote to inspect a Korean apartment complex."
     ]
   },
-  "mcpServers": "./.mcp.json"
+  "mcpServers": "./.mcp.json",
+  "skills": "./skills/"
 }
