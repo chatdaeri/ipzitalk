@@ -1,6 +1,6 @@
 {
   "name": "ipzitalk-remote",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Connect Codex to the hosted Ipzi Talk Remote MCP.",
   "author": {
     "name": "SynergyLabs",
