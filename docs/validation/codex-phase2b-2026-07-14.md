@@ -46,4 +46,6 @@ At `presale-mcp-oss` commit `dce19f9b829af9bc14980ff3d55093065d533908`:
 
 The API-key-missing call exposed a blocker. `get_geocode` returned an error object with `isError`, but also returned `structuredContent`. The MCP SDK validated that error object against the success output schema and raised `-32602` because required success fields such as `lat` and `lng` were absent.
 
-The existing `tests/tool-result.test.ts` explicitly expects structured error objects to be retained. Changing that behavior would require updating an existing test that currently serves as specification, so implementation stopped pending explicit approval rather than silently changing the test.
+After explicit approval, `presale-mcp-oss` added a RED regression test at commit `40ea84a` and changed `jsonToolResult` to omit `structuredContent` when `isError` is true at commit `adacd5d2f40e64c9f87cd35f7017e07929acd2bd`.
+
+The targeted test passed, and the full gates again passed: typecheck, 18 test files/149 tests, and build. A newly packed tarball then passed the real MCP SDK check: ten tools were listed, and `get_geocode` returned a normal `isError=true` API-key-missing result that named the required environment variable without exposing a value. The local MCP lock is marked `local-only` until this fix is available from a reachable release commit.

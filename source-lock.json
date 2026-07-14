@@ -35,7 +35,8 @@
     },
     "localMcp": {
       "repository": "https://github.com/chatdaeri/presale-mcp-oss.git",
-      "commit": "dce19f9b829af9bc14980ff3d55093065d533908",
+      "commit": "adacd5d2f40e64c9f87cd35f7017e07929acd2bd",
+      "availability": "local-only",
       "package": "presale-mcp",
       "version": "0.1.0",
       "toolsSnapshotSha256": "08df02512148d67604a375c5fef689170e795093eeaf2fbe50dc5335a33f26e3"

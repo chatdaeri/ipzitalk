@@ -106,6 +106,8 @@ for (const skill of packagedSkills) {
   assert(skillText.includes('presale-mcp'), `missing local provenance exclusion: ${skill}`);
 }
 assert(sourceLock.plugins.local?.id === 'ipzitalk-local', 'local plugin lock missing');
+assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.localMcp.commit), 'local MCP commit must be a full SHA');
+assert(sourceLock.sources.localMcp.availability === 'local-only', 'unpublished local MCP lock must be marked local-only');
 assert(sourceLock.sources.localMcp.toolsSnapshotSha256 === '08df02512148d67604a375c5fef689170e795093eeaf2fbe50dc5335a33f26e3', 'local tool snapshot mismatch');
 
 const scannedFiles = [
