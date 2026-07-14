@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-read-notice-report
 description: "공식 모집공고문 PDF/HWP 하나에서 1분 브리핑·청약 일정 체크리스트·자금 조달 타임라인·제한사항 요약을 한 번에 뽑아 통합 공고 리포트 HTML을 만든다. 일부 섹션만 요청하면 해당 섹션만 렌더한다. (구 read-brief/read-dday/read-funding/read-limits 통합)"
-version: 1.1.1
+version: 1.1.2
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -67,6 +67,12 @@ Use **ipzitalk mcp** for live 청약공고/지도/공급정보 lookup when regen
    - `공급금액` 시트에 층구간별 세대수·공급금액 원본 행을 그대로 남기고, `공급대상` 시트에 `세대수가중평균(원)`·`평균평당가(만원)` 열로 계산 결과를 남긴다.
 6. 사용자 HTML에는 원문 기준 요약만 노출
 
+### 실행 감사 sidecar 🚨
+- 첫 조회 전에 `out/ipzitalk-read-notice-report/audit.json`을 만들고 `skillBaseDirectory`, `shellUsed`, `webUsed`, `generatedFiles`를 기록한다.
+- 각 MCP 호출 직후 `baseToolName`, 입력 요약, `resultCount`, `truncated`, `provenance`를 누적한다. PDF/HWP 파일명·대조 결과·텍스트 추출 횟수와 XLSX 검증 결과도 별도 집계한다.
+- 감사 누락을 복구하려고 MCP를 재호출하지 않는다. 기존 반환으로 복구할 수 없으면 `auditIncomplete:true`로 남기고 완료 처리하지 않는다.
+- **최종 응답은 `audit.json`에서** 도구별 호출 횟수, Remote provenance, Skill base directory, shell/web 사용 여부, 생성 파일을 계산해 보고한다.
+
 ### XLSX 산출물 계약 🚨
 - 먼저 `out/ipzitalk-read-notice-report/backdata.json`을 `{ "sheets": [{ "name": "...", "columns": [...], "rows": [[...]] }] }` 구조로 만든다. 셀 값은 문자열·숫자·불리언·null만 허용한다.
 - 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/xlsx_artifact.py`를 사용한다: `python3 <script> --input out/ipzitalk-read-notice-report/backdata.json --output out/ipzitalk-read-notice-report/backdata.xlsx`.
@@ -120,6 +126,7 @@ out/ipzitalk-read-notice-report/
 | 1.0.0 | 2026-07-09 | read-brief/read-dday/read-funding/read-limits 4개 스킬 통합. 공고 pin·PDF 추출·크로스체크 1회 공유, 섹션 토글(`__DATA__` 키 null=숨김), 백데이터 XLSX 1개로 통합. 템플릿 CSS 토큰은 4개 원본과 동일 유지 |
 | 1.1.0 | 2026-07-13 | 브리핑 가격표 열 라벨 정정: `층구간 평균`→`주택형별 평균 분양가`, `최고 평당가`→`주택형별 평균 평당가`(값은 원래 세대수 가중평균이었으나 라벨이 최고가로 오기재됨). 표 아래 가중평균 기준 안내문 추가, 가중평균 산식·검산·백데이터 열 규칙 명문화 |
 | 1.1.1 | 2026-07-14 | PDF/HWP 선확인·불일치 안전 중단, 고유 HTML 출력·비실행 JSON 렌더, 표준 라이브러리 XLSX 생성·검증 계약 추가 |
+| 1.1.2 | 2026-07-14 | 공통 `audit.json` sidecar·PDF 추출/XLSX 검증 집계·최종 응답 자동 집계 계약 추가 |
 
 
 ## MCP 도구 네임스페이스와 출처

@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-read-notice-compare
 description: "모집공고 2~4개를 공고문 원문 기준으로 비교한다. 청약 일정 겹침 캘린더·계약금/중도금/잔금 납부조건·전매제한/거주의무/재당첨제한·축별 비교표를 한 장 HTML로 낸다. '공고 비교', 'A 공고랑 B 공고 비교', '어느 청약부터 넣을까', '청약 일정 겹쳐?' 등의 표현이 있으면 이 스킬을 사용한다. 단지 자체(DB 기준 분양가·세대·입주월) 비교는 ipzitalk-presale-compare-card, 공고 1개 정리는 ipzitalk-read-notice-report."
-version: 1.1.3
+version: 1.1.4
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -77,6 +77,12 @@ ipzitalk-presale-compare-card(청약홈 DB 기준 단지 비교)와 역할이 �
      맨 아래에 `세대수합`, `Σ(세대수×공급금액)`, `평균 분양가`, `Σ(세대수×평당가)`, `평균 평당가` 행을 둬 손으로 검산 가능하게 한다.
    - 세대수합이 공고 전용타입 총세대수와 일치하지 않으면 가격 축을 `공고문 원문 확인 필요`로 둔다.
 
+### 실행 감사 sidecar 🚨
+- 첫 조회 전에 `out/ipzitalk-read-notice-compare/audit.json`을 만들고 `skillBaseDirectory`, `shellUsed`, `webUsed`, `generatedFiles`를 기록한다.
+- 각 MCP 호출 직후 `baseToolName`, 입력 요약, `resultCount`, `truncated`, `provenance`, fallback `reason`을 누적한다. 공고별 pin 시도·성공 횟수와 PDF/HWP 파일명·대조·추출 횟수도 별도 집계한다.
+- 감사 누락을 복구하려고 MCP를 재호출하지 않는다. 기존 반환으로 복구할 수 없으면 `auditIncomplete:true`로 남기고 완료 처리하지 않는다.
+- **최종 응답은 `audit.json`에서** 도구별 호출 횟수, Remote provenance, Skill base directory, shell/web 사용 여부, 생성 파일을 계산해 보고한다.
+
 ### XLSX 산출물 계약 🚨
 - 먼저 `out/ipzitalk-read-notice-compare/backdata.json`을 `{ "sheets": [{ "name": "...", "columns": [...], "rows": [[...]] }] }` 구조로 만든다. 셀 값은 문자열·숫자·불리언·null만 허용한다.
 - 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/xlsx_artifact.py`를 사용한다: `python3 <script> --input out/ipzitalk-read-notice-compare/backdata.json --output out/ipzitalk-read-notice-compare/backdata.xlsx`.
@@ -142,3 +148,4 @@ out/ipzitalk-read-notice-compare/
 | 1.1.1 | 2026-07-14 | Remote MCP 도구의 base-name·plugin/server provenance·로컬 제외·모호성 중단 규칙을 SKILL 본문에 명시하고 상세 pipeline reference를 유지 |
 | 1.1.2 | 2026-07-14 | 관리번호 우선·지역+정규화명 fallback·pin 시도/성공 분리 감사, 고유 HTML·비실행 JSON 렌더, 표준 라이브러리 XLSX 생성·검증 계약 추가 |
 | 1.1.3 | 2026-07-14 | Remote-only를 MCP provenance 제한으로 명확화하고 사용자 제공 PDF/HWP 열람 허용·단지명 토큰의 지역 추론 금지 규칙 추가 |
+| 1.1.4 | 2026-07-14 | 공통 `audit.json` sidecar·PDF 추출 횟수·최종 응답 자동 집계 계약 추가 |

@@ -5,7 +5,7 @@ description: >
   종합 지도)를 생성한다. "세부 입지", "입지 분석", "입지 보고서", "이 사업지 입지 어때",
   "입지 종합", "주변 환경 종합" 등의 표현이 있으면 이 스킬을 사용한다.
   단일 분야만 물으면(교통만/학군만) 해당 단일 스킬을 쓴다. 점수화는 입지 평가 스킬로 분리한다.
-version: 1.2.2
+version: 1.2.3
 license: proprietary
 ---
 
@@ -56,13 +56,14 @@ references/education-workflow.md    교육 환경
 
 ### 호출 ledger·검색 사실 계약 🚨
 - 기본 경로는 center 해소 1회 + 교통 3회 + 생활 7회 + 교육 5회 + 지도 1회인 **총 17회**다. reference에 명시된 0건 fallback만 조건부 추가 호출이며 `reason` allowlist로 구분한다.
-- 각 MCP 호출 직후 **최초 반환을 바로 `audit.json`에** `axis`, `baseToolName`, `query` 또는 `category`, `radius_m`, `resultCount`, `truncated`, `provenance`와 함께 한 행씩 누적한다. 조건부 재호출은 `reason`도 기록한다.
+- 각 MCP 호출 직후 **최초 반환을 바로 `out/ipzitalk-location-report/audit.json`에** `skillBaseDirectory`, `axis`, `baseToolName`, `query` 또는 `category`, `radius_m`, `resultCount`, `truncated`, `provenance`와 함께 한 행씩 누적한다. 조건부 재호출은 `reason`도 기록하고, 파일 도구·실행 환경은 `shellUsed`, `webUsed`, `generatedFiles`로 별도 기록한다.
 - 최종 도구별 횟수와 총합은 `audit.json` 행에서 자동 집계한다. 중간 자연어 메모를 더해 수기로 합계를 만들지 않는다.
 - **감사 누락 복구·보완을 위한 MCP 재호출은 금지**한다. 병렬 출력 표시 누락이나 ledger 기록 실패가 생기면 기존 최초 반환으로 복구하고, 불가능하면 `auditIncomplete:true`로 남긴 뒤 재조회하지 않는다.
 - `audit.json`의 총 호출 수를 기본 경로 17회와 비교한다. 초과 행은 reference에 미리 정의된 0건 fallback `reason`이 없으면 완료 처리하지 않는다.
 - `radius_m`은 근린 검색·통합 지도 원·지도 캡션에서 같은 의미와 값을 사용한다. 광역 축은 `radius_m: null`로 ledger에 구분한다.
 - 구청은 검색하지 않는다. 검색 신뢰도 한계로 평가 제외라고만 쓰며, 호출하지 않은 구청을 `0건`으로 표현하지 않는다.
 - 최근접 시설은 운영상태 제외 전 후보, 제외 후 후보, 최종 선택 사유를 `audit.json`의 `selection`에 남긴다. 고정 fixture는 값 자체가 아니라 center·검색 인자·필터·정렬의 재현성을 검증한다.
+- **최종 응답은 `audit.json`에서** 도구별 호출 횟수, Remote provenance, Skill base directory, shell/web 사용 여부, 생성 파일을 계산해 보고한다.
 
 ## 등급 · tone 매핑 (🚨 임의 판단 금지)
 `axes[].stars` / `axes[].tone` / `sections[].tone` / `sections[].gradeLabel` 은 아래 표대로만 쓴다.
@@ -214,6 +215,7 @@ A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규
 |---|---|---|
 | 1.2.1 | 2026-07-14 | 고유 HTML 출력·비실행 JSON 렌더 계약 추가. 입력 반경과 통합 지도 반경을 통일하고 구조화 `audit.json` ledger·구청 평가 제외 규칙 명시 |
 | 1.2.2 | 2026-07-14 | 기본 17콜 예산·최초 반환 즉시 ledger·감사용 재호출 금지·center 보강용 geocode 금지 계약 추가 |
+| 1.2.3 | 2026-07-14 | 공통 실행 감사 필드와 최종 응답의 audit 기반 보고 계약 추가 |
 | 0.1 | 2026-07-09 | 신규 작성. 마스터 워크플로우 3종 갱신(폐기 검색식 `attraction`·`구청` 제거, R1~R3, 45건 캡, 트리플 라벨, 지도 규칙) 후 9개 `references/` 재배포. 방배 검증값 재사용해 조립 데모 생성(지도 1크레딧). 점수화는 `location-score`로 분리 확정 |
 | 0.2 | 2026-07-09 | **이관 대비.** 스킬 폴더 밖 경로 의존 제거(디자인 규칙 인라인화, `_commons` 문구를 워크스페이스 전용 블록으로 격리). 지도 TTL 7일 규칙 추가(데모 캡션 반영). `.map` overflow 규칙 보강. 패키징 매핑표·frontmatter 주의 추가 |
 | 0.2 | 2026-07-10 | `references/education-workflow.md` 갱신 — **휴교·폐교 학교 제외 규칙**(카카오는 운영 상태를 장소명 문자열로만 준다). 반경 눈금 마커 제거 |

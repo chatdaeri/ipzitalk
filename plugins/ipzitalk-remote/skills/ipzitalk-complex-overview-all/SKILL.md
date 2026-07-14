@@ -7,7 +7,7 @@ description: >
   이 스킬을 사용한다. 단일 항목만 물으면(시세만/학군만) 해당 단일 스킬을 쓴다.
   범위를 밝히지 않은 "OO아파트 어때" 는 이 스킬이 아니라 단지 개요 요약(ipzitalk-complex-overview)으로 보낸다.
   23크레딧이라 개요 요약(3크레딧)의 8배다. 애매하면 싼 쪽을 쓰고, 부족하면 이 스킬을 권한다.
-version: 1.0.3
+version: 1.0.4
 license: proprietary
 ---
 
@@ -156,10 +156,10 @@ enrich_complex_info(complexes, include_trades=true)
 ### 8. 결과·호출 감사 파일 🚨
 - MCP 호출을 시작하기 전에 출력 디렉터리 `out/ipzitalk-complex-overview-all/`을 고정한다.
 - 완성 데이터는 HTML 안에서만 보관하지 말고 **`out/ipzitalk-complex-overview-all/result.json`**에 먼저 저장한다.
-- 각 MCP 호출 직후 **`out/ipzitalk-complex-overview-all/audit.json`**에 `baseToolName`, 입력 요약, `year_month`(해당 시), `resultCount`, `truncated`, `provenance`, `reason`을 누적한다.
+- 각 MCP 호출 직후 **`out/ipzitalk-complex-overview-all/audit.json`**에 `skillBaseDirectory`, `baseToolName`, 입력 요약, `year_month`(해당 시), `resultCount`, `truncated`, `provenance`, `reason`을 누적한다. 파일 도구·실행 환경은 `shellUsed`, `webUsed`, `generatedFiles`로 별도 기록한다.
 - 기본 호출 합계는 23회다. `get_complex_trades`는 12행·서로 다른 `year_month` 12개여야 하며 전체 행 수가 23이 아니면 완료 처리하지 않는다.
 - 지도 audit에는 실제 호출 횟수 1회와 marker의 `name`·`type`을 남겨 반경 눈금 가짜 마커가 0개인지 검증한다.
-- 최종 응답의 도구별 호출 횟수와 Remote provenance는 `audit.json`에서 계산하며 수기로 재구성하지 않는다. 감사 누락을 채우기 위한 MCP 재호출은 금지한다.
+- **최종 응답은 `audit.json`에서** 도구별 호출 횟수, Remote provenance, Skill base directory, shell/web 사용 여부, 생성 파일을 계산해 보고하며 수기로 재구성하지 않는다. 감사 누락을 채우기 위한 MCP 재호출은 금지한다.
 
 ## 🚨 알려진 결함 — 스킬로 못 고치는 것
 
@@ -318,6 +318,7 @@ K-apt 기본·상세 어디에도 필드가 없다. 연면적은 있으나 **대
 | 1.0.1 | 2026-07-10 | 트리거에서 `"OO아파트 어때"` 제거 → `"종합해서 알려줘"` 로 교체. 범위를 안 밝힌 질문이 23크레딧짜리로 흘러들었다. 개요 요약(3크레딧)으로 보내고, 부족하면 이 스킬을 권한다 |
 | 1.0.2 | 2026-07-14 | 고유 HTML 출력·비실행 JSON 렌더 계약 추가. 병원 검색을 1회+로컬 OR 필터로 고정하고 기본 23콜 예산과 통일. 반경 눈금 가짜 마커 제거 |
 | 1.0.3 | 2026-07-14 | 최신 확정월 종료 12개월 창·최근 2개월 호출 제외·월 중복 0건·`result.json`/`audit.json` sidecar·23콜 자동 검증 계약 추가 |
+| 1.0.4 | 2026-07-14 | 공통 실행 감사 필드와 최종 응답의 audit 기반 보고 계약 추가 |
 
 
 ## MCP 도구 네임스페이스와 출처
