@@ -93,3 +93,11 @@ The namespace source validator now checks all five main `SKILL.md` bodies direct
 The Skill body now contains the concise tool-selection contract and continues to reference the unchanged detailed pipeline. The source validator passed for 24 MCP-dependent Skills at `ipzitalk-skill` local-only commit `31afa60d2473c10c09e329de073badf6670f7ac6`. The five-Skill package was resynchronized to that lock, package validation and Claude Remote strict validation passed, and only the Remote payload advanced to plugin version `0.1.2` because its packaged content changed.
 
 The current user profile then removed Remote `0.1.1`, verified its absence, and installed Remote `0.1.2` while leaving launcher `0.1.1` in place. OAuth remained `o_auth`, and the installed `0.1.2` cache copy of `ipzitalk-read-notice-compare/SKILL.md` contained the new provenance section and fallback contract. The pre-existing global duplicate Skills remain untouched, so the earlier `skill provenance conflict` safe-stop verdict still applies.
+
+## Remote Skill artifact contract 0.1.3
+
+The local-only Skill lock advanced to `dcd087647c0db3a1b5e4eff443313bd7c14fba40`. The five packaged Remote Skills now use isolated `out/<skill-name>/result.html` paths, a fixed-region HTML validator, complete HTML-sensitive JSON escaping, and a non-executable `ipzi-data` JSON block. The two notice Skills also use the packaged standard-library `scripts/xlsx_artifact.py` generator and validator instead of runtime package installation or ad-hoc scripts.
+
+The package sync copies and hashes both shared artifacts (`scripts/html_artifact_contract.mjs`, `scripts/xlsx_artifact.py`) in addition to the five locked Skill directories. `node scripts/validate-package.mjs`, the source namespace validator for 24 MCP-dependent Skills, and 22 source contract tests passed. The bundled plugin and Skill validators could not start because the local Python environment lacks PyYAML; no package installation was attempted. Remote manifests and the Claude marketplace advanced to `0.1.3` only after package validation passed.
+
+The current Codex and Claude user profiles still report Remote `0.1.2`. No installed plugin, cache, OAuth state, global Skill, or unrelated plugin was changed during this local package step. A remove → add → new-session provenance E2E for `0.1.3` remains a separate user-profile mutation step.
