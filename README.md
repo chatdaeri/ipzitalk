@@ -34,7 +34,9 @@ See [Codex setup and lifecycle](docs/codex-setup.md) for selection, OAuth, switc
 
 ## Claude Code setup
 
-Add the repository marketplace, install the launcher, and run `/reload-plugins`. The launcher is exposed as `/ipzitalk:setup`. After it installs the selected payload, run `/reload-plugins` a second time and verify Remote OAuth or OSS configuration through `/mcp`.
+In Claude Code CLI, add the repository marketplace, install the launcher, and run `/reload-plugins`. The launcher is exposed as `/ipzitalk:setup`; after it installs the selected payload, run `/reload-plugins` again and verify it through `/mcp`.
+
+In Claude Desktop's local Code tab, manage the marketplace and plugins through `+` → `Plugins`. The Code tab does not expose `/reload-plugins`; after a plugin change, open a new local session and verify the launcher Skill and selected payload there. Do not treat Desktop Chat, Cowork, or remote sessions as Code-tab plugin tests.
 
 Claude OSS keys are four required, sensitive `userConfig` values stored through Claude Code secure storage. Enter them only in the plugin configure UI; do not use `--config KEY=value` for secrets. See [Claude Code setup and lifecycle](docs/claude-setup.md).
 

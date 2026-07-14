@@ -11,7 +11,9 @@ claude plugin marketplace add /path/to/ipzitalk --scope user
 claude plugin install ipzitalk@ipzitalk --scope user
 ```
 
-Run `/reload-plugins` in Claude Code, then invoke `/ipzitalk:setup`. The setup Skill explains Remote and OSS and waits for an explicit choice before installing a runtime payload.
+In Claude Code CLI, run `/reload-plugins`, then invoke `/ipzitalk:setup`. The setup Skill explains Remote and OSS and waits for an explicit choice before installing a runtime payload.
+
+In Claude Desktop's local Code tab, use `+` → `Plugins` to add or manage plugins. The Code tab has no `/reload-plugins` command. After installation, enablement, disablement, or removal, open a new local session and invoke `/ipzitalk:setup` there. Plugins are not available in Desktop remote sessions.
 
 ## Remote
 
@@ -21,7 +23,7 @@ The approved install command is:
 claude plugin install ipzitalk-remote@ipzitalk --scope user
 ```
 
-Run `/reload-plugins`, open `/mcp`, and complete OAuth for the plugin-provided `ipzitalk` server. Remote includes five Skills and the hosted data path.
+In the CLI, run `/reload-plugins`, open `/mcp`, and complete OAuth for the plugin-provided `ipzitalk` server. In the Desktop Code tab, confirm the plugin in `+` → `Plugins`, open a new local session, and complete any OAuth prompt before a representative Remote call. Remote includes five Skills and the hosted data path.
 
 ## OSS
 
@@ -40,7 +42,7 @@ The plugin declares four `string` options that are both `required` and `sensitiv
 
 Sensitive values are masked and stored through Claude Code secure storage. Do not pass them through `--config KEY=value`, paste them into chat, or place them in settings, manifests, logs, or documentation.
 
-After configuration, run `/reload-plugins` and verify the `ipzitalk-local` plugin's `presale-mcp` server through `/mcp`. The committed command remains registry-backed and cannot be marked complete until `presale-mcp@0.1.0` is published. OSS contains ten tools and no Skills.
+After configuration, use `/reload-plugins` and `/mcp` in the CLI. In the Desktop Code tab, open a new local session and verify the configured `presale-mcp` server without exposing any sensitive value. The committed command remains registry-backed and cannot be marked complete until `presale-mcp@0.1.0` is published. OSS contains ten tools and no Skills.
 
 ## Switch and remove
 
@@ -53,4 +55,4 @@ claude plugin install ipzitalk-local@ipzitalk --scope user
 
 Use the reverse pair for OSS to Remote. If uninstall fails or is declined, do not install the other payload. If installation fails, report `not installed` and offer the previous payload's install command separately.
 
-For complete removal, uninstall the selected payload first and `ipzitalk@ipzitalk` second. Run `/reload-plugins` after changes. Never alter Claude settings, credential storage, marketplace files, or plugin caches by hand.
+For complete removal, uninstall the selected payload first and `ipzitalk@ipzitalk` second. In the CLI, run `/reload-plugins` after changes. In the Desktop Code tab, use the plugin manager UI and start a new local session. Never alter Claude settings, credential storage, marketplace files, or plugin caches by hand.
