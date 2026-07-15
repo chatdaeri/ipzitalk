@@ -2,7 +2,7 @@
 
 - 검증일: 2026-07-15
 - 작업 브랜치: `chore/relock-skill-release-2026-07-15`
-- 상태: 로컬 구현·검증 완료, push·PR·사용자 프로필 설치는 수행하지 않음
+- 상태: 로컬 구현·검증과 Claude·Codex 사용자 프로필 `0.1.14` 설치·cache 일치 확인 완료, push·PR은 수행하지 않음
 
 ## release lock
 
@@ -43,10 +43,13 @@ git diff --check
 - 플러그인 심볼릭 링크: 0건
 - 개인 절대경로·legacy MCP URL·placeholder·비밀 의심값: 0건
 - 패키지 `.DS_Store`: 0건
+- Codex 사용자 프로필: `ipzitalk-remote@ipzitalk` `0.1.14` 설치·활성, Local 미설치
+- Claude 사용자 프로필: `ipzitalk-remote@ipzitalk` `0.1.14` 설치·활성, Local 미설치
+- Codex·Claude 설치 cache: Skill 27개·템플릿 26개·공통 scripts가 저장소 사본과 각각 일치
 
 ## 남은 gate
 
-- Claude·Codex 사용자 프로필에 Remote `0.1.14`를 설치하고 새 세션에서 27개 Skill 노출을 확인한다.
+- Claude·Codex 새 세션에서 27개 Skill이 picker/명령 목록에 노출되는지 확인한다.
 - 메인 6개는 기존 E2E 증빙을 유지하되, 27개 확대에 따른 대표 서브 Skill 호출을 새 세션에서 확인한다.
 - `ipzitalk-announcement-search`와 `ipzitalk-presale-compare-card`는 직접 MCP 도구명이 없어 24개 MCP 의존 Skill 탐지 집합에는 포함되지 않는다. 지원 상태에서는 Remote와 Local을 동시에 활성화하지 않는 설치 계약으로 출처 충돌을 막고, 공개 전에는 두 Skill의 명시적 provenance 규칙 필요 여부를 재검토한다.
 - Skill 원본 저장소에 추적된 `.DS_Store` 정리는 별도 Skill 변경으로 처리한다. 현재 플러그인 동기화는 해당 파일을 명시적으로 제외한다.
