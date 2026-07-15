@@ -115,7 +115,7 @@
   아이콘 스프라이트 — 인라인이어야 한다. <use href="#i-…"> 는 같은 문서 안의 <symbol> 만 찾는다.
   산출물은 사용자가 혼자 여는 단일 HTML이라 옆에 sprite.svg 를 둬도, CDN 도 따라가지 않는다.
 
-  [주의] 심볼을 임의로 지우지 말 것. 마크업이 직접 참조하지 않고 __DATA__ 렌더 JS의
+  [주의] 심볼을 임의로 지우지 말 것. 마크업이 직접 참조하지 않고 ipzi-data 렌더 JS의
   아이콘 문자열로만 참조되는 심볼이 있어, "안 쓰는 심볼"로 보고 지우면 아이콘이 조용히 사라진다.
   아래 ICONS 배열과 이 블록은 항상 같이 고친다.
 -->
@@ -227,8 +227,14 @@ const templateDataShape = {
   var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   var NA = "정보없음";
   /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
-     링크·iframe 은 http/https 만 허용한다. 아니면 링크를 걸지 않는다. */
-  function safeUrl(u){ return /^https?:\/\//i.test(String(u == null ? "" : u)) ? String(u) : null; }
+     일반 링크는 https만 허용하고, 지도 iframe은 Ipzi Talk 정식 /map?d=<id> URL만 허용한다. */
+  function safeHttpsUrl(value){
+    try {
+      var url = new URL(String(value == null ? "" : value));
+      if(url.protocol !== "https:") return null;
+      return url.href;
+    } catch (_) { return null; }
+  }
 
   function esc(v){
     return String(v).replace(/[&<>"']/g, function(c){
@@ -389,7 +395,7 @@ const templateDataShape = {
 
   /* 구성 변화 신호는 (1) KPI 카드의 `구성 변화 가능성` 칩과 (2) 푸터 hedge 로만 낸다.
      예전엔 같은 문장을 콜아웃으로 한 번 더 띄웠다 — 화면에서 세 번 반복돼 걷어냈다.
-     [주의] isComposition() 이 참인 지역이 있으면 __DATA__.hedges 에 그 사실을 반드시 한 줄 넣을 것. */
+     [주의] isComposition() 이 참인 지역이 있으면 ipzi-data.hedges에 그 사실을 반드시 한 줄 넣을 것. */
 
   /* 상세 표 */
   var tbl = D.table || {};

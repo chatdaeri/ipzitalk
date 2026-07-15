@@ -170,7 +170,7 @@ search_announcement_info(sigungu="송파구", date_from="2026-01-10") → matche
 
 - 🚨 **`detail_url`을 반드시 건다.** 우리가 가진 건 요약이고, 경쟁률·접수일정·평면은 원문에만 있다.
   링크 없이 표만 주면 사용자가 다음 행동을 할 수 없다.
-- 🚨 링크는 **http/https만 허용**한다. 아니면 걸지 않는다. `target="_blank" rel="noopener noreferrer"`.
+- 🚨 동적 링크는 **https만 허용**한다. 아니면 걸지 않는다. `target="_blank" rel="noopener noreferrer"`.
 - 표는 열이 7개라 좁은 화면에서 넘친다 → `.tbl-wrap{overflow-x:auto}` + `table{min-width:760px}`.
 - 전량이 10건을 넘으면 최신 10건만 싣고 캡션에 `32건 중 10건`을 적는다.
 

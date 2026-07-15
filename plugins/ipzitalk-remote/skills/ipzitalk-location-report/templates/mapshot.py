@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from urllib.parse import parse_qsl, urlsplit, urlunsplit
 
 CHROME_CANDIDATES = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -20,6 +21,27 @@ CHROME_CANDIDATES = [
 
 # 지도 페이지 왼쪽의 마커 목록 패널 폭(px). 산출물에는 지도만 넣는다.
 SIDEBAR_PX = 280
+MAP_ORIGIN_HOST = "ipzi-talk.synergylabs.kr"
+
+
+def validate_map_url(value):
+    """정식 Ipzi Talk HTTPS 지도 URL만 Chrome에 전달한다."""
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        parsed = urlsplit(value)
+        if parsed.scheme != "https" or parsed.hostname != MAP_ORIGIN_HOST:
+            return None
+        if parsed.port is not None or parsed.username or parsed.password:
+            return None
+        if parsed.path != "/map" or parsed.fragment:
+            return None
+        query = parse_qsl(parsed.query, keep_blank_values=True, strict_parsing=True)
+        if len(query) != 1 or query[0][0] != "d" or not query[0][1]:
+            return None
+        return urlunsplit(parsed)
+    except (TypeError, ValueError):
+        return None
 
 
 def _find_chrome():
@@ -33,6 +55,10 @@ def _find_chrome():
 
 
 def _capture(url, out_path, width=1180, height=760):
+    url = validate_map_url(url)
+    if not url:
+        print("[warn] 허용되지 않은 지도 URL — 지도 없이 렌더합니다.", file=sys.stderr)
+        return None
     chrome = _find_chrome()
     if not chrome:
         print("[warn] Chrome을 찾지 못했습니다 — 지도 없이 렌더합니다.", file=sys.stderr)
