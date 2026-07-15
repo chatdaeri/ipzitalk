@@ -74,6 +74,8 @@ Remote 플러그인을 `0.1.10`에서 `0.1.11`로 올리고 메인 Skill 6개를
 
 ## 남은 Desktop E2E
 
+2026-07-15 산출물 후속 감사는 [Remote 0.1.11 Claude Desktop 산출물 감사](remote-0.1.11-artifact-audit-2026-07-15.md)에 기록했다. 다섯 Skill의 실행·HTML/JSON·동적 파일명·Remote provenance는 확인했지만 사실성·호출·preflight·winner 결함 5건을 NEEDS FIX로 판정했으며, 수정은 Remote 0.1.12에 반영됐다. 따라서 아래 목록은 0.1.11 미실행 항목이 아니라 0.1.12 집중 재검증 항목으로 승계한다.
+
 Claude Desktop의 기존 열린 세션은 `0.1.11` 증빙으로 사용하지 않는다. 새 로컬 Code 탭 세션에서 다음을 확인한다.
 
 1. `ipzitalk-location-report`: 교통·생활·교육·광역 표의 `직선거리` 헤더와 값 정렬, `<대상>_입지보고서.html` 파일명
