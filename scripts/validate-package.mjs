@@ -94,11 +94,34 @@ assert(!('env' in localServer), 'local MCP must not embed environment values');
 
 const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
-assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC skill lock must be marked local-only');
-assert(sourceLock.plugins.remote.version === '0.1.13', 'Remote document-security package must be version 0.1.13');
+assert(sourceLock.sources.skills.availability === 'private-release', 'merged private Skill lock must be marked private-release');
+assert(sourceLock.plugins.remote.version === '0.1.15', 'Remote sub-Skill artifact-contract package must be version 0.1.15');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
-assert(lockedSkills.length === 6, 'Remote PoC must contain exactly six skills');
+assert(lockedSkills.length === 27, 'Remote release must contain exactly 27 skills');
 assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
+const mainSkillNames = [
+  'ipzitalk-complex-overview-all',
+  'ipzitalk-location-report',
+  'ipzitalk-presale-report',
+  'ipzitalk-read-notice-compare',
+  'ipzitalk-read-notice-report',
+  'ipzitalk-recent-market-trend',
+].sort();
+const lockedSkillPaths = sourceLock.sources.skills.paths ?? {};
+assert(Object.keys(lockedSkillPaths).sort().join('\n') === lockedSkills.join('\n'), 'locked Skill paths must match the allowlist');
+const excludedSkillFiles = [...(sourceLock.sources.skills.excludedFiles ?? [])].sort();
+assert(JSON.stringify(excludedSkillFiles) === JSON.stringify(['sub/ipzitalk-announcement-search/.DS_Store']), 'unexpected excluded Skill source files');
+for (const skill of lockedSkills) {
+  assert(lockedSkillPaths[skill] === `main/${skill}` || lockedSkillPaths[skill] === `sub/${skill}`, `invalid locked Skill path: ${skill}`);
+}
+assert(lockedSkills.filter((skill) => lockedSkillPaths[skill].startsWith('main/')).sort().join('\n') === mainSkillNames.join('\n'), 'locked main Skills mismatch');
+assert(lockedSkills.filter((skill) => lockedSkillPaths[skill].startsWith('sub/')).length === 21, 'Remote release must contain 21 sub Skills');
+const namespaceSkills = [...(sourceLock.sources.skills.namespaceValidated ?? [])].sort();
+assert(namespaceSkills.length === 25, 'Remote release must identify 25 namespace-contract Skills');
+assert(namespaceSkills.every((skill) => lockedSkills.includes(skill)), 'namespace-validated Skills must be packaged');
+const templateSkills = [...(sourceLock.sources.skills.templates ?? [])].sort();
+assert(templateSkills.length === 26, 'Remote release must identify 26 HTML template Skills');
+assert(templateSkills.every((skill) => lockedSkills.includes(skill)), 'template Skills must be packaged');
 const lockedSkillVersions = sourceLock.sources.skills.versions ?? {};
 assert(Object.keys(lockedSkillVersions).sort().join('\n') === lockedSkills.join('\n'), 'locked Skill versions must match the allowlist');
 assert(lockedSkillVersions['ipzitalk-complex-overview-all'] === '1.1.5', 'complex-overview-all evidence-guard version mismatch');
@@ -119,25 +142,33 @@ const packagedSkills = (await readdir(resolve(root, 'plugins/ipzitalk-remote/ski
   .map((entry) => entry.name)
   .sort();
 assert(packagedSkills.join('\n') === lockedSkills.join('\n'), 'packaged Remote skills do not match source lock');
+const packagedSkillFiles = await walk('plugins/ipzitalk-remote/skills');
+assert(!packagedSkillFiles.some((file) => file.endsWith('/.DS_Store')), 'packaged Remote skills must exclude .DS_Store files');
 for (const skill of packagedSkills) {
   const skillFiles = (await walk(`plugins/ipzitalk-remote/skills/${skill}`)).filter((file) => file.endsWith('.md'));
   const skillText = (await Promise.all(skillFiles.map((file) => readFile(file, 'utf8')))).join('\n');
   const skillVersion = skillText.match(/^version:\s*([^\s]+)$/m)?.[1];
   assert(skillVersion === lockedSkillVersions[skill], `locked Skill version mismatch: ${skill}`);
-  assert(skillText.includes('ipzitalk-remote'), `missing Remote provenance rule: ${skill}`);
-  assert(skillText.includes('mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>'), `missing plugin namespace fallback: ${skill}`);
-  assert(skillText.includes('presale-mcp'), `missing local provenance exclusion: ${skill}`);
-  assert(skillText.includes('원하는 분석 목적을 한 문장으로 알려주세요'), `missing purpose question: ${skill}`);
-  assert(skillText.includes('네이티브 사용자 입력 UI'), `missing native goal UI contract: ${skill}`);
-  assert(skillText.includes('지원 가능한 수가 2~3개'), `missing compact goal UI contract: ${skill}`);
-  assert(skillText.includes('기타(직접 입력)'), `missing direct goal input contract: ${skill}`);
-  assert(skillText.includes('그 턴을 종료해 답을 기다린다'), `missing purpose wait contract: ${skill}`);
-  assert(skillText.includes('데이터 조회·수집이 완료된 후에만'), `missing evidence-first summary contract: ${skill}`);
-  assert(skillText.includes('../../scripts/html_artifact_contract.mjs'), `missing HTML artifact renderer contract: ${skill}`);
-  assert(skillText.includes('--file-name'), `missing target-based artifact filename contract: ${skill}`);
-  const template = await readFile(resolve(root, `plugins/ipzitalk-remote/skills/${skill}/templates/result.html`), 'utf8');
-  assert(template.includes('<script type="application/json" id="ipzi-data">'), `missing inert JSON data block: ${skill}`);
-  assert(!/window\.__DATA__|\b__DATA__\b/.test(template), `legacy data boundary remains: ${skill}`);
+  if (namespaceSkills.includes(skill)) {
+    assert(skillText.includes('ipzitalk-remote'), `missing Remote provenance rule: ${skill}`);
+    assert(skillText.includes('mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>'), `missing plugin namespace fallback: ${skill}`);
+    assert(skillText.includes('presale-mcp'), `missing local provenance exclusion: ${skill}`);
+  }
+  if (mainSkillNames.includes(skill)) {
+    assert(skillText.includes('원하는 분석 목적을 한 문장으로 알려주세요'), `missing purpose question: ${skill}`);
+    assert(skillText.includes('네이티브 사용자 입력 UI'), `missing native goal UI contract: ${skill}`);
+    assert(skillText.includes('지원 가능한 수가 2~3개'), `missing compact goal UI contract: ${skill}`);
+    assert(skillText.includes('기타(직접 입력)'), `missing direct goal input contract: ${skill}`);
+    assert(skillText.includes('그 턴을 종료해 답을 기다린다'), `missing purpose wait contract: ${skill}`);
+    assert(skillText.includes('데이터 조회·수집이 완료된 후에만'), `missing evidence-first summary contract: ${skill}`);
+    assert(skillText.includes('../../scripts/html_artifact_contract.mjs'), `missing HTML artifact renderer contract: ${skill}`);
+    assert(skillText.includes('--file-name'), `missing target-based artifact filename contract: ${skill}`);
+  }
+  if (templateSkills.includes(skill)) {
+    const template = await readFile(resolve(root, `plugins/ipzitalk-remote/skills/${skill}/templates/result.html`), 'utf8');
+    assert(template.includes('<script type="application/json" id="ipzi-data">'), `missing inert JSON data block: ${skill}`);
+    assert(!/window\.__DATA__|\b__DATA__\b/.test(template), `legacy data boundary remains: ${skill}`);
+  }
 }
 
 const htmlArtifactRenderer = await readFile(resolve(root, 'plugins/ipzitalk-remote/scripts/html_artifact_contract.mjs'), 'utf8');

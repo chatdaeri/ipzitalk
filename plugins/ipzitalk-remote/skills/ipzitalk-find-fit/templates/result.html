@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ipzi Talk · 나에게 맞는 청약공고 찾기</title>
+<style>
+  :root{
+    --bg:#e9ebf0; --card:#ffffff; --ink:#14181e; --sub:#5c6673; --sub2:#8a94a2;
+    --line:#e7eaef; --line2:#f1f3f7; --chip:#f3f5f9;
+    --g:#12a150; --g-s:#e7f6ec; --y:#e0a107; --y-s:#fbf3dd;
+    --o:#e56f1f; --o-s:#fbeee2; --x:#9aa4b2; --x-s:#eef1f5;
+    --brand:#2f6bff; --brand-s:#e8f0ff;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 14px 36px -16px rgba(16,24,40,.22);
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0e1116; --card:#161b22; --ink:#eef1f5; --sub:#98a2b0; --sub2:#6b7480;
+           --line:#232a33; --line2:#1c222a; --chip:#1c222a;
+           --g-s:#12251a; --y-s:#2a2410; --o-s:#2a1c10; --x-s:#1c222a; --brand-s:#16233f;
+           --shadow:0 8px 30px rgba(0,0,0,.5); }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(130% 70% at 50% -5%, color-mix(in srgb,var(--card) 30%,var(--bg)), var(--bg) 55%);
+    color:var(--ink);min-height:100vh;
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;padding:22px 14px;}
+  .wrap{max-width:1180px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+
+  .hero{padding:28px 26px;margin-bottom:16px}
+  .eyebrow{font:700 12px/1 var(--mono);color:var(--brand);letter-spacing:.04em}
+  .hero h1{margin:12px 0 6px;font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .hero p{margin:0;color:var(--sub);font-size:14px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:var(--brand-s);color:var(--brand);font-size:12px;font-weight:700}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .kpi{padding:16px 18px}
+  .kpi .l{font-size:12px;color:var(--sub)}
+  .kpi .n{font:800 20px/1.3 var(--mono);margin-top:6px}
+  .kpi .s{font-size:11.5px;color:var(--sub2);margin-top:2px}
+
+  .panel{padding:22px;margin-bottom:16px}
+  .panel h2{margin:0 0 4px;font-size:17px;font-weight:800}
+  .panel .desc{color:var(--sub);font-size:13px;margin:0 0 14px}
+
+  .flow{display:flex;gap:8px;flex-wrap:wrap}
+  .flow span{background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:700}
+
+  .status{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .status .col{border:1px solid var(--line);border-radius:12px;padding:14px}
+  .status .col h3{margin:0 0 10px;font-size:14px}
+  .status .col.g h3{color:var(--g)} .status .col.a h3{color:var(--y)} .status .col.o h3{color:var(--o)}
+  .status .empty{font-size:12.5px;color:var(--sub2)}
+  .mini{background:var(--chip);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:12.5px}
+  .mini b{display:block;font-size:13px;margin-bottom:2px}
+  .mini .sm{color:var(--sub);display:block;margin-bottom:4px}
+  .mini .diff{font-weight:700;font:700 12px var(--mono)}
+  .mini .diff.g{color:var(--g)} .mini .diff.o{color:var(--o)}
+
+  table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th{background:var(--chip);color:var(--sub);text-align:left;font-size:12px;font-weight:700;padding:10px 12px}
+  td{border-top:1px solid var(--line2);padding:10px 12px;vertical-align:middle;font-size:13.5px}
+  td.merged small{display:block;color:var(--sub2);font-size:11.5px;margin-top:3px;font-weight:500}
+  td.detail a{color:var(--brand);font-weight:700;text-decoration:none}
+  td.cls span{padding:3px 8px;border-radius:999px;font-size:11.5px;font-weight:700}
+  td.cls span.g{background:var(--g-s);color:var(--g)} td.cls span.a{background:var(--y-s);color:var(--y)} td.cls span.o{background:var(--o-s);color:var(--o)}
+
+  .foot{font-size:12px;color:var(--sub);padding:6px 4px}
+
+  @media(max-width:860px){ .kpis{grid-template-columns:repeat(2,1fr)} .status{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="card hero">
+    <div class="eyebrow">IPZI TALK</div>
+    <h1 id="h-title">–</h1>
+    <p id="h-desc">–</p>
+    <div class="chips" id="h-chips"></div>
+  </section>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="card panel">
+    <h2>내 조건 입력 흐름</h2>
+    <div class="flow" id="flow"></div>
+  </section>
+
+  <section class="card panel">
+    <h2>추천 분류</h2>
+    <div class="status">
+      <div class="col g"><h3>가능</h3><div id="col-ok"></div></div>
+      <div class="col a"><h3>아슬아슬</h3><div id="col-near"></div></div>
+      <div class="col o"><h3>초과</h3><div id="col-over"></div></div>
+    </div>
+  </section>
+
+  <section class="card panel">
+    <h2>후보 상세표</h2>
+    <p class="desc">같은 공고는 단지/위치 셀을 병합했습니다.</p>
+    <table>
+      <thead><tr><th>단지/공고</th><th>위치</th><th>주택형</th><th>최고 분양가</th><th>공급세대</th><th>분류</th><th>예산 차이</th><th>원문</th></tr></thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <p class="desc" id="price-note" style="margin:8px 0 0"></p>
+  </section>
+
+  <section class="card panel">
+    <h2>계산에 포함되지 않은 비용</h2>
+    <p class="desc" style="margin:0">취득세, 옵션비, 발코니 확장비, 중도금 이자, 개인 DSR과 신용조건은 별도 확인이 필요합니다.</p>
+  </section>
+
+  <p class="foot" id="foot-note"></p>
+  <p class="foot" id="source-note" style="margin-top:2px"></p>
+</div>
+
+<script type="application/json" id="ipzi-data">{}</script>
+<script>
+const templateDataShape = {
+  title: "",
+  desc: "",
+  chips: [],
+  kpis: [],
+  conditions: [],
+  listings: [],
+  priceNote: "표시된 금액과 예산 차이는 주택형별 최고가 기준입니다. 평균가·최저가와 다를 수 있습니다.",
+  footNote: "자료 기준 · 확인 필요: 이 화면은 청약 의사결정을 돕기 위한 요약입니다. 실제 청약 전 모집공고문과 청약홈 원문을 반드시 확인하세요.",
+  sourceNote: "데이터 출처: 청약홈 분양정보 · 청약홈 주택형별 분양정보"
+};
+const parsedTemplateData = JSON.parse(document.getElementById("ipzi-data").textContent);
+const templateData = Object.keys(parsedTemplateData).length ? parsedTemplateData : templateDataShape;
+
+(function(){
+  function esc(v){ return String(v == null ? "" : v).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function safeHttpsUrl(value){
+    try {
+      var url = new URL(String(value == null ? "" : value));
+      if(url.protocol !== "https:") return null;
+      return url.href;
+    } catch (_) { return null; }
+  }
+  var D = templateData;
+  var CLS_LABEL = {g:"가능", a:"아슬아슬", o:"초과"};
+
+  document.getElementById("h-title").textContent = D.title || "–";
+  document.getElementById("h-desc").textContent = D.desc || "";
+  document.getElementById("h-chips").innerHTML = (D.chips||[]).map(function(c){ return '<span class="chip">'+esc(c)+'</span>'; }).join("");
+
+  document.getElementById("kpis").innerHTML = (D.kpis||[]).map(function(k){
+    return '<div class="card kpi"><div class="l">'+esc(k.label)+'</div><div class="n">'+esc(k.value)+'</div>'
+      + (k.sub? '<div class="s">'+esc(k.sub)+'</div>' : '') + '</div>';
+  }).join("");
+
+  document.getElementById("flow").innerHTML = (D.conditions||[]).map(function(c,i){ return '<span>'+(i+1)+' '+esc(c)+'</span>'; }).join("");
+
+  var byCls = {g:[], a:[], o:[]};
+  (D.listings||[]).forEach(function(l){
+    (l.units||[]).forEach(function(u){
+      var cls = ["g","a","o"].indexOf(u.cls) >= 0 ? u.cls : "o";
+      byCls[cls].push({name:l.name, type:u.type, price:u.maxPrice, diff:u.diff});
+    });
+  });
+  function renderCol(id, cls){
+    var el = document.getElementById(id);
+    if(!byCls[cls].length){ el.innerHTML = '<p class="empty">해당 후보가 없습니다.</p>'; return; }
+    el.innerHTML = byCls[cls].map(function(c){
+      return '<div class="mini"><b>'+esc(c.name)+'</b><span class="sm">'+esc(c.type)+' · '+esc(c.price)+'</span>'
+        + '<span class="diff '+(cls==="o"?"o":"g")+'">예산 차이 '+esc(c.diff)+'</span></div>';
+    }).join("");
+  }
+  renderCol("col-ok","g"); renderCol("col-near","a"); renderCol("col-over","o");
+
+  var rows = "";
+  (D.listings||[]).forEach(function(l){
+    var units = l.units || [];
+    units.forEach(function(u, i){
+      rows += "<tr>";
+      if(i===0){
+        rows += '<td class="merged" rowspan="'+units.length+'"><b>'+esc(l.name)+'</b>'+(l.dateStr? '<small>'+esc(l.dateStr)+'</small>':'')+'</td>';
+        rows += '<td class="merged" rowspan="'+units.length+'"><b>'+esc(l.locationLabel)+'</b>'+(l.addressDetail? '<small>'+esc(l.addressDetail)+'</small>':'')+'</td>';
+      }
+      var unitCls = ["g","a","o"].indexOf(u.cls) >= 0 ? u.cls : "o";
+      rows += '<td>'+esc(u.type)+'</td><td>'+esc(u.maxPrice)+'</td><td>'+esc(u.supply)+'</td>'
+        + '<td class="cls"><span class="'+unitCls+'">'+CLS_LABEL[unitCls]+'</span></td><td>'+esc(u.diff)+'</td>';
+      if(i===0){
+        rows += '<td class="detail" rowspan="'+units.length+'">'
+          + (l.detailUrl? '<a target="_blank" rel="noopener" href="'+esc(safeHttpsUrl(l.detailUrl)||"#")+'">공고문 보기</a>' : '공고문 원문 확인 필요')
+          + '</td>';
+      }
+      rows += "</tr>";
+    });
+  });
+  document.getElementById("table-body").innerHTML = rows;
+
+  document.getElementById("price-note").textContent = D.priceNote || "";
+  document.getElementById("foot-note").textContent = D.footNote || "";
+  document.getElementById("source-note").textContent = D.sourceNote || "";
+})();
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
   "name": "ipzitalk-remote",
-  "version": "0.1.13",
+  "version": "0.1.15",
   "description": "Connect Codex to the hosted Ipzi Talk Remote MCP.",
   "author": {
     "name": "SynergyLabs",
@@ -12,7 +12,7 @@
   "interface": {
     "displayName": "Ipzi Talk Remote",
     "shortDescription": "Hosted Ipzi Talk MCP runtime",
-    "longDescription": "Connect to the hosted Ipzi Talk MCP with OAuth. Install through the Ipzi Talk setup launcher.",
+    "longDescription": "Connect to the hosted Ipzi Talk MCP with OAuth and 27 Remote Skills. Install through the Ipzi Talk setup launcher.",
     "developerName": "SynergyLabs",
     "category": "Productivity",
     "capabilities": ["Read"],

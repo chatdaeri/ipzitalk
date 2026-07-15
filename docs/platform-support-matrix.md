@@ -13,7 +13,7 @@ This document records observed proof-of-concept behavior. It separates verified 
 
 | Product surface | Remote runtime | OSS runtime | Skill invocation | Apply changes | Evidence boundary |
 |---|---|---|---|---|---|
-| Codex CLI | Validated | Conditional | `$ipzitalk:setup` and plugin-prefixed Remote Skills | Start a new Codex process | Remote OAuth, MCP canary, six-Skill discovery, and representative reports have been exercised. OSS registry publication remains incomplete. |
+| Codex CLI | Validated for the main 6 Skills; 27-Skill discovery pending | Conditional | `$ipzitalk:setup` and plugin-prefixed Remote Skills | Start a new Codex process | Remote OAuth, MCP canary, main six-Skill discovery, and representative reports have been exercised. The expanded 27-Skill package needs a new-process discovery check. OSS registry publication remains incomplete. |
 | Codex Desktop local workspace | Pending `0.1.11` regression | Out of scope for OSS | Use the Desktop Skill picker in a new local workspace | Start a new local workspace/session | Earlier Remote payloads produced representative artifacts. The current `0.1.11` filename and report regressions still need a Desktop run. Finder/Dock secret delivery for OSS is unverified. |
 | Claude Code CLI | Validated for Remote | Pending | `/ipzitalk:setup`, `/ipzitalk-remote:<skill>`, `/mcp` | `/reload-plugins` | Launcher, Remote status, OAuth reuse, and representative Remote calls were observed. OSS awaits registry-backed installation. |
 | Claude Desktop local Code tab | Validated through Remote `0.1.10`; `0.1.11` pending | Pending in a separate profile | `+` → `Plugins` → `ipzitalk` or `ipzitalk-remote` | Open a new local session | The Code tab has no `/reload-plugins`. Raw CLI namespace strings can be rejected as CLI-only. `0.1.11` Location, Overview, and Presale regressions remain interactive checks. |
@@ -37,7 +37,7 @@ Do not document a raw Desktop slash command merely because the equivalent CLI co
 ## Remote boundary
 
 - Remote uses the hosted `ipzitalk` MCP server and OAuth.
-- Remote packages six Skills during the internal proof of concept.
+- Remote packages 27 Skills (main 6 + sub 21) in the private release.
 - A Remote Skill must use tools whose plugin/server provenance resolves to `ipzitalk-remote` / `ipzitalk`.
 - If Remote and Local expose the same base tool name and provenance is ambiguous, stop instead of falling back to Local.
 - The current Claude user profile has Remote `0.1.11`; its Location Report, Complex Overview All, and Presale Report regressions still require new-session Desktop evidence.

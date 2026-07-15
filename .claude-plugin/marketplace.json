@@ -16,8 +16,8 @@
     {
       "name": "ipzitalk-remote",
       "source": "./plugins/ipzitalk-remote",
-      "description": "Hosted Ipzi Talk MCP with OAuth and six Remote Skills.",
-      "version": "0.1.13",
+      "description": "Hosted Ipzi Talk MCP with OAuth and 27 Remote Skills.",
+      "version": "0.1.15",
       "category": "productivity",
       "tags": ["real-estate", "korea", "mcp", "remote"]
     },

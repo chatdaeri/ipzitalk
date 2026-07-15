@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>교육 환경 분석</title>
+<style>
+  :root{
+    --bg:#e9ebf0; --card:#fff; --ink:#14181e; --sub:#5c6673; --sub2:#8a94a2;
+    --line:#e7eaef; --line2:#f1f3f7; --chip:#f3f5f9; --zebra:#fafbfc;
+    --g:#12a150; --y:#e0a107; --o:#e56f1f; --r:#e5484d; --x:#9aa4b2;
+    --brand:#2f6bff; --up:#e5484d; --down:#2f6bff;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 14px 36px -16px rgba(16,24,40,.22);
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0e1116; --card:#161b22; --ink:#eef1f5; --sub:#98a2b0; --sub2:#6b7480;
+      --line:#232a33; --line2:#1c222a; --chip:#1c222a; --zebra:#181d25;
+      --g:#38cf7a; --y:#e8b53f; --o:#f0813e; --r:#f05a5f; --x:#8b95a3;
+      --brand:#5b8bff; --up:#f05a5f; --down:#5b8bff;
+      --shadow:0 8px 30px rgba(0,0,0,.5); }
+  }
+  :root[data-theme="light"]{ --bg:#e9ebf0; --card:#fff; --ink:#14181e; --sub:#5c6673; --sub2:#8a94a2; --line:#e7eaef; --line2:#f1f3f7; --chip:#f3f5f9; --zebra:#fafbfc; --g:#12a150; --y:#e0a107; --o:#e56f1f; --r:#e5484d; --x:#9aa4b2; --brand:#2f6bff; --shadow:0 1px 2px rgba(16,24,40,.05), 0 14px 36px -16px rgba(16,24,40,.22); }
+  :root[data-theme="dark"]{ --bg:#0e1116; --card:#161b22; --ink:#eef1f5; --sub:#98a2b0; --sub2:#6b7480; --line:#232a33; --line2:#1c222a; --chip:#1c222a; --zebra:#181d25; --g:#38cf7a; --y:#e8b53f; --o:#f0813e; --r:#f05a5f; --x:#8b95a3; --brand:#5b8bff; --shadow:0 8px 30px rgba(0,0,0,.5); }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;padding:20px 14px;}
+  .wrap{max-width:1080px;margin:0 auto;background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;}
+  .ic{width:1.05em;height:1.05em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.16em;flex:none}
+  .sdot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle}
+  .s-g{background:var(--g)}.s-a{background:var(--y)}.s-o{background:var(--o)}.s-r{background:var(--r)}.s-x{background:var(--x)}
+  .topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:24px 24px 20px;border-bottom:1px solid var(--line)}
+  .ttl{display:flex;flex-direction:column;font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .ttl .row{display:flex;align-items:center;gap:10px}
+  .eyebrow{font:700 12px/1 var(--mono);color:var(--brand);letter-spacing:.04em;margin-bottom:10px}
+  .ttl .sub{font-size:14px;color:var(--sub);font-weight:500;letter-spacing:0;margin-top:6px}
+  .actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .pill{display:flex;align-items:center;gap:8px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:13.5px;background:var(--bg)}
+  .open-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;background:var(--brand);color:#fff;border-radius:9px;text-decoration:none;font-size:12.5px;font-weight:700;white-space:nowrap}
+  .open-btn:hover{filter:brightness(1.06)}
+  /* 지도 iframe 최소폭 720px: /map 사이드바 280px 고정 탓에 안쪽 지도 영역이 좁으면
+     fitBounds가 최소 줌(한반도)으로 떨어진다. 좁은 화면에서는 카드가 가로 스크롤된다. */
+  .map{position:relative;width:100%;height:48vh;min-height:340px;max-height:560px;overflow-x:auto;overflow-y:hidden}
+  .map iframe{display:block;width:100%;min-width:720px;height:100%;border:0;background:var(--line)}
+  .panel{padding:20px 22px 26px}
+  .cap{font-size:11.5px;color:var(--sub);margin:0 0 16px;line-height:1.7}
+  .src{font-size:10.5px;color:var(--sub2);margin:6px 0 0;text-align:right;letter-spacing:-.01em}
+
+  .summary{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:22px}
+  .summary .stars{font-size:20px;font-weight:800;letter-spacing:2px;color:var(--sub)}
+  .summary .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .summary .grade-label{font-size:14px;font-weight:800}
+  .summary p{margin:0;font-size:13.5px;color:var(--ink);line-height:1.6}
+  .mini{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .mini .m{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:12.5px;font-weight:700}
+  .mini .m .lab{color:var(--sub);font-weight:500}
+
+  h2{font-size:15px;letter-spacing:-.01em;margin:22px 0 8px;display:flex;align-items:center;gap:8px}
+  h2 .g-tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px}
+  .g-g-bg{background:color-mix(in srgb,var(--g) 15%,transparent);color:var(--g)}
+  .g-a-bg{background:color-mix(in srgb,var(--y) 18%,transparent);color:var(--y)}
+  .g-o-bg{background:color-mix(in srgb,var(--o) 15%,transparent);color:var(--o)}
+  .g-r-bg{background:color-mix(in srgb,var(--r) 15%,transparent);color:var(--r)}
+  .g-x-bg{background:color-mix(in srgb,var(--x) 18%,transparent);color:var(--x)}
+  .sec-note{font-size:11.5px;color:var(--sub);margin:2px 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line)}
+  th{color:var(--sub);font-weight:600;font-size:12px}
+  td.d{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  td.rmk{color:var(--sub);font-size:12.5px;white-space:nowrap;text-align:right}
+  td.na{color:var(--sub2)}
+  td .flag{display:inline-block;font-size:10.5px;font-weight:700;color:var(--o);background:color-mix(in srgb,var(--o) 14%,transparent);padding:1px 6px;border-radius:6px;margin-left:6px;vertical-align:1px}
+  .band{display:inline-flex;align-items:center;gap:6px}
+  .grp{color:var(--sub);font-weight:600;font-size:11.5px}
+  .empty{font-size:12.5px;color:var(--sub2);padding:14px 10px;border:1.5px dashed var(--line);border-radius:10px;text-align:center;margin-top:4px}
+
+  .density{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-top:4px}
+  .density .big{font-size:30px;font-weight:800;color:var(--g);font-variant-numeric:tabular-nums;line-height:1}
+  .density .big small{font-size:14px;font-weight:700;margin-left:2px}
+  .density .meta{font-size:12.5px;color:var(--sub);line-height:1.55}
+  .density .meta b{color:var(--ink)}
+
+  .note{font-size:12px;color:var(--sub);margin:8px 2px 0;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
+  .note .ic{margin-top:2px;color:var(--o)}
+  .note b{color:var(--ink)}
+
+  .assign{display:flex;align-items:flex-start;gap:11px;border:1.5px dashed var(--line);border-radius:12px;padding:13px 16px;margin:14px 0 4px;background:repeating-linear-gradient(45deg,transparent,transparent 10px,color-mix(in srgb,var(--sub) 4%,transparent) 10px,color-mix(in srgb,var(--sub) 4%,transparent) 20px)}
+  .assign .ic{color:var(--o);margin-top:1px}
+  .assign .body{font-size:12.5px;color:var(--sub);line-height:1.55}
+  .assign .body b{color:var(--ink)}
+  .assign a{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:7px 12px;background:var(--brand);color:#fff;border-radius:9px;text-decoration:none;font-size:12px;font-weight:700}
+  .assign a:hover{filter:brightness(1.06)}
+
+  .manual{border:1.5px dashed var(--line);border-radius:12px;padding:14px 16px;margin:22px 0 6px;background:repeating-linear-gradient(45deg,transparent,transparent 10px,color-mix(in srgb,var(--sub) 4%,transparent) 10px,color-mix(in srgb,var(--sub) 4%,transparent) 20px)}
+  .manual .t{font-weight:800;font-size:13px;display:flex;align-items:center;gap:7px;margin-bottom:6px}
+  .manual ul{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--sub)}
+  .manual li{margin:2px 0}
+
+  .foot{font-size:11.5px;color:var(--sub);border-top:1px solid var(--line);padding-top:14px;margin-top:22px;line-height:1.7}
+  .foot .warn{color:var(--ink);font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .foot ul{margin:6px 0 8px;padding-left:17px}
+  .foot li{margin:2px 0}
+  .foot b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<!--
+  아이콘 스프라이트 — 인라인이어야 한다. <use href="#i-…">는 같은 문서 안의 <symbol>만 찾는다.
+  산출물은 사용자가 혼자 여는 단일 HTML이라 옆에 sprite.svg를 둬도 따라가지 않고 CDN도 금지다.
+  즉 이 블록이 아이콘의 유일한 운반체다.
+
+  [주의] 심볼을 임의로 지우지 말 것. 일부 심볼은 마크업이 아니라 ipzi-data의 icon 문자열로만
+  참조되므로 정적 분석으로는 "안 쓰는 심볼"처럼 보인다. 지우면 섹션·pill 아이콘이 에러 없이
+  조용히 사라진다. 아래 <symbol> 목록과 스크립트의 ICONS 배열은 항상 같이 고친다.
+-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-school" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V10l7-4 7 4v11"></path><path d="M10 21v-5h4v5"></path><path d="M8.6 11.5h1.6M13.8 11.5h1.6"></path></g></symbol>
+<symbol id="i-university" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16"></path><path d="M6 21V9l6-4 6 4v12"></path><path d="M12 5V2.2M12 2.2l3 1.1L12 4.6"></path><path d="M9.5 12H11M13 12h1.5M10.5 21v-4h3v4"></path></g></symbol>
+<symbol id="i-academy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6C10 4.5 7 4 4 4.5v13C7 17 10 17.5 12 19c2-1.5 5-2 8-1.5v-13C17 4 14 4.5 12 6Z"></path><path d="M12 6v13"></path></g></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z"></path><circle cx="12" cy="10" r="2.5"></circle></g></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6V3Z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h4"></path></g></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><circle cx="12" cy="8" r=".9" fill="currentColor" stroke="none"></circle></g></symbol>
+<symbol id="i-map" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"></path><path d="M9 4v14M15 6v14"></path></g></symbol>
+</svg>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="ttl">
+      <span class="eyebrow" id="h-brand">IPZI TALK</span>
+      <span class="row">
+        <svg class="ic"><use href="#i-school"/></svg>
+        <span id="h-title">–</span>
+      </span>
+      <span class="sub" id="h-sub"></span>
+    </div>
+    <div class="actions" id="h-actions"></div>
+  </div>
+
+  <div id="map-panel">
+    <div class="map"><iframe id="map-iframe" src="about:blank" title="교육 환경 지도" loading="lazy" sandbox="allow-scripts allow-same-origin" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    <p class="src">네이버 지도 · 카카오맵</p>
+  </div>
+
+  <div class="panel">
+    <div class="cap" id="map-cap" style="display:none"></div>
+
+    <div class="summary" id="summary-box" style="display:none">
+      <div class="head"><span class="stars" id="sum-stars"></span><span class="grade-label" id="sum-label"></span></div>
+      <p id="sum-text"></p>
+      <div class="mini" id="mini"></div>
+    </div>
+
+    <div id="sections"></div>
+    <p class="src">카카오맵</p>
+
+    <div id="wide-box" style="display:none">
+      <h2><svg class="ic" style="color:var(--sub)"><use href="#i-info"/></svg><span id="wide-title">광역 축</span></h2>
+      <table id="wide-table"></table>
+      <p class="src">카카오맵</p>
+    </div>
+
+    <div class="manual" id="manual-box" style="display:none">
+      <div class="t"><svg class="ic"><use href="#i-doc"/></svg>수기 편집 영역</div>
+      <ul id="manual-list"></ul>
+    </div>
+
+    <div class="foot">
+      <div class="warn" id="foot-warn" style="display:none"><svg class="ic"><use href="#i-info"/></svg><span id="foot-warn-text"></span></div>
+      <ul id="foot-hedges"></ul>
+      <div id="foot-src" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="ipzi-data">{}</script>
+<script>
+/* ────────────────────────────────────────────────────────────────
+   이 템플릿은 고정이다. 마크업·CSS·렌더 JS는 실행마다 바뀌지 않는다.
+   수정하는 곳은 아래 templateData 블록 하나뿐이다.
+
+   규칙 (SKILL.md 승계)
+   - 점수를 매기지 않는다. 등급(★)만 싣는다.
+   - 값이 없으면 "정보없음". 절대 0으로 채우지 않는다.
+   - 목록 상한에 도달하면 section.truncated:true → "목록 불완전" 배지.
+   - map.url 이 null 이면 지도 패널이 통째로 숨는다.
+   ──────────────────────────────────────────────────────────────── */
+const templateDataShape = {
+  brand:"IPZI TALK",
+  title:"",                  // "교육 환경 분석"
+  subtitle:"",               // "단지명 · 주소"
+  pills:[],                  // [{tone:"a", label:"종합 ★★☆ 양호"}]
+
+  map:{
+    url:null,                // 지도 임베드 URL. null 이면 지도 패널 숨김
+    caption:"",              // 색상 범례 · 반경 설명
+    ttlNote:"지도 링크는 발급 후 7일간 유효합니다. 만료되면 지도가 빈 화면으로 뜨므로 재발급이 필요합니다."
+  },
+  radius:{ requested_m:null, collected_m:null, note:"" },
+
+  grade:{ stars:"", label:"", tone:"" },   // 종합 등급 (요약 헤드) · tone: g|a|o|x|r
+  summary:"",                // 종합 요약 한 문단 (우열 단정 금지)
+  axes:[],                   // [{tone:"a", label:"초등", note:"양호 · 425m"}]
+
+  sections:[],               // [{
+                             //   icon:"i-school", title:"초등학교", tone:"a", gradeLabel:"양호",
+                             //   band:"밴드(직선): ≤300 우수 · 300–500 양호 · …",
+                             //   columns:["학교","소재",{label:"직선거리",align:"right"}],
+                             //   rows:[
+                             //     [{t:"OO초등학교", flag:"타 자치구·배정주의"}, "서울 OO구", {n:"425m", tone:"a"}]
+                             //   ],
+                             //   note:"",           // 회색 안내 콜아웃
+                             //   big:null,          // 개수형 섹션: {value:"59", unit:"개", note:"…"}
+                             //   link:null,         // 배정 확인 링크: {icon:"i-pin", body:"…", label:"…", url:"…"}
+                             //   truncated:false
+                             // }]
+
+  wide:null,                 // {title, columns, rows}  (지도에 넣지 않는 광역 표)
+  manual:[],                 // ["개통예정 …"]
+
+  footWarn:"",               // "직선거리 기준 · 배정/학군 미확인 · 참고용"
+  hedges:[],                 // ["모든 거리는 직선거리입니다 …", …]
+  sources:[],                // ["카카오맵", "네이버 지도"]
+  collectedAt:""             // "YYYY-MM-DD"
+};
+const parsedTemplateData = JSON.parse(document.getElementById("ipzi-data").textContent);
+const templateData = Object.keys(parsedTemplateData).length ? parsedTemplateData : templateDataShape;
+
+(function(){
+  var D = templateData || {};
+  var NA = "정보없음";
+  var TONES = ["g","a","o","x","r"];
+  /* 스프라이트에 실재하는 심볼만 허용한다. 없는 id 를 <use> 로 가리키면 브라우저는
+     에러 없이 빈 자리를 그린다. 심볼을 추가/삭제하면 위 <svg> 블록과 이 배열을 함께 고칠 것. */
+  var ICONS = ["i-school","i-university","i-academy","i-pin","i-doc","i-info","i-map"];
+
+  function esc(v){ return String(v).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
+     일반 링크는 https만 허용하고, 지도 iframe은 Ipzi Talk 정식 /map?d=<id> URL만 허용한다. */
+  function safeHttpsUrl(value){
+    try {
+      var url = new URL(String(value == null ? "" : value));
+      if(url.protocol !== "https:") return null;
+      return url.href;
+    } catch (_) { return null; }
+  }
+  function safeMapUrl(value){
+    var safe = safeHttpsUrl(value);
+    if(!safe) return null;
+    var url = new URL(safe);
+    if(url.origin !== "https://ipzi-talk.synergylabs.kr") return null;
+    if(url.username || url.password) return null;
+    if(url.pathname !== "/map") return null;
+    if(!url.searchParams.get("d")) return null;
+    if(url.searchParams.getAll("d").length !== 1) return null;
+    if(Array.from(url.searchParams.keys()).some(function(key){ return key !== "d"; })) return null;
+    if(url.hash) return null;
+    return url.href;
+  }
+  function tone(t){ return TONES.indexOf(t)!==-1 ? t : "x"; }
+  function toneVar(t){ return t==="a" ? "y" : t; }
+  function icon(id){
+    if(!id) return "";
+    if(ICONS.indexOf(id)===-1){ console.warn('[result.html] 스프라이트에 없는 아이콘 id: "'+id+'" — 생략합니다.'); return ""; }
+    return '<svg class="ic"><use href="#'+esc(id)+'"/></svg>';
+  }
+  function show(id){ var e=document.getElementById(id); if(e) e.style.display=""; }
+  function txt(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
+
+  function headCell(c){
+    if(c && typeof c==="object") return '<th'+(c.align==="right"?' style="text-align:right"':'')+'>'+esc(c.label||"")+'</th>';
+    return '<th>'+esc(c)+'</th>';
+  }
+  /* 결측은 0이 아니라 "정보없음"이다. 0으로 채우면 데이터 부재가 나쁜 값으로 둔갑한다. */
+  function cell(c){
+    if(c==null||c==="") return '<td class="na">'+NA+'</td>';
+    if(typeof c!=="object") return '<td>'+esc(c)+'</td>';
+    if(c.n!==undefined) return '<td class="d"><span class="band"><span class="sdot s-'+tone(c.tone)+'"></span>'+esc(c.n)+'</span></td>';
+    if(c.rmk!==undefined) return '<td class="rmk">'+esc(c.rmk)+'</td>';
+    if(c.flag!==undefined) return '<td>'+esc(c.t||"")+' <span class="flag">'+esc(c.flag)+'</span></td>';
+    return '<td>'+esc(c.t!==undefined?c.t:"")+'</td>';
+  }
+  function section(sec){
+    var tn = tone(sec.tone);
+    var h = '<h2>'+icon(sec.icon)+'<span>'+esc(sec.title||"")+'</span>'
+      +(sec.gradeLabel?'<span class="g-tag g-'+tn+'-bg">'+esc(sec.gradeLabel)+'</span>':'')+'</h2>';
+    var band = sec.band ? '<div class="sec-note">'+esc(sec.band)+'</div>' : '';
+    var body;
+    if(sec.big){
+      body = '<div class="density"><div class="big">'+esc(sec.big.value)
+        +(sec.big.unit?'<small>'+esc(sec.big.unit)+'</small>':'')+'</div>'
+        +'<div class="meta">'+esc(sec.big.note||"")+'</div></div>';
+    } else if((sec.rows||[]).length){
+      body = '<table><tr>'+(sec.columns||[]).map(headCell).join('')+'</tr>'
+        +sec.rows.map(function(r){ return '<tr>'+r.map(cell).join('')+'</tr>'; }).join('')+'</table>';
+    } else {
+      body = '<div class="empty">반경 내 결과 없음 — 거리를 추정하지 않습니다.</div>';
+    }
+    /* 목록 상한: 최근접은 정확하므로 등급은 유지하고 목록만 불완전으로 표기한다. */
+    var trunc = sec.truncated ? '<div class="note">'+icon("i-info")+'<span>검색 상한에 도달해 <b>목록이 불완전</b>할 수 있습니다. 최근접 값은 정확하므로 등급은 유지됩니다.</span></div>' : '';
+    var note = sec.note ? '<div class="note">'+icon("i-info")+'<span>'+esc(sec.note)+'</span></div>' : '';
+    var link = '';
+    if(sec.link){
+      link = '<div class="assign">'+icon(sec.link.icon||"i-pin")+'<div class="body">'+esc(sec.link.body||"")
+        +'<br><a href="'+esc(safeHttpsUrl(sec.link.url)||"#")+'" target="_blank" rel="noopener">'+icon("i-map")+esc(sec.link.label||"")+' ↗</a></div></div>';
+    }
+    return h+band+body+trunc+note+link;
+  }
+
+  txt("h-brand", D.brand || "IPZI TALK");
+  txt("h-title", D.title || "–");
+  txt("h-sub", D.subtitle || "");
+
+  var acts = (D.pills||[]).map(function(p){
+    return '<span class="pill"><span class="sdot s-'+tone(p.tone)+'"></span>'+esc(p.label||"")+'</span>';
+  });
+  if(D.map && D.map.url){
+    acts.push('<a class="open-btn" target="_blank" rel="noopener" href="'+esc(safeMapUrl(D.map.url)||"#")+'">'+icon("i-map")+'지도 크게 열기 ↗</a>');
+  }
+  document.getElementById("h-actions").innerHTML = acts.join("");
+
+  if(D.map && D.map.url){
+    document.getElementById("map-iframe").src = safeMapUrl(D.map.url) || "about:blank";
+    var parts = [D.map.caption, (D.radius&&D.radius.note)||""].filter(Boolean).map(esc);
+    var capHtml = parts.join(" · ");
+    if(D.map.ttlNote) capHtml += (capHtml?"<br>":"")+"<strong>"+esc(D.map.ttlNote)+"</strong>";
+    if(capHtml){ document.getElementById("map-cap").innerHTML = capHtml; show("map-cap"); }
+  } else {
+    document.getElementById("map-panel").style.display = "none";
+  }
+
+  if(D.summary || (D.axes||[]).length || (D.grade&&(D.grade.stars||D.grade.label))){
+    show("summary-box");
+    if(D.grade){
+      var st=document.getElementById("sum-stars"); st.textContent=D.grade.stars||"";
+      st.style.color="var(--"+toneVar(tone(D.grade.tone))+")";
+      txt("sum-label", D.grade.label||"");
+    }
+    txt("sum-text", D.summary||"");
+    document.getElementById("mini").innerHTML=(D.axes||[]).map(function(a){
+      return '<div class="m"><span class="sdot s-'+tone(a.tone)+'"></span><span>'+esc(a.label||"")+'</span><span class="lab">'+esc(a.note||NA)+'</span></div>';
+    }).join("");
+  }
+
+  document.getElementById("sections").innerHTML=(D.sections||[]).map(section).join("");
+
+  if(D.wide && (D.wide.rows||[]).length){
+    show("wide-box");
+    txt("wide-title", D.wide.title||"광역 축");
+    document.getElementById("wide-table").innerHTML =
+      '<tr>'+(D.wide.columns||[]).map(headCell).join('')+'</tr>'
+      +D.wide.rows.map(function(r){ return '<tr>'+r.map(cell).join('')+'</tr>'; }).join('');
+  }
+
+  if((D.manual||[]).length){
+    show("manual-box");
+    document.getElementById("manual-list").innerHTML=D.manual.map(function(m){ return '<li>'+esc(m)+'</li>'; }).join("");
+  }
+
+  if(D.footWarn){ show("foot-warn"); txt("foot-warn-text", D.footWarn); }
+  document.getElementById("foot-hedges").innerHTML=(D.hedges||[]).map(function(x){ return '<li>'+esc(x)+'</li>'; }).join("");
+  if((D.sources||[]).length || D.collectedAt){
+    var s="데이터: "+(D.sources||[]).map(esc).join(" · ");
+    if(D.collectedAt) s+=" · 조회 "+esc(D.collectedAt);
+    document.getElementById("foot-src").innerHTML=s; show("foot-src");
+  }
+})();
+</script>
+</body>
+</html>
