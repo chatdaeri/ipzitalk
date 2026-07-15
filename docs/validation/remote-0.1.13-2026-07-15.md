@@ -44,7 +44,8 @@
 - Remote `0.1.13` Claude·Codex 사용자 프로필 설치 완료, 새 세션 문서 추출 회귀는 남음
 - `remote-mcp` CSP Report-Only [PR #67](https://github.com/chatdaeri/remote-mcp/pull/67)의 리뷰·병합·배포
 - 배포 뒤 실제 지도 콘솔 CSP 위반 확인과 강제 CSP 전환 판단
-- 생성한 PR의 리뷰·병합 대기: [Skill #18](https://github.com/chatdaeri/ipzitalk-skill/pull/18), [플러그인 #2](https://github.com/chatdaeri/ipzitalk/pull/2), [Remote 오류 #68](https://github.com/chatdaeri/remote-mcp/pull/68), [Remote CSP #67](https://github.com/chatdaeri/remote-mcp/pull/67)
+- [Remote 오류 #68](https://github.com/chatdaeri/remote-mcp/pull/68)은 `main` `1c5c80e`로 병합 완료
+- 리뷰·병합 대기: [Skill #18](https://github.com/chatdaeri/ipzitalk-skill/pull/18), [플러그인 #2](https://github.com/chatdaeri/ipzitalk/pull/2), [Remote CSP #67](https://github.com/chatdaeri/remote-mcp/pull/67). Remote CSP #67은 #68 병합 뒤 최신 `main` 위로 재배치했고 전체 48개 테스트 파일·403개 테스트를 다시 통과했다.
 
 ## 사용자 프로필
 
