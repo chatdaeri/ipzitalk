@@ -2,12 +2,12 @@
 
 - 날짜: 2026-07-15
 - Decision: 류호윤 + Codex
-- 상태: Remote `0.1.15` 배포 후보. 로컬 구현·정적 검증과 Claude·Codex 사용자 프로필 설치 완료, 새 세션 실행 검증 대기
+- 상태: Skill PR 병합 SHA 재잠금·정적 검증·대표 새 세션 회귀 완료, 플러그인 PR 준비
 - push·PR·배포: 수행하지 않음
 
 ## 변경 범위
 
-- `ipzitalk-skill` 로컬 체크포인트: `d3b0b55af75bd379e8d277114449addec701b384`
+- `ipzitalk-skill` PR: [#19](https://github.com/chatdaeri/ipzitalk-skill/pull/19), 병합 SHA `3e2c004d3089dbbc2ef33d1da7341df024d680f2`
 - Remote 플러그인: `0.1.15`
 - 동기화 대상: Skill 27개, 공통 artifact 3개
 - 변경된 서브 Skill:
@@ -17,7 +17,7 @@
   - Price Trend `1.2.5`
   - Transit Environment `1.0.1`
 
-아직 원격에 게시되지 않은 체크포인트를 잠갔으므로 `source-lock.json`의 availability는 `local-checkpoint`로 기록한다. 이번 Skill 보강을 배포 범위에 포함하며, 리뷰·병합 후 실제 병합 SHA로 다시 잠글 때 `private-release`로 전환한다.
+Skill PR #19의 실제 병합 SHA를 잠갔으며 `source-lock.json`의 availability는 `private-release`로 기록한다. 로컬 작업 브랜치 SHA를 release lock으로 사용하지 않는다.
 
 ## 보강 내용
 
@@ -96,6 +96,6 @@ PASS
 
 ## 다음 단계
 
-1. `ipzitalk-skill` 변경을 push하고 PR을 생성한다.
-2. Skill PR 병합 SHA로 `source-lock.json`을 다시 잠근다.
-3. 패키지 전체 검증 후 Remote 플러그인 PR을 생성한다.
+1. 전체 Skill·namespace·패키지·Claude strict 검증을 병합 SHA 기준으로 다시 실행한다.
+2. 검증이 통과하면 Remote 플러그인 PR을 생성한다.
+3. 런처 한국어 선택 안내와 OAuth 시작 경험 개선은 release lock 변경과 분리한 후속 작업으로 진행한다.

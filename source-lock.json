@@ -18,8 +18,8 @@
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": "d3b0b55af75bd379e8d277114449addec701b384",
-      "availability": "local-checkpoint",
+      "commit": "3e2c004d3089dbbc2ef33d1da7341df024d680f2",
+      "availability": "private-release",
       "versions": {
         "ipzitalk-announcement-search": "1.0.0",
         "ipzitalk-building-age-analysis": "1.0.3",
