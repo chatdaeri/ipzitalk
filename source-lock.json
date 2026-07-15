@@ -4,15 +4,15 @@
   "plugins": {
     "launcher": {
       "id": "ipzitalk",
-      "version": "0.1.1"
+      "version": "0.1.2"
     },
     "remote": {
       "id": "ipzitalk-remote",
-      "version": "0.1.15"
+      "version": "0.1.16"
     },
     "local": {
       "id": "ipzitalk-local",
-      "version": "0.1.1"
+      "version": "0.1.2"
     }
   },
   "sources": {

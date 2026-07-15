@@ -1,7 +1,7 @@
 interface:
-  display_name: "Ipzi Talk Setup"
-  short_description: "Choose and configure the Ipzi Talk runtime"
-  default_prompt: "Help me choose and set up Ipzi Talk Remote or OSS mode."
+  display_name: "입지톡 설정"
+  short_description: "입지톡 Remote 또는 OSS 실행 방식을 선택하고 설정합니다"
+  default_prompt: "입지톡 Remote 또는 OSS 실행 방식을 선택하고 설정해 주세요."
 
 policy:
   allow_implicit_invocation: false

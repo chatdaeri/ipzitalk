@@ -1,7 +1,7 @@
 {
   "name": "ipzitalk-remote",
-  "version": "0.1.15",
-  "description": "Connect Claude Code to the hosted Ipzi Talk MCP and 27 Remote Skills.",
+  "version": "0.1.16",
+  "description": "공식 OAuth로 호스팅 입지톡 MCP와 27개 Remote Skill을 사용합니다.",
   "author": {
     "name": "SynergyLabs"
   },

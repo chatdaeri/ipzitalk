@@ -1,7 +1,7 @@
 {
   "name": "ipzitalk-local",
-  "version": "0.1.1",
-  "description": "Run the open-source presale-mcp locally with securely stored API keys.",
+  "version": "0.1.2",
+  "description": "안전하게 저장된 사용자 API 키로 오픈소스 presale-mcp를 로컬 실행합니다.",
   "author": {
     "name": "SynergyLabs"
   },
@@ -12,29 +12,29 @@
   "userConfig": {
     "KAKAO_REST_API_KEY": {
       "type": "string",
-      "title": "Kakao REST API key",
-      "description": "Kakao Developers REST API key for address and nearby-place lookup.",
+      "title": "카카오 REST API 키",
+      "description": "주소와 주변 장소 검색에 사용하는 카카오 개발자 REST API 키입니다.",
       "sensitive": true,
       "required": true
     },
     "NAVER_MAPS_CLIENT_ID": {
       "type": "string",
-      "title": "Naver Maps client ID",
-      "description": "Naver Cloud Maps client ID for geocoding and static maps.",
+      "title": "네이버 지도 Client ID",
+      "description": "주소 좌표 변환과 지도에 사용하는 네이버 클라우드 지도 Client ID입니다.",
       "sensitive": true,
       "required": true
     },
     "NAVER_MAPS_CLIENT_SECRET": {
       "type": "string",
-      "title": "Naver Maps client secret",
-      "description": "Naver Cloud Maps client secret.",
+      "title": "네이버 지도 Client Secret",
+      "description": "네이버 클라우드 지도 Client Secret입니다.",
       "sensitive": true,
       "required": true
     },
     "DATA_GO_KR_SERVICE_KEY": {
       "type": "string",
-      "title": "data.go.kr service key",
-      "description": "Service key for ApplyHome, K-apt, and transaction APIs.",
+      "title": "공공데이터포털 서비스 키",
+      "description": "청약홈·K-apt·실거래 API에 사용하는 공공데이터포털 서비스 키입니다.",
       "sensitive": true,
       "required": true
     }
