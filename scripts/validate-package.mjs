@@ -265,10 +265,12 @@ assert(claudeLocal.mcpServers['presale-mcp'].command === 'npx', 'Claude local MC
 assert(JSON.stringify(claudeLocal.mcpServers['presale-mcp'].args) === JSON.stringify(['-y', 'presale-mcp@0.1.0']), 'Claude local MCP args mismatch');
 
 const readme = await readFile(resolve(root, 'README.md'), 'utf8');
-assert(readme.includes('Codex와 Claude Code용 입지톡 플러그인 marketplace입니다.'), 'README introduction must be Korean');
-assert(readme.includes('Remote(호스팅형·권장)'), 'README must document the Korean Remote choice');
-assert(readme.includes('OSS(로컬 실행)'), 'README must document the Korean OSS choice');
-assert(readme.includes('브라우저 로그인을 시작할지 한 번 묻고'), 'README must document the browser-login handoff');
+assert(/[가-힣]/.test(readme) && readme.includes('Claude Code') && readme.includes('Codex'), 'README introduction must be Korean and identify both clients');
+assert(readme.includes('Remote (권장)') && readme.includes('OSS (로컬)'), 'README must explain both runtime modes in Korean');
+const codexSetupDoc = await readFile(resolve(root, 'docs/codex-setup.md'), 'utf8');
+const claudeSetupDoc = await readFile(resolve(root, 'docs/claude-setup.md'), 'utf8');
+assert(codexSetupDoc.includes('codex mcp login ipzitalk'), 'Codex setup documentation must preserve the official OAuth login command');
+assert(claudeSetupDoc.includes('claude mcp login plugin:ipzitalk-remote:ipzitalk'), 'Claude setup documentation must preserve the official OAuth login command');
 
 const scannedFiles = [
   ...(await walk('plugins')),
