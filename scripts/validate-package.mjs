@@ -95,14 +95,19 @@ assert(!('env' in localServer), 'local MCP must not embed environment values');
 const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC skill lock must be marked local-only');
+assert(sourceLock.plugins.remote.version === '0.1.8', 'Remote security test package must be version 0.1.8');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 6, 'Remote PoC must contain exactly six skills');
 assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
 const lockedSkillVersions = sourceLock.sources.skills.versions ?? {};
 assert(Object.keys(lockedSkillVersions).sort().join('\n') === lockedSkills.join('\n'), 'locked Skill versions must match the allowlist');
+assert(lockedSkillVersions['ipzitalk-location-report'] === '1.3.1', 'location-report security version mismatch');
+assert(lockedSkillVersions['ipzitalk-read-notice-compare'] === '1.2.1', 'read-notice-compare security version mismatch');
+assert(lockedSkillVersions['ipzitalk-read-notice-report'] === '1.2.1', 'read-notice-report security version mismatch');
 assert(remote.version === sourceLock.plugins.remote.version, 'Codex Remote version mismatch');
 const lockedSkillArtifacts = [...(sourceLock.sources.skills.artifacts ?? [])].sort();
 assert(JSON.stringify(lockedSkillArtifacts) === JSON.stringify([
+  'scripts/document_extract.py',
   'scripts/html_artifact_contract.mjs',
   'scripts/xlsx_artifact.py',
 ]), 'unexpected locked Skill artifacts');
@@ -122,11 +127,18 @@ for (const skill of packagedSkills) {
   assert(skillText.includes('../../scripts/html_artifact_contract.mjs'), `missing HTML artifact renderer contract: ${skill}`);
   const template = await readFile(resolve(root, `plugins/ipzitalk-remote/skills/${skill}/templates/result.html`), 'utf8');
   assert(template.includes('<script type="application/json" id="ipzi-data">'), `missing inert JSON data block: ${skill}`);
-  assert(!template.includes('window.__DATA__ ='), `executable data assignment remains: ${skill}`);
+  assert(!/window\.__DATA__|\b__DATA__\b/.test(template), `legacy data boundary remains: ${skill}`);
 }
 for (const artifact of lockedSkillArtifacts) {
   const content = await readFile(resolve(root, 'plugins/ipzitalk-remote', artifact), 'utf8');
   assert(content.length > 0, `empty packaged Skill artifact: ${artifact}`);
+}
+const documentExtractor = await readFile(resolve(root, 'plugins/ipzitalk-remote/scripts/document_extract.py'), 'utf8');
+assert(documentExtractor.includes('MAX_PDF_PAGES = 500'), 'missing PDF page limit');
+assert(documentExtractor.includes('MAX_ZIP_ENTRIES = 256'), 'missing HWPX entry limit');
+for (const skill of ['ipzitalk-read-notice-compare', 'ipzitalk-read-notice-report']) {
+  const skillText = await readFile(resolve(root, `plugins/ipzitalk-remote/skills/${skill}/SKILL.md`), 'utf8');
+  assert(skillText.includes('../../scripts/document_extract.py'), `missing bounded document extractor contract: ${skill}`);
 }
 assert(sourceLock.plugins.local?.id === 'ipzitalk-local', 'local plugin lock missing');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.localMcp.commit), 'local MCP commit must be a full SHA');
