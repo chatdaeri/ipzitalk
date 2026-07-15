@@ -2,7 +2,7 @@
 
 - 날짜: 2026-07-15
 - Decision: 류호윤 + Codex
-- 상태: 로컬 구현·정적 검증과 Claude·Codex 사용자 프로필 설치 완료, 새 세션 실행 검증 대기
+- 상태: Remote `0.1.15` 배포 후보. 로컬 구현·정적 검증과 Claude·Codex 사용자 프로필 설치 완료, 새 세션 실행 검증 대기
 - push·PR·배포: 수행하지 않음
 
 ## 변경 범위
@@ -17,7 +17,7 @@
   - Price Trend `1.2.5`
   - Transit Environment `1.0.1`
 
-아직 원격에 게시되지 않은 체크포인트를 잠갔으므로 `source-lock.json`의 availability는 `local-checkpoint`로 기록한다. 리뷰·병합 후 실제 병합 SHA로 다시 잠글 때 `private-release`로 전환한다.
+아직 원격에 게시되지 않은 체크포인트를 잠갔으므로 `source-lock.json`의 availability는 `local-checkpoint`로 기록한다. 이번 Skill 보강을 배포 범위에 포함하며, 리뷰·병합 후 실제 병합 SHA로 다시 잠글 때 `private-release`로 전환한다.
 
 ## 보강 내용
 
@@ -71,4 +71,5 @@ PASS
 1. Parking Ranking을 같은 입력으로 다시 실행해 고정 template prefix·suffix와 iframe 보안 속성을 확인한다.
 2. 대표 서브 5종이 정해진 동적 사용자 파일명으로 생성되는지 확인한다.
 3. `audit.json.generatedFiles`가 실제 상대경로와 일치하는지 확인한다.
-4. 검증 완료 후에만 push·PR 여부를 사용자에게 확인한다.
+4. 새 세션 검증이 통과하면 `ipzitalk-skill` 변경을 push하고 PR을 생성한다.
+5. Skill PR 병합 SHA로 `source-lock.json`을 다시 잠근 뒤 Remote 플러그인 PR을 생성한다.
