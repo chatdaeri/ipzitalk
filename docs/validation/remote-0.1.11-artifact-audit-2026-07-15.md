@@ -9,11 +9,11 @@
 
 다섯 메인 Skill은 모두 사용자 HTML과 `result.json`의 데이터가 정확히 일치했고, 동적 HTML 파일명과 Remote provenance가 확인됐다. 사용자 HTML에는 `DB크로스체크`·`근거대조`·`mcp__`·개인 절대경로·비밀 이름이 없었고 대상 폴더의 심볼릭 링크도 0건이다.
 
-0.1.11 실행 자체는 완료됐지만, 아래 NEEDS FIX 다섯 건 때문에 최종 strict PASS로 확대하지 않는다. 이 다섯 건은 `ipzitalk-skill` `198223a`와 Remote `0.1.12`에 수정됐으며 새 Desktop 세션 재검증이 남았다.
+0.1.11 실행 자체는 완료됐지만, 아래 핵심 NEEDS FIX 다섯 건과 Complex 감사 필드 누락 때문에 최종 strict PASS로 확대하지 않는다. 핵심 다섯 건은 `ipzitalk-skill` `198223a`와 Remote `0.1.12`에 수정됐고, Complex의 `auditIncomplete:false` 명시는 새 Desktop 실행에서 별도로 확인한다.
 
 | Skill | 확인된 PASS | 0.1.11 NEEDS FIX | 후속 상태 |
 |---|---|---|---|
-| Complex Overview All | HTML/JSON 일치, `<단지명>_한눈에보기.html`, 확정월 12개·중복 0, MCP 23회, Remote provenance | `60~85㎡` 면적 구간을 `84㎡ 839세대`로 단정, `auditIncomplete` 명시 필드 없음 | 0.1.12 계약 수정, 재실행 필요 |
+| Complex Overview All | HTML/JSON 일치, `<단지명>_한눈에보기.html`, 확정월 12개·중복 0, MCP 23회, Remote provenance | `60~85㎡` 면적 구간을 `84㎡ 839세대`로 단정, `auditIncomplete` 명시 필드 없음 | 면적 계약은 0.1.12 수정, 감사 필드는 재실행 확인 필요 |
 | Location Report | HTML/JSON 일치, `<대상>_입지보고서.html`, `auditIncomplete:false`, Remote provenance, 사용자 세션에서 렌더·콘솔 오류 없음 보고 | center 관련 4콜과 총 21콜 중 불필요한 `get_address` 재검색, 정본 파일이 루트와 `out/`에 분산 | 0.1.12 계약 수정, 재실행 필요 |
 | Presale Report | HTML/JSON 일치, `<단지명>_인근_분양리포트.html`, MCP 3회, `auditIncomplete:false`, 집계·Remote provenance | 과거 입주를 설명하면서 부정문에 `앞으로 입주할 신규 물량` 사용 | 0.1.12 계약 수정, 재실행 필요 |
 | Read Notice Report | HTML/JSON 일치, `<공고명>_공고리포트.html`, Remote MCP 1회, `auditIncomplete:false`, XLSX 9시트 유효 | 기준 주택형을 MCP·추출 뒤 질문, 공고 원문과 반대로 발코니 확장비를 공급금액 포함으로 기록 | 0.1.12 계약 수정, 재실행 필요 |
@@ -40,4 +40,4 @@ Location Report 실행 대화에는 로컬 HTTP 렌더가 정상이고 콘솔 �
 
 ## 다음 단계
 
-0.1.12에서는 전체 기능을 처음부터 재감사하지 않고 위 NEEDS FIX 다섯 지점과 Recent Market Trend 동적 파일명만 집중 확인한다. 모두 통과하면 기능 회귀를 닫고 실제 지도/CSP 및 문서 추출 보안 검증으로 이동한다.
+0.1.12에서는 전체 기능을 처음부터 재감사하지 않고 위 NEEDS FIX 다섯 지점, Complex의 명시적 `auditIncomplete:false`, Recent Market Trend 동적 파일명만 집중 확인한다. 모두 통과하면 기능 회귀를 닫고 실제 지도/CSP 및 문서 추출 보안 검증으로 이동한다.
