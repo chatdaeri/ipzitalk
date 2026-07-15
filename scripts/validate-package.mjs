@@ -95,15 +95,18 @@ assert(!('env' in localServer), 'local MCP must not embed environment values');
 const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC skill lock must be marked local-only');
-assert(sourceLock.plugins.remote.version === '0.1.8', 'Remote security test package must be version 0.1.8');
+assert(sourceLock.plugins.remote.version === '0.1.9', 'Remote goal-contract test package must be version 0.1.9');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 6, 'Remote PoC must contain exactly six skills');
 assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
 const lockedSkillVersions = sourceLock.sources.skills.versions ?? {};
 assert(Object.keys(lockedSkillVersions).sort().join('\n') === lockedSkills.join('\n'), 'locked Skill versions must match the allowlist');
-assert(lockedSkillVersions['ipzitalk-location-report'] === '1.3.1', 'location-report security version mismatch');
-assert(lockedSkillVersions['ipzitalk-read-notice-compare'] === '1.2.1', 'read-notice-compare security version mismatch');
-assert(lockedSkillVersions['ipzitalk-read-notice-report'] === '1.2.1', 'read-notice-report security version mismatch');
+assert(lockedSkillVersions['ipzitalk-complex-overview-all'] === '1.1.1', 'complex-overview-all goal-contract version mismatch');
+assert(lockedSkillVersions['ipzitalk-location-report'] === '1.3.2', 'location-report goal-contract version mismatch');
+assert(lockedSkillVersions['ipzitalk-presale-report'] === '1.1.1', 'presale-report goal-contract version mismatch');
+assert(lockedSkillVersions['ipzitalk-read-notice-compare'] === '1.2.2', 'read-notice-compare goal-contract version mismatch');
+assert(lockedSkillVersions['ipzitalk-read-notice-report'] === '1.2.2', 'read-notice-report goal-contract version mismatch');
+assert(lockedSkillVersions['ipzitalk-recent-market-trend'] === '1.2.2', 'recent-market-trend goal-contract version mismatch');
 assert(remote.version === sourceLock.plugins.remote.version, 'Codex Remote version mismatch');
 const lockedSkillArtifacts = [...(sourceLock.sources.skills.artifacts ?? [])].sort();
 assert(JSON.stringify(lockedSkillArtifacts) === JSON.stringify([
@@ -124,11 +127,17 @@ for (const skill of packagedSkills) {
   assert(skillText.includes('ipzitalk-remote'), `missing Remote provenance rule: ${skill}`);
   assert(skillText.includes('mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>'), `missing plugin namespace fallback: ${skill}`);
   assert(skillText.includes('presale-mcp'), `missing local provenance exclusion: ${skill}`);
+  assert(skillText.includes('원하는 분석 목적을 한 문장으로 알려주세요'), `missing purpose question: ${skill}`);
+  assert(skillText.includes('그 턴을 종료해 답을 기다린다'), `missing purpose wait contract: ${skill}`);
+  assert(skillText.includes('데이터 조회·수집이 완료된 후에만'), `missing evidence-first summary contract: ${skill}`);
   assert(skillText.includes('../../scripts/html_artifact_contract.mjs'), `missing HTML artifact renderer contract: ${skill}`);
   const template = await readFile(resolve(root, `plugins/ipzitalk-remote/skills/${skill}/templates/result.html`), 'utf8');
   assert(template.includes('<script type="application/json" id="ipzi-data">'), `missing inert JSON data block: ${skill}`);
   assert(!/window\.__DATA__|\b__DATA__\b/.test(template), `legacy data boundary remains: ${skill}`);
 }
+const recentMarketTrend = await readFile(resolve(root, 'plugins/ipzitalk-remote/skills/ipzitalk-recent-market-trend/SKILL.md'), 'utf8');
+assert(recentMarketTrend.includes('검증된 사항은 런타임 fallback 또는 실행값 대체에 사용하지 않는다'), 'missing runtime fixture fallback prohibition');
+assert(recentMarketTrend.includes('auditIncomplete:true`이면 정상 완료를 주장하지 않는다'), 'missing incomplete-audit failure contract');
 for (const artifact of lockedSkillArtifacts) {
   const content = await readFile(resolve(root, 'plugins/ipzitalk-remote', artifact), 'utf8');
   assert(content.length > 0, `empty packaged Skill artifact: ${artifact}`);
