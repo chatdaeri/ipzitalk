@@ -5,7 +5,7 @@ description: >
   "최근 시장동향", "요즘 시장 어때", "거래 늘었어?", "어느 구가 오르나", "지역별 비교"
   등의 표현이 있으면 이 스킬을 사용한다.
   시군구 집계는 전용타입을 통일할 수 없어 구성 편향이 있으므로 "참고 신호"로만 제시한다.
-version: 1.2.5
+version: 1.2.6
 license: proprietary
 ---
 
@@ -69,8 +69,10 @@ license: proprietary
   - 레이아웃 기준: `templates/result.html`. 마크업·CSS·렌더 JS는 고정이고 실행마다 바뀌는 것은 비실행 `ipzi-data` JSON 블록 하나뿐이다.
 
 ### HTML·감사 산출물 계약 🚨
-- `out/ipzitalk-recent-market-trend/result.json`과 `out/ipzitalk-recent-market-trend/audit.json`을 먼저 만들고 HTML은 `out/ipzitalk-recent-market-trend/result.html`에 저장한다.
-- 셸 허용 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs`로 렌더·검증한다. shell-free 또는 셸 금지 환경에서는 File Read/Write로 `ipzi-data` 블록만 교체하고 fixed template region을 비교한다.
+- `out/ipzitalk-recent-market-trend/result.json`과 `out/ipzitalk-recent-market-trend/audit.json`은 내부 계약용 고정 이름으로 먼저 만든다.
+- 입력 순서대로 정규화한 지역명을 `_`로 잇고 기준월을 `YYYY-MM`으로 바꿔 `<지역묶음>_시장동향_<기준월>`을 만든다. 예: `강남구_송파구_서초구_시장동향_2026-05.html`. 지역명을 확보하지 못하면 이름을 지어내지 말고 `ipzitalk-recent-market-trend.html`로 폴백한다.
+- 최종 HTML 경로는 `out/ipzitalk-recent-market-trend/<지역묶음>_시장동향_<기준월>.html`이다.
+- 셸 허용 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs`를 `--file-name "<지역묶음>_시장동향_<기준월>"`과 함께 사용해 렌더·검증한다. shell-free 또는 셸 금지 환경에서는 같은 파일명으로 `ipzi-data` 블록만 교체하고 fixed template region을 비교한다.
 - validator가 통과하지 않거나 고정 영역을 비교할 수 없으면 완료 처리하지 않는다.
 - `audit.json` 최상위에는 `skillBaseDirectory`, 입력 요약, `calls`, `auditIncomplete`, `shellUsed`, `webUsed`, `generatedFiles`를 둔다.
 - 각 MCP 호출의 최초 반환 직후 `calls`에 한 행을 추가한다. 행 필드는 `sequence`, `baseToolName`, `region`, `regionCode`, `yearMonth`, `tradeType`, `limit`, `resultCount`, `sampleCount`, `truncated`, `provenance`다. 해당하지 않는 값은 `null`로 두고 필드를 생략하지 않는다.
@@ -78,6 +80,7 @@ license: proprietary
 - 최종 도구별 호출 수와 총합은 `calls`에서 자동 계산한다. 수기 집계나 별도 실행 기록을 감사 원장보다 우선하지 않는다.
 - 감사 누락 복구·보완을 위한 MCP 재호출은 금지한다. 기존 최초 반환으로 행을 복구할 수 없으면 `auditIncomplete:true`로 남기고 재조회하지 않는다.
 - 최종 응답은 `audit.json`의 `calls`에서 도구별 호출 횟수·Remote provenance·Skill base directory·shell/web 사용 여부·생성 파일을 계산한다.
+- `audit.json.generatedFiles`에는 예시 이름이 아니라 실제 최종 파일명과 경로를 기록한다.
 
 ## 필수 단서 · 금지 표현
 - 필수: **구성 미보정** 명시 · 표본(거래량) 표기 · 최근월 제외 사유 · 전용면적 기준 평당가 · 목록 개수 제한과 무관하게 중위값·거래량은 전체 거래 기준이라는 설명 · 출처·조회일.
@@ -172,6 +175,7 @@ license: proprietary
 ## 변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.2.6 | 2026-07-15 | 정규화 지역 묶음과 기준월 기반 시장동향 HTML 파일명을 동적화하고 내부 JSON·감사 파일 고정 이름 유지 |
 | 1.2.5 | 2026-07-15 | 단지·전용타입 후속 분석의 사용자 노출 명칭을 `시세 추이 분석`에서 `실거래 추이 분석`으로 통일 |
 | 1.2.4 | 2026-07-15 | 팝업 지원 환경의 4개 목적 프리셋+직접 입력과 텍스트 대체 질문을 함께 지원하는 하이브리드 목적 입력 계약 추가 |
 | 1.2.3 | 2026-07-15 | 상세 표의 첫 열 이후 헤더와 숫자 값을 같은 오른쪽 정렬로 맞춰 열 밀림 개선 |

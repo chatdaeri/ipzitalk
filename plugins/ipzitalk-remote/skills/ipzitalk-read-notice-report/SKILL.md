@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-read-notice-report
 description: "공식 모집공고문 PDF/HWP 하나에서 1분 브리핑·청약 일정 체크리스트·자금 조달 타임라인·제한사항 요약을 한 번에 뽑아 통합 공고 리포트 HTML을 만든다. 일부 섹션만 요청하면 해당 섹션만 렌더한다. (구 read-brief/read-dday/read-funding/read-limits 통합)"
-version: 1.2.3
+version: 1.2.4
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -90,9 +90,12 @@ Use **ipzitalk mcp** for live 청약공고/지도/공급정보 lookup when regen
 - Layout: hero(공고명 + chips) → 요약 KPI 4개 → ①1분 브리핑 → ②일정 체크리스트 → ③자금 타임라인 → ④제한사항 → 푸터. 각 섹션은 `ipzi-data.<key>`가 null이면 숨김.
 
 ### HTML 산출물 계약 🚨
-- 최종 HTML은 반드시 `out/ipzitalk-read-notice-report/result.html`에 저장하고 다른 스킬의 공유 `result.html`을 덮어쓰지 않는다.
-- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 완성한 JSON 파일, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
+- `result.json`·`audit.json`·`backdata.xlsx`는 내부 계약용 고정 이름으로 유지하고, 사용자 전달 HTML만 대상 기반 이름을 쓴다.
+- pin으로 확정한 공식 공고명으로 `<공고명>_공고리포트`를 만든다. 공식 공고명을 확보하지 못하면 관리번호를 사용하고, 둘 다 없으면 이름을 지어내지 말고 `ipzitalk-read-notice-report.html`로 폴백한다.
+- 최종 HTML 경로는 `out/ipzitalk-read-notice-report/<공고명>_공고리포트.html`이다.
+- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 `--file-name "<공고명>_공고리포트"`와 함께 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 완성한 JSON 파일, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
 - `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 직접 읽고 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
+- `audit.json.generatedFiles`에는 예시 이름이 아니라 실제 최종 파일명과 경로를 기록한다.
 - 검증기가 통과하기 전에는 완료로 주장하지 않는다. File Read/Write나 고정 영역 비교를 수행할 수 없거나 금지된 도구를 사용했다면 완료 처리하지 말고 제약과 실제 사용 도구를 보고한다.
 
 ## User-facing HTML rules
@@ -118,7 +121,7 @@ Use **ipzitalk mcp** for live 청약공고/지도/공급정보 lookup when regen
 
 ```txt
 out/ipzitalk-read-notice-report/
-  result.html
+  <공고명>_공고리포트.html
   backdata.xlsx        # 섹션 통합 1개 (원천파일·공급대상·공급금액·일정·제한사항·납부조건·DB크로스체크·검증결과·한계사항)
 ```
 
@@ -158,6 +161,7 @@ out/ipzitalk-read-notice-report/
 
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.2.4 | 2026-07-15 | 공식 공고명 또는 관리번호 기반 공고 리포트 HTML 파일명을 동적화하고 내부 JSON·감사·백데이터 파일 고정 이름 유지 |
 | 1.2.3 | 2026-07-15 | 팝업 지원 환경의 4개 목적 프리셋+직접 입력과 텍스트 대체 질문을 함께 지원하는 하이브리드 목적 입력 계약 추가 |
 | 1.2.2 | 2026-07-15 | 목적 미제공 시 질문 후 턴 종료·도구 호출 대기, 실데이터 수집 후에만 근거·주의사항·다음 행동을 도출하도록 계약 강화 |
 | 1.2.1 | 2026-07-15 | 공통 제한 추출기 `document_extract.py` 적용. PDF/HWP/HWPX 자원 상한과 비신뢰 원문·내부 지시 실행 금지 계약 추가 |

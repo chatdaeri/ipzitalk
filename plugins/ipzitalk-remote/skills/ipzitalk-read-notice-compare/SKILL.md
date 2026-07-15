@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-read-notice-compare
 description: "모집공고 2~4개를 공고문 원문 기준으로 비교한다. 청약 일정 겹침 캘린더·계약금/중도금/잔금 납부조건·전매제한/거주의무/재당첨제한·축별 비교표를 한 장 HTML로 낸다. '공고 비교', 'A 공고랑 B 공고 비교', '어느 청약부터 넣을까', '청약 일정 겹쳐?' 등의 표현이 있으면 이 스킬을 사용한다. 단지 자체(DB 기준 분양가·세대·입주월) 비교는 ipzitalk-presale-compare-card, 공고 1개 정리는 ipzitalk-read-notice-report."
-version: 1.2.3
+version: 1.2.4
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -107,9 +107,12 @@ ipzitalk-presale-compare-card(청약홈 DB 기준 단지 비교)와 역할이 �
 - Layout: hero(VS 헤더, 팀색 A파랑·B빨강·C보라·D청록 자동) → ①일정 겹침 캘린더 → ②자금 부담 스택바 → ③제한사항 비교표+원문 인용 → ④축별 비교표 → 푸터. `notices`가 2개 미만이면 본문 섹션 전체 숨김.
 
 ### HTML 산출물 계약 🚨
-- 최종 HTML은 반드시 `out/ipzitalk-read-notice-compare/result.html`에 저장하고 다른 스킬의 공유 `result.html`을 덮어쓰지 않는다.
-- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 완성한 JSON 파일, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
+- `result.json`·`audit.json`·`backdata.xlsx`는 내부 계약용 고정 이름으로 유지하고, 사용자 전달 HTML만 대상 기반 이름을 쓴다.
+- pin으로 확정한 공식 공고명을 사용한다. 2건이면 `<공고명A>_<공고명B>_공고비교`, 3~4건이면 `<첫 공고명>외<N-1>건_공고비교`로 만들며 예시는 `안동에피트_대청천에피트_공고비교.html`이다. 공고명을 확보하지 못하면 관리번호를 사용하고, 둘 다 없으면 `ipzitalk-read-notice-compare.html`로 폴백한다.
+- 최종 HTML 경로는 `out/ipzitalk-read-notice-compare/<비교대상>_공고비교.html`이다.
+- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 `--file-name "<비교대상>_공고비교"`와 함께 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 완성한 JSON 파일, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
 - `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 직접 읽고 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
+- `audit.json.generatedFiles`에는 예시 이름이 아니라 실제 최종 파일명과 경로를 기록한다.
 - 검증기가 통과하기 전에는 완료로 주장하지 않는다. File Read/Write나 고정 영역 비교를 수행할 수 없거나 금지된 도구를 사용했다면 완료 처리하지 말고 제약과 실제 사용 도구를 보고한다.
 
 ## User-facing HTML rules
@@ -135,7 +138,7 @@ ipzitalk-presale-compare-card(청약홈 DB 기준 단지 비교)와 역할이 �
 
 ```txt
 out/ipzitalk-read-notice-compare/
-  result.html
+  <비교대상>_공고비교.html
   backdata.xlsx        # 공고별 시트(원천파일~한계사항) + 비교 시트
 ```
 
@@ -175,6 +178,7 @@ out/ipzitalk-read-notice-compare/
 
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.2.4 | 2026-07-15 | 공식 공고명 기반 비교 HTML 파일명을 동적화하고 내부 JSON·감사·백데이터 파일 고정 이름 유지 |
 | 1.2.3 | 2026-07-15 | 팝업 지원 환경의 4개 목적 프리셋+직접 입력과 텍스트 대체 질문을 함께 지원하는 하이브리드 목적 입력 계약 추가 |
 | 1.2.2 | 2026-07-15 | 목적 미제공 시 질문 후 턴 종료·도구 호출 대기, 실데이터 수집 후에만 근거·주의사항·다음 행동을 도출하도록 계약 강화 |
 | 1.2.1 | 2026-07-15 | 공고별 공통 제한 추출기 `document_extract.py` 적용. 자원 제한 초과 중단과 비신뢰 원문·내부 지시 실행 금지 계약 추가 |

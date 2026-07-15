@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { basename, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const dataMarker = '<script type="application/json" id="ipzi-data">';
 const dataEndMarker = "</script>";
 const skillNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const windowsReservedNamePattern = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
 const forbiddenPatterns = [
   ["DB크로스체크", /DB크로스체크/],
   ["근거대조", /근거대조/],
@@ -43,11 +44,41 @@ function serializeData(data) {
     .replaceAll("\u2029", "\\u2029");
 }
 
+export function sanitizeFileName(raw, skillName) {
+  const fallback = skillName;
+  let name = String(raw ?? fallback).normalize("NFC").trim();
+  name = name.replace(/\.html$/i, "");
+  name = name
+    .replace(/[\u0000-\u001f\u007f]/g, "")
+    .replace(/[\u200b-\u200f\u202a-\u202e\u2060\u2066-\u2069\ufeff]/g, "")
+    .replace(/[\/\\:*?"<>|]/g, "_")
+    .replace(/\s+/gu, "_")
+    .replace(/_+/g, "_")
+    .replace(/^[._-]+|[._-]+$/g, "");
+  name = [...name].slice(0, 80).join("").replace(/[._-]+$/g, "");
+
+  if (!name || name === "." || name === ".." || windowsReservedNamePattern.test(name)) {
+    name = fallback;
+  }
+
+  const fileName = `${name}.html`;
+  if (
+    basename(fileName) !== fileName
+    || fileName.includes("/")
+    || fileName.includes("\\")
+    || fileName.startsWith(".")
+  ) {
+    return `${fallback}.html`;
+  }
+  return fileName;
+}
+
 export async function renderHtmlArtifact({
   skillDir,
   skillName = basename(resolve(skillDir)),
   data,
   outputRoot = "out",
+  fileName,
 }) {
   if (!skillNamePattern.test(skillName)) {
     throw new Error(`invalid Skill name: ${skillName}`);
@@ -57,8 +88,12 @@ export async function renderHtmlArtifact({
   const template = await readFile(templatePath, "utf8");
   const parts = splitArtifact(template, templatePath);
   const outputDir = join(resolve(outputRoot), skillName);
-  const outputPath = join(outputDir, "result.html");
-  const temporaryPath = join(outputDir, `.result.html.tmp-${process.pid}`);
+  const safeFileName = sanitizeFileName(fileName, skillName);
+  const outputPath = join(outputDir, safeFileName);
+  if (dirname(outputPath) !== outputDir) {
+    throw new Error("unsafe output filename");
+  }
+  const temporaryPath = join(outputDir, `.${safeFileName}.tmp-${process.pid}`);
   const rendered = `${parts.prefix}${serializeData(data)}${parts.suffix}`;
 
   await mkdir(outputDir, { recursive: true });
@@ -104,7 +139,7 @@ function parseArguments(argv) {
     const key = argv[index];
     const value = argv[index + 1];
     if (!key?.startsWith("--") || value === undefined) {
-      throw new Error("usage: html_artifact_contract.mjs --skill-dir DIR --data FILE [--output-root DIR]");
+      throw new Error("usage: html_artifact_contract.mjs --skill-dir DIR --data FILE [--output-root DIR] [--file-name NAME]");
     }
     values.set(key.slice(2), value);
   }
@@ -121,6 +156,7 @@ async function main() {
     skillDir: resolve(args.get("skill-dir")),
     data,
     outputRoot: resolve(args.get("output-root") ?? "out"),
+    fileName: args.get("file-name"),
   });
   await validateHtmlArtifact(result);
   console.log(result.outputPath);

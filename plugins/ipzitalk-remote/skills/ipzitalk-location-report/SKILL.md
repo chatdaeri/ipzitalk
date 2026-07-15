@@ -5,7 +5,7 @@ description: >
   종합 지도)를 생성한다. "세부 입지", "입지 분석", "입지 보고서", "이 사업지 입지 어때",
   "입지 종합", "주변 환경 종합" 등의 표현이 있으면 이 스킬을 사용한다.
   단일 분야만 물으면(교통만/학군만) 해당 단일 스킬을 쓴다. 점수화는 입지 평가 스킬로 분리한다.
-version: 1.3.3
+version: 1.3.4
 license: proprietary
 ---
 
@@ -135,17 +135,19 @@ references/education-workflow.md    교육 환경
 
 | 선택 | 절차 | 산출 |
 |---|---|---|
-| (1) HTML | `templates/result.html` 복사 → 비실행 `ipzi-data` JSON 블록을 `result.json` 내용으로 **통째 치환**. 마크업·CSS·렌더 JS는 손대지 않는다 | `result.html` (동적 지도 iframe) |
-| (2) PPTX | `python3 templates/build_pptx.py result.json result.pptx` (`pip install python-pptx`) | `result.pptx` — **HTML 리포트와 같은 다크 스타일**(동일 토큰). 표지 → 종합요약(**좌: 지도 / 우: 요약·축 카드** 2분할) → 섹션별 표(등급 pill·밴드·회색 각주) → 광역축 → 유의사항. 표는 한 장에 8행까지 |
-| (3) DOCX | `python3 templates/build_docx.py result.json result.docx` (`pip install python-docx`) | `result.docx` — 상단에 지도 이미지 + 동적 지도 링크 |
+| (1) HTML | `templates/result.html` 복사 → 비실행 `ipzi-data` JSON 블록을 `result.json` 내용으로 **통째 치환**. 마크업·CSS·렌더 JS는 손대지 않는다 | `<대상>_입지보고서.html` (동적 지도 iframe) |
+| (2) PPTX | `python3 templates/build_pptx.py result.json <대상>_입지보고서.pptx` (`pip install python-pptx`) | `<대상>_입지보고서.pptx` — **HTML 리포트와 같은 다크 스타일**(동일 토큰). 표지 → 종합요약(**좌: 지도 / 우: 요약·축 카드** 2분할) → 섹션별 표(등급 pill·밴드·회색 각주) → 광역축 → 유의사항. 표는 한 장에 8행까지 |
+| (3) DOCX | `python3 templates/build_docx.py result.json <대상>_입지보고서.docx` (`pip install python-docx`) | `<대상>_입지보고서.docx` — 상단에 지도 이미지 + 동적 지도 링크 |
 
 - 베타 고지 문구는 세 템플릿 모두에 이미 박혀 있다. 렌더 후 따로 덧붙이지 않는다.
 - 렌더러가 실패하면(모듈 없음 등) 조용히 다른 형식으로 바꾸지 말고 원인을 알린다.
 
 ### HTML 산출물 계약 🚨
-- HTML 선택 시 공유 `result.html`을 덮어쓰지 말고 반드시 `out/ipzitalk-location-report/result.html`에 저장한다.
-- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 `result.json`, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
+- `result.json`·`audit.json`은 모든 렌더러가 공유하는 내부 계약용 고정 이름으로 유지한다. 사용자 전달 HTML·PPTX·DOCX만 같은 `<대상>_입지보고서` basename을 쓴다.
+- `<대상>`은 resolver가 확정한 공식 단지명이다. 주소 입력에서 공식 단지명이 없으면 정규화 주소를 사용하며, 둘 다 없으면 이름을 지어내지 말고 `ipzitalk-location-report`로 폴백한다.
+- HTML은 `out/ipzitalk-location-report/<대상>_입지보고서.html`에 저장한다. 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 `--file-name "<대상>_입지보고서"`와 함께 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 `result.json`, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
 - `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 직접 읽고 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
+- 사용자가 완료 뒤 다른 형식을 추가 요청하면 같은 basename으로 렌더하고 MCP는 재호출하지 않는다. `audit.json.generatedFiles`에는 실제 최종 파일명과 경로를 추가하고 과정 문서도 갱신한다.
 - 검증기가 통과하기 전에는 완료로 주장하지 않는다. File Read/Write나 고정 영역 비교를 수행할 수 없거나 금지된 도구를 사용했다면 완료 처리하지 말고 제약과 실제 사용 도구를 보고한다.
 
 ### 지도: 동적 지도를 헤드리스 Chrome으로 캡처한다
@@ -245,6 +247,7 @@ A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규
 ## 변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.3.4 | 2026-07-15 | 교통·생활·교육·광역 축의 숫자 헤더와 거리 셀 정렬을 통일하고 HTML/PPTX/DOCX를 대상 기반 `<대상>_입지보고서` 이름으로 동적화 |
 | 1.3.3 | 2026-07-15 | 팝업 지원 환경의 4개 목적 프리셋+직접 입력과 텍스트 대체 질문을 함께 지원하는 하이브리드 목적 입력 계약 추가 |
 | 1.3.2 | 2026-07-15 | 목적 미제공 시 질문 후 턴 종료·도구 호출 대기, 실데이터 수집 후에만 근거·주의사항·다음 행동을 도출하도록 계약 강화 |
 | 1.3.1 | 2026-07-15 | `mapshot.py`가 정식 Ipzi Talk HTTPS `/map?d=<id>`만 캡처하도록 제한하고 localhost·사설망·로컬 파일·추가 query를 차단 |

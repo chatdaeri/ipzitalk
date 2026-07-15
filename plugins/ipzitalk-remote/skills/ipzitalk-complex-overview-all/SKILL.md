@@ -7,7 +7,7 @@ description: >
   이 스킬을 사용한다. 단일 항목만 물으면(시세만/학군만) 해당 단일 스킬을 쓴다.
   범위를 밝히지 않은 "OO아파트 어때" 는 이 스킬이 아니라 단지 개요 요약(ipzitalk-complex-overview)으로 보낸다.
   23크레딧이라 개요 요약(3크레딧)의 8배다. 애매하면 싼 쪽을 쓰고, 부족하면 이 스킬을 권한다.
-version: 1.1.3
+version: 1.1.4
 license: proprietary
 ---
 
@@ -251,9 +251,11 @@ K-apt 기본·상세 어디에도 필드가 없다. 연면적은 있으나 **대
 마크업·CSS·렌더 JS는 고정이다. **실행마다 바뀌는 것은 `ipzi-data` 블록 하나뿐.**
 
 ### HTML 산출물 계약 🚨
-- 최종 HTML은 공유 `result.html`을 덮어쓰지 말고 반드시 `out/ipzitalk-complex-overview-all/result.html`에 저장한다.
-- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 완성한 JSON 파일, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
+- `result.json`·`audit.json`은 내부 계약용 고정 이름으로 유지하고, 사용자 전달 HTML만 대상 기반 이름을 쓴다.
+- `get_complex_info`로 확정한 공식 단지명에서 공백만 정리해 `<단지명>_한눈에보기`를 만들고, 최종 HTML은 `out/ipzitalk-complex-overview-all/<단지명>_한눈에보기.html`에 저장한다. 공식 단지명을 확보하지 못하면 이름을 지어내지 말고 `--file-name`을 생략해 `ipzitalk-complex-overview-all.html`로 폴백한다.
+- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 `--file-name "<단지명>_한눈에보기"`와 함께 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 완성한 JSON 파일, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다. 스크립트가 경로·예약문자·길이를 안전화한다.
 - `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 직접 읽고 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
+- `audit.json.generatedFiles`에는 예시 이름이 아니라 실제 최종 파일명과 경로를 기록한다.
 - 검증기가 통과하기 전에는 완료로 주장하지 않는다. File Read/Write나 고정 영역 비교를 수행할 수 없거나 금지된 도구를 사용했다면 완료 처리하지 말고 제약과 실제 사용 도구를 보고한다.
 
 섹션 순서(고정): 개요 KPI 4칸 → 지도 → 매매 차트 → 전세/전세가율 2분할 → 최근 매매 5행 →
@@ -346,6 +348,7 @@ K-apt 기본·상세 어디에도 필드가 없다. 연면적은 있으나 **대
 ## 변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.1.4 | 2026-07-15 | 사용자 전달 HTML을 확정 단지명 기반 `<단지명>_한눈에보기.html`로 동적화하고 내부 JSON·감사 파일 고정 이름 유지 |
 | 1.1.3 | 2026-07-15 | 하위 Skill 사용자 노출 명칭을 `시세추이`에서 `실거래 추이`로 통일 |
 | 1.1.2 | 2026-07-15 | 팝업 지원 환경의 4개 목적 프리셋+직접 입력과 텍스트 대체 질문을 함께 지원하는 하이브리드 목적 입력 계약 추가 |
 | 1.1.1 | 2026-07-15 | 목적 미제공 시 질문 후 턴 종료·도구 호출 대기, 실데이터 수집 후에만 근거·주의사항·다음 행동을 도출하도록 계약 강화 |
