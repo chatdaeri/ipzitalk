@@ -62,3 +62,16 @@ Location Report의 호출 계약은 숫자 하나를 강제하지 않는다. 검
 5. Notice Compare: 초기 현금이 다른 경우 낮은 쪽 winner가 표시되는지 확인
 
 실제 Naver 지도와 CSP 조합, 공개 release SHA 재잠금은 별도 보안·릴리스 gate로 남긴다. 원격 push·PR은 사용자 지시에 따라 오늘 작업 종료까지 보류한다.
+
+## 잔여 보안 검증
+
+정적 HTML·문서 제한 계약과 실제 지도 응답을 [별도 보안 검증 기록](security-gate-2026-07-15.md)으로 확인했다.
+
+- HTML·HWPX 집중 회귀: 9/9 통과
+- 정상 PDF: 3,488줄·500,533바이트 제한 추출 통과
+- 손상·명령 삽입 PDF: exit 2, 출력 파일 없이 안전 거부
+- 실제 legacy HWP: `hwp5txt` 미설치로 exit 2, 출력 파일 없이 안전 중단
+- 지도 응답: HTTP 200, Naver SDK·마커 7개·1,500m 반경 원 확인
+- 남은 gate: 지도 페이지 CSP 부재, 인앱 브라우저 캐시 불일치로 픽셀·콘솔 독립 검증 차단, legacy HWP 정상 추출 미검증
+
+따라서 문서·HTML 정적 보안은 PASS지만 Phase 1A 전체는 완료 처리하지 않는다.
