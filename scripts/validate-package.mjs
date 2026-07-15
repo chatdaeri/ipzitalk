@@ -61,13 +61,32 @@ const launcher = await readJson('plugins/ipzitalk/.codex-plugin/plugin.json');
 assert(launcher.skills === './skills/', 'launcher must expose setup skill');
 assert(!('mcpServers' in launcher), 'launcher must not expose an MCP server');
 const setupSkill = await readFile(resolve(root, 'plugins/ipzitalk/skills/setup/SKILL.md'), 'utf8');
-assert(setupSkill.includes('successful remove exit status alone is insufficient'), 'setup must verify state after remove');
-assert(setupSkill.includes('skill provenance conflict'), 'setup must stop on duplicate or missing Remote Skill provenance');
-assert(setupSkill.includes('Do not remove or rewrite the global Skill automatically'), 'setup must preserve global Skills');
+assert(setupSkill.includes('제거 명령의 성공 종료 상태만으로는 충분하지 않다'), 'setup must verify state after remove');
+assert(setupSkill.includes('Skill 출처 충돌'), 'setup must stop on duplicate or missing Remote Skill provenance');
+assert(setupSkill.includes('전역 Skill을 자동으로 삭제하거나 다시 쓰지 않는다'), 'setup must preserve global Skills');
+assert(setupSkill.includes('Remote(호스팅형·권장)'), 'setup must expose the Korean Remote choice');
+assert(setupSkill.includes('OSS(로컬 실행)'), 'setup must expose the Korean OSS choice');
+assert(setupSkill.includes('상태만 확인'), 'setup must expose the Korean status-only choice');
+assert(setupSkill.includes('27개 Remote Skill'), 'setup must describe the current Remote Skill count');
+assert(setupSkill.includes('claude mcp login plugin:ipzitalk-remote:ipzitalk'), 'setup must use Claude native OAuth login');
+assert(setupSkill.includes('codex mcp login ipzitalk'), 'setup must use Codex native OAuth login');
+assert(setupSkill.includes('인증 URL·코드·토큰을 출력하거나 기록하지 않는다'), 'setup must protect OAuth material');
+assert(/[가-힣]/.test(launcher.description), 'Codex launcher description must be Korean');
+assert(/[가-힣]/.test(launcher.interface?.shortDescription ?? ''), 'Codex launcher short description must be Korean');
+assert(/[가-힣]/.test(launcher.interface?.longDescription ?? ''), 'Codex launcher long description must be Korean');
+assert((launcher.interface?.defaultPrompt ?? []).every((prompt) => /[가-힣]/.test(prompt)), 'Codex launcher default prompts must be Korean');
+const launcherAgent = await readFile(resolve(root, 'plugins/ipzitalk/skills/setup/agents/openai.yaml'), 'utf8');
+assert(launcherAgent.includes('display_name: "입지톡 설정"'), 'Codex setup agent display name must be Korean');
+assert(launcherAgent.includes('short_description: "입지톡 Remote 또는 OSS 실행 방식을 선택하고 설정합니다"'), 'Codex setup agent description must be Korean');
+assert(launcherAgent.includes('default_prompt: "입지톡 Remote 또는 OSS 실행 방식을 선택하고 설정해 주세요."'), 'Codex setup agent prompt must be Korean');
 
 const remote = await readJson('plugins/ipzitalk-remote/.codex-plugin/plugin.json');
 assert(remote.mcpServers === './.mcp.json', 'remote companion path mismatch');
 assert(remote.skills === './skills/', 'remote payload must expose the locked skills');
+assert(/[가-힣]/.test(remote.description), 'Codex Remote description must be Korean');
+assert(/[가-힣]/.test(remote.interface?.shortDescription ?? ''), 'Codex Remote short description must be Korean');
+assert(/[가-힣]/.test(remote.interface?.longDescription ?? ''), 'Codex Remote long description must be Korean');
+assert((remote.interface?.defaultPrompt ?? []).every((prompt) => /[가-힣]/.test(prompt)), 'Codex Remote default prompts must be Korean');
 
 const remoteMcp = await readJson('plugins/ipzitalk-remote/.mcp.json');
 assert(Object.keys(remoteMcp.mcpServers ?? {}).join(',') === 'ipzitalk', 'unexpected remote MCP server IDs');
@@ -77,6 +96,10 @@ assert(remoteMcp.mcpServers.ipzitalk.url === 'https://ipzi-talk.synergylabs.kr/m
 const local = await readJson('plugins/ipzitalk-local/.codex-plugin/plugin.json');
 assert(!('skills' in local), 'local payload must contain zero skills');
 assert(local.mcpServers === './.mcp.json', 'local companion path mismatch');
+assert(/[가-힣]/.test(local.description), 'Codex Local description must be Korean');
+assert(/[가-힣]/.test(local.interface?.shortDescription ?? ''), 'Codex Local short description must be Korean');
+assert(/[가-힣]/.test(local.interface?.longDescription ?? ''), 'Codex Local long description must be Korean');
+assert((local.interface?.defaultPrompt ?? []).every((prompt) => /[가-힣]/.test(prompt)), 'Codex Local default prompts must be Korean');
 
 const localMcp = await readJson('plugins/ipzitalk-local/.mcp.json');
 assert(Object.keys(localMcp.mcpServers ?? {}).join(',') === 'presale-mcp', 'unexpected local MCP server IDs');
@@ -95,7 +118,9 @@ assert(!('env' in localServer), 'local MCP must not embed environment values');
 const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.availability === 'private-release', 'merged private Skill lock must be marked private-release');
-assert(sourceLock.plugins.remote.version === '0.1.15', 'Remote sub-Skill artifact-contract package must be version 0.1.15');
+assert(sourceLock.plugins.launcher.version === '0.1.2', 'localized launcher package must be version 0.1.2');
+assert(sourceLock.plugins.remote.version === '0.1.16', 'localized Remote package must be version 0.1.16');
+assert(sourceLock.plugins.local.version === '0.1.2', 'localized Local package must be version 0.1.2');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 27, 'Remote release must contain exactly 27 skills');
 assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
@@ -204,33 +229,46 @@ assert(sourceLock.sources.localMcp.toolsSnapshotSha256 === '08df02512148d67604a3
 
 const claudeMarketplace = await readJson('.claude-plugin/marketplace.json');
 assert(claudeMarketplace.name === 'ipzitalk', 'unexpected Claude marketplace name');
+assert(/[가-힣]/.test(claudeMarketplace.description ?? ''), 'Claude marketplace description must be Korean');
 assert(claudeMarketplace.plugins?.map((entry) => entry.name).join(',') === 'ipzitalk,ipzitalk-remote,ipzitalk-local', 'unexpected Claude marketplace entries');
 for (const entry of claudeMarketplace.plugins) {
   assert(entry.source === `./plugins/${entry.name}`, `unexpected Claude source path: ${entry.name}`);
   assert(entry.version === sourceLock.plugins[entry.name === 'ipzitalk' ? 'launcher' : entry.name === 'ipzitalk-remote' ? 'remote' : 'local'].version, `Claude version mismatch: ${entry.name}`);
+  assert(/[가-힣]/.test(entry.description ?? ''), `Claude marketplace plugin description must be Korean: ${entry.name}`);
 }
 
 const claudeLauncher = await readJson('plugins/ipzitalk/.claude-plugin/plugin.json');
 assert(claudeLauncher.skills === './skills/', 'Claude launcher must expose setup skill');
 assert(!('mcpServers' in claudeLauncher), 'Claude launcher must not expose an MCP server');
+assert(/[가-힣]/.test(claudeLauncher.description), 'Claude launcher description must be Korean');
 
 const claudeRemote = await readJson('plugins/ipzitalk-remote/.claude-plugin/plugin.json');
 assert(claudeRemote.skills === './skills/', 'Claude Remote must expose the locked skills');
 assert(claudeRemote.mcpServers?.ipzitalk?.type === 'http', 'Claude Remote MCP must use HTTP');
 assert(claudeRemote.mcpServers.ipzitalk.url === 'https://ipzi-talk.synergylabs.kr/mcp', 'Claude Remote URL mismatch');
+assert(/[가-힣]/.test(claudeRemote.description), 'Claude Remote description must be Korean');
 
 const claudeLocal = await readJson('plugins/ipzitalk-local/.claude-plugin/plugin.json');
 assert(!('skills' in claudeLocal), 'Claude local payload must contain zero skills');
+assert(/[가-힣]/.test(claudeLocal.description), 'Claude Local description must be Korean');
 assert(Object.keys(claudeLocal.userConfig ?? {}).join(',') === expectedEnvVars.join(','), 'Claude local userConfig keys mismatch');
 for (const name of expectedEnvVars) {
   assert(claudeLocal.userConfig[name]?.type === 'string', `Claude userConfig type mismatch: ${name}`);
   assert(claudeLocal.userConfig[name]?.required === true, `Claude userConfig must be required: ${name}`);
   assert(claudeLocal.userConfig[name]?.sensitive === true, `Claude userConfig must be sensitive: ${name}`);
+  assert(/[가-힣]/.test(claudeLocal.userConfig[name]?.title ?? ''), `Claude userConfig title must be Korean: ${name}`);
+  assert(/[가-힣]/.test(claudeLocal.userConfig[name]?.description ?? ''), `Claude userConfig description must be Korean: ${name}`);
   assert(claudeLocal.mcpServers?.['presale-mcp']?.env?.[name] === `\${user_config.${name}}`, `Claude userConfig interpolation mismatch: ${name}`);
 }
 assert(Object.keys(claudeLocal.mcpServers ?? {}).join(',') === 'presale-mcp', 'unexpected Claude local MCP server IDs');
 assert(claudeLocal.mcpServers['presale-mcp'].command === 'npx', 'Claude local MCP command mismatch');
 assert(JSON.stringify(claudeLocal.mcpServers['presale-mcp'].args) === JSON.stringify(['-y', 'presale-mcp@0.1.0']), 'Claude local MCP args mismatch');
+
+const readme = await readFile(resolve(root, 'README.md'), 'utf8');
+assert(readme.includes('Codex와 Claude Code용 입지톡 플러그인 marketplace입니다.'), 'README introduction must be Korean');
+assert(readme.includes('Remote(호스팅형·권장)'), 'README must document the Korean Remote choice');
+assert(readme.includes('OSS(로컬 실행)'), 'README must document the Korean OSS choice');
+assert(readme.includes('브라우저 로그인을 시작할지 한 번 묻고'), 'README must document the browser-login handoff');
 
 const scannedFiles = [
   ...(await walk('plugins')),

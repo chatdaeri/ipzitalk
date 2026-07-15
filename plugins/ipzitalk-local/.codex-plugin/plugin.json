@@ -1,7 +1,7 @@
 {
   "name": "ipzitalk-local",
-  "version": "0.1.1",
-  "description": "Run the open-source Ipzi Talk MCP locally through Node.js.",
+  "version": "0.1.2",
+  "description": "오픈소스 입지톡 MCP를 Node.js로 로컬 실행합니다.",
   "author": {
     "name": "SynergyLabs",
     "url": "https://synergylabs.kr"
@@ -10,14 +10,14 @@
   "repository": "https://github.com/chatdaeri/ipzitalk",
   "keywords": ["real-estate", "presale", "korea", "mcp", "local"],
   "interface": {
-    "displayName": "Ipzi Talk Local MCP",
-    "shortDescription": "Local open-source Ipzi Talk MCP runtime",
-    "longDescription": "Run presale-mcp locally with API keys forwarded from the Codex process environment. This payload contains no Remote Skills.",
+    "displayName": "입지톡 OSS(로컬)",
+    "shortDescription": "사용자 API 키로 로컬 실행",
+    "longDescription": "Codex 프로세스 환경의 API 키를 전달해 presale-mcp를 로컬 실행합니다. 이 패키지에는 Remote Skill이 없습니다.",
     "developerName": "SynergyLabs",
     "category": "Productivity",
     "capabilities": ["Read"],
     "defaultPrompt": [
-      "Use the local Ipzi Talk MCP to geocode a Korean address."
+      "입지톡 OSS로 국내 주소의 좌표를 확인해 주세요."
     ]
   },
   "mcpServers": "./.mcp.json"
