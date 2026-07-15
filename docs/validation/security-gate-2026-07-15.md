@@ -18,7 +18,7 @@
 | 지도 픽셀·콘솔 | BLOCKED | 인앱 브라우저 미노출 및 브라우저 Skill 진단 문서 캐시 버전 불일치 |
 | 정상 PDF 제한 추출 | PASS | 구리역 하이니티 리버파크 PDF 3,488줄·500,533바이트 추출 |
 | 손상·명령 삽입 PDF | PASS | 손상된 xref PDF를 exit 2로 거부하고 출력 파일을 남기지 않음 |
-| legacy HWP | SAFE FAIL | 실제 HWP 입력을 임의 우회하지 않고 `hwp5txt` 미설치로 exit 2, 출력 파일 없음 |
+| legacy HWP | PASS | 격리 환경에서 실제 HWP 65줄·618바이트 추출, 4KB 손상 HWP는 빈 결과로 거부 |
 | HWPX 악성 입력 | PASS | 심볼릭 링크·과대 파일·ZIP entry 초과·압축폭탄 거부 회귀 통과 |
 
 ## 실행한 검증
@@ -45,9 +45,10 @@ node --test tests/document_security.test.mjs tests/all_skill_html_security.test.
 ### legacy HWP 실증
 
 - 실제 입력: `아파트 매매 실거래가 자료 기술문서.hwp`
-- 결과: `hwp5txt is required for legacy HWP extraction`, exit 2, 최종 출력 파일 0개
-- 현재 환경에는 `hwp5txt`가 없어 정상 legacy HWP 추출 성공까지 증명하지 못했다. 새 의존성은 설치하지 않았다.
-- 실패 시 다른 변환기나 무제한 셸 처리로 우회하지 않으므로 안전 실패 계약은 확인했다.
+- `/tmp` 격리 가상환경에 승인받은 `pyhwp 0.1b15`와 누락 런타임 의존성 `six 1.17.0`을 설치했다. 저장소·시스템 Python 의존성은 바꾸지 않았다.
+- 정상 결과: exit 0, 65줄, 618바이트
+- 4,096바이트로 잘린 손상 입력의 최초 실증에서는 `hwp5txt`가 성공 코드와 0바이트 결과를 반환했다.
+- 추출기가 비어 있거나 공백뿐인 결과를 거부하도록 보강한 뒤 exit 2, `text output is empty`, 최종 출력 파일 0개를 확인했다.
 
 ### 실제 지도 응답
 
@@ -66,7 +67,7 @@ Codex 인앱 브라우저에는 연결 가능한 브라우저가 없었다. Brow
 
 1. `remote-mcp/security/map-csp-2026-07-15`의 nonce 기반 `Content-Security-Policy-Report-Only`를 리뷰·배포한다. RED `4a9ca71`, GREEN `3a48b5c`이며 typecheck·402개 테스트·build가 통과했다.
 2. 배포 뒤 인앱 브라우저에서 지도 픽셀·마커·반경 원과 CSP 콘솔 위반을 재검증하고 위반 0건일 때만 강제 `Content-Security-Policy`로 전환한다.
-3. legacy HWP 공개 지원을 유지하려면 승인된 환경에 `hwp5txt`를 준비해 정상 문서와 손상 문서의 성공·거부 경계를 재검증한다.
+3. 문서 추출 보강이 포함된 Remote `0.1.13`을 새 세션에서 한 번 회귀 검증한다.
 4. 위 1~3은 현재 PR 전 작업에서 미완료 gate로 유지하며, 검증 결과를 과장해 PASS 처리하지 않는다.
 
 ## CSP 로컬 보강

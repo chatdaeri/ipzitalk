@@ -177,6 +177,14 @@ def _extract_hwpx(path: Path, temporary: Path) -> None:
     temporary.write_text("\n".join(parts) + "\n", encoding="utf-8")
 
 
+def _has_non_whitespace_output(path: Path) -> bool:
+    with path.open("rb") as stream:
+        while chunk := stream.read(64 * 1024):
+            if chunk.strip():
+                return True
+    return False
+
+
 def extract_document(input_path: Path, output_path: Path) -> None:
     suffix = _validate_input(input_path)
     _validate_output(input_path, output_path)
@@ -192,6 +200,8 @@ def extract_document(input_path: Path, output_path: Path) -> None:
             _extract_hwpx(input_path, temporary)
         if temporary.stat().st_size > MAX_OUTPUT_BYTES:
             raise DocumentSecurityError("text output size limit exceeded")
+        if not _has_non_whitespace_output(temporary):
+            raise DocumentSecurityError("text output is empty")
         os.replace(temporary, output_path)
     finally:
         temporary.unlink(missing_ok=True)

@@ -95,7 +95,7 @@ assert(!('env' in localServer), 'local MCP must not embed environment values');
 const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC skill lock must be marked local-only');
-assert(sourceLock.plugins.remote.version === '0.1.12', 'Remote evidence-guard package must be version 0.1.12');
+assert(sourceLock.plugins.remote.version === '0.1.13', 'Remote document-security package must be version 0.1.13');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 6, 'Remote PoC must contain exactly six skills');
 assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
