@@ -1,0 +1,20 @@
+{
+  "query": {
+    "sigungu": "의왕시",
+    "exclusive_area_sqm": 84,
+    "include_units": true,
+    "limit": 100,
+    "unlocated_limit": 50
+  },
+  "affordability": {
+    "income": 650,
+    "cash": 20000,
+    "ratio": 0.35,
+    "rate": 4.2,
+    "years": 30,
+    "monthly": 227.49999999999997,
+    "loan": 46521.88353067429,
+    "target": 66521.8835306743
+  },
+  "count": 3
+}

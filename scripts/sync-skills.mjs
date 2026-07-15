@@ -19,9 +19,11 @@ const pluginRoot = resolve(root, 'plugins/ipzitalk-remote');
 const lock = JSON.parse(await readFile(resolve(root, 'source-lock.json'), 'utf8'));
 const expectedCommit = lock.sources.skills.commit;
 const allowlist = [...lock.sources.skills.allowlist].sort();
+const sourcePaths = lock.sources.skills.paths ?? {};
 const artifactAllowlist = [...(lock.sources.skills.artifacts ?? [])].sort();
 
 if (!expectedCommit || !allowlist.length || !artifactAllowlist.length) throw new Error('skills source lock is empty');
+if (Object.keys(sourcePaths).sort().join('\n') !== allowlist.join('\n')) throw new Error('skills source paths do not match allowlist');
 
 const actualCommit = execFileSync('git', ['-C', source, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 if (actualCommit !== expectedCommit) {
@@ -48,8 +50,10 @@ async function treeSnapshot(directory) {
 await mkdir(target, { recursive: true });
 
 for (const skill of allowlist) {
-  const from = resolve(source, 'main', skill);
-  execFileSync('git', ['-C', source, 'diff', '--quiet', expectedCommit, '--', `main/${skill}`]);
+  const sourcePath = sourcePaths[skill];
+  if (sourcePath !== `main/${skill}` && sourcePath !== `sub/${skill}`) throw new Error(`invalid source path: ${skill}`);
+  const from = resolve(source, sourcePath);
+  execFileSync('git', ['-C', source, 'diff', '--quiet', expectedCommit, '--', sourcePath]);
   await cp(from, resolve(target, skill), { recursive: true, force: true });
   const sourceSnapshot = await treeSnapshot(from);
   const targetSnapshot = await treeSnapshot(resolve(target, skill));

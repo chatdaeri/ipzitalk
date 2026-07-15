@@ -94,8 +94,8 @@ assert(!('env' in localServer), 'local MCP must not embed environment values');
 
 const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
-assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC skill lock must be marked local-only');
-assert(sourceLock.plugins.remote.version === '0.1.13', 'Remote document-security package must be version 0.1.13');
+assert(sourceLock.sources.skills.availability === 'private-release', 'merged private Skill lock must be marked private-release');
+assert(sourceLock.plugins.remote.version === '0.1.14', 'Remote full-Skill release package must be version 0.1.14');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 27, 'Remote release must contain exactly 27 skills');
 assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
@@ -115,7 +115,7 @@ for (const skill of lockedSkills) {
 assert(lockedSkills.filter((skill) => lockedSkillPaths[skill].startsWith('main/')).sort().join('\n') === mainSkillNames.join('\n'), 'locked main Skills mismatch');
 assert(lockedSkills.filter((skill) => lockedSkillPaths[skill].startsWith('sub/')).length === 21, 'Remote release must contain 21 sub Skills');
 const namespaceSkills = [...(sourceLock.sources.skills.namespaceValidated ?? [])].sort();
-assert(namespaceSkills.length === 24, 'Remote release must identify 24 namespace-validated Skills');
+assert(namespaceSkills.length === 25, 'Remote release must identify 25 namespace-contract Skills');
 assert(namespaceSkills.every((skill) => lockedSkills.includes(skill)), 'namespace-validated Skills must be packaged');
 const templateSkills = [...(sourceLock.sources.skills.templates ?? [])].sort();
 assert(templateSkills.length === 26, 'Remote release must identify 26 HTML template Skills');

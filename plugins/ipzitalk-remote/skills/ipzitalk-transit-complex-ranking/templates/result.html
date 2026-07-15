@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>지하철 도보권 단지 랭킹</title>
+<style>
+:root{--bg:#e9ebf0;--card:#fff;--ink:#14181e;--sub:#5c6673;--sub2:#8a94a2;--line:#e7eaef;--line2:#f1f3f7;--chip:#f3f5f9;--g:#12a150;--gs:#e7f6ec;--y:#e0a107;--ys:#fbf3dd;--o:#e56f1f;--os:#fbeee2;--x:#9aa4b2;--xs:#eef1f5;--brand:#2f6bff;--bs:#e8f0ff;--r:#e5484d;--rs:#fbe9ea;--shadow:0 1px 2px rgba(16,24,40,.05),0 14px 36px -16px rgba(16,24,40,.22);--mono:"SF Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#161b22;--ink:#eef1f5;--sub:#98a2b0;--sub2:#6b7480;--line:#232a33;--line2:#1c222a;--chip:#1c222a;--gs:#12251a;--ys:#2a2410;--os:#2a1c10;--xs:#1c222a;--bs:#16233f;--rs:#30181b;--shadow:0 8px 30px rgba(0,0,0,.5)}}
+:root[data-theme="light"]{--bg:#e9ebf0;--card:#fff;--ink:#14181e;--sub:#5c6673;--line:#e7eaef;--line2:#f1f3f7;--chip:#f3f5f9;--gs:#e7f6ec;--ys:#fbf3dd;--os:#fbeee2;--xs:#eef1f5;--bs:#e8f0ff;--rs:#fbe9ea}
+:root[data-theme="dark"]{--bg:#0e1116;--card:#161b22;--ink:#eef1f5;--sub:#98a2b0;--sub2:#6b7480;--line:#232a33;--line2:#1c222a;--chip:#1c222a;--gs:#12251a;--ys:#2a2410;--os:#2a1c10;--xs:#1c222a;--bs:#16233f;--rs:#30181b;--shadow:0 8px 30px rgba(0,0,0,.5)}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(120% 75% at 50% -5%,color-mix(in srgb,var(--card) 36%,var(--bg)),var(--bg) 56%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;padding:26px 16px}.wrap{max-width:1180px;margin:0 auto}.top{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;margin-bottom:16px}.kicker{font:700 12px/1 var(--mono);letter-spacing:.04em;color:var(--brand);margin-bottom:10px}.title{display:flex;align-items:center;gap:10px;margin:8px 0 4px;font-size:28px;letter-spacing:-.04em;line-height:1.15}.subtitle{margin:0;color:var(--sub);font-size:14px}.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 12px;font:800 12px/1 var(--mono);white-space:nowrap}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:var(--brand)}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}.pad{padding:18px 20px}.grid{display:grid;gap:14px}.g2{grid-template-columns:1.1fr .9fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}@media(max-width:860px){.top,.g2,.g3,.g4{grid-template-columns:1fr;display:block}.card{margin-bottom:14px}.title{font-size:22px}}
+.metric{border:1px solid var(--line);background:var(--chip);border-radius:14px;padding:14px}.metric .n{font:850 24px/1 var(--mono);letter-spacing:-.04em}.metric .l{margin-top:7px;color:var(--sub);font-size:12px}.section-title{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:850;margin:0 0 12px;letter-spacing:-.02em}.section-title svg{color:var(--brand)}.table{width:100%;border-collapse:collapse;font-size:13.5px}.table th,.table td{padding:10px 8px;border-bottom:1px solid var(--line2);text-align:left;vertical-align:top}.table th{color:var(--sub);font-weight:700;width:31%}.rank{display:grid;gap:9px}.row{display:grid;grid-template-columns:40px minmax(140px,1fr) 146px 92px 74px;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}.row.site{border-color:var(--brand);background:linear-gradient(90deg,rgba(37,99,235,.12),var(--card));box-shadow:0 0 0 2px rgba(37,99,235,.10)}.row.site .r,.row.site .name{color:var(--brand)}.row .r{font:800 12px/1 var(--mono);color:var(--sub2)}.row .meta{color:var(--sub);font-size:12px}.bar{height:9px;border-radius:99px;background:var(--line2);overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;background:var(--brand)}.val{font:800 13px/1 var(--mono);text-align:right}.row .name{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-weight:800;line-height:1.3;color:var(--ink)}.stn{font:700 12px/1.3 inherit;color:var(--ink)}.stn small{display:block;margin-top:3px;font:600 11px/1.3 var(--mono);color:var(--sub2)}.stn small.na{color:var(--x)}.row.head{border:0;background:transparent;padding:2px 12px 0}.row.head div{font:700 11px/1 var(--mono);color:var(--sub2)}.row.head .val{text-align:right}@media(max-width:600px){.row{grid-template-columns:32px 1fr 72px}.row .stn,.row .bar{display:none}.row.head{display:none}}.badge{display:inline-block;border-radius:999px;padding:5px 8px;font:800 11px/1 var(--mono);white-space:nowrap}.green{background:var(--gs);color:var(--g)}.amber{background:var(--ys);color:var(--y)}.orange{background:var(--os);color:var(--o)}.gray{background:var(--xs);color:var(--x)}.red{background:var(--rs);color:var(--r)}.map{height:390px;background:var(--line2);overflow-x:auto;overflow-y:hidden}.map iframe{display:block;width:100%;min-width:720px;height:100%;border:0}.note{font-size:12px;color:var(--sub);border-top:1px solid var(--line);padding-top:12px;margin-top:14px}.warn{display:inline-flex;gap:6px;align-items:center;color:var(--o);background:var(--os);font:700 11px/1.4 var(--mono);padding:6px 9px;border-radius:8px;margin-bottom:8px}.exlist{display:grid;gap:8px;margin-top:10px}.exlist .row{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:12px;align-items:baseline;padding:9px 11px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--sub)}.exlist .nm{font-weight:800;color:var(--ink)}.footlink{color:var(--brand);text-decoration:none;font-weight:800}.small{font-size:12px;color:var(--sub)}
+svg.ic{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.18em}
+.src{font-size:10.5px;color:var(--sub2);margin:6px 0 0;text-align:right;letter-spacing:-.01em}
+</style>
+</head>
+<body>
+<!--
+  아이콘 스프라이트 — 인라인 self-contained. <use href="#i-…">는 같은 문서의 <symbol>만 참조한다.
+  [주의] 심볼을 임의로 지우지 말 것. 일부 심볼은 마크업이 아니라 아래 ipzi-data/렌더 JS의
+  아이콘 문자열로만 참조된다. "안 쓰는 심볼"로 보고 지우면 아이콘이 에러 없이 조용히 사라진다.
+  이 블록과 아래 ICONS 배열은 항상 함께 고친다.
+-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><circle cx="12" cy="8" r=".9" fill="currentColor" stroke="none"></circle></g></symbol>
+<symbol id="i-sample" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 7 20M17 4l-2 16M4 9.5h16M3 15h16"></path></g></symbol>
+<symbol id="i-subway" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"></rect><path d="M5 11h14"></path><path d="M8.5 7h7"></path><circle cx="9" cy="14" r=".7" fill="currentColor" stroke="none"></circle><circle cx="15" cy="14" r=".7" fill="currentColor" stroke="none"></circle><path d="M8 17l-2 4M16 17l2 4"></path></g></symbol>
+</svg>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="kicker" id="brand">IPZI TALK</div>
+      <h1 class="title"><svg class="ic" style="color:var(--brand)"><use href="#i-subway"/></svg><span id="title">–</span></h1>
+      <p class="subtitle" id="subtitle"></p>
+    </div>
+    <div class="pill" id="pill" style="display:none"><span class="dot"></span><span id="pill-label"></span></div>
+  </div>
+
+  <!-- 지도가 위, 랭킹 표가 아래. 표는 전체 폭을 쓴다.
+       예전엔 .grid.g2 로 랭킹(1.1fr)과 근거 카드(.9fr)를 나란히 뒀는데,
+       근거 카드를 화면에서 빼자 랭킹이 왼쪽 칸에만 갇혀 좁아졌다. -->
+  <div class="card" id="map-card" style="display:none"><div class="map"><iframe id="map-iframe" src="about:blank" title="지도" loading="lazy" sandbox="allow-scripts allow-same-origin" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><div class="pad"><p class="src">네이버 지도 · 카카오맵</p></div></div>
+  <p class="small" id="map-cap" style="margin:8px 2px 14px;display:none"></p>
+
+  <div class="card" style="margin-bottom:14px"><div class="pad">
+    <h2 class="section-title"><svg class="ic"><use href="#i-subway"/></svg><span id="rank-title">지하철 도보권 랭킹</span></h2>
+    <div class="rank">
+      <div class="row head"><div>순위</div><div>단지</div><div>최근접역 · K-apt 참고</div><div>근접도</div><div class="val">직선거리</div></div>
+      <div id="rank"></div>
+    </div>
+    <p class="src">세대수·준공 — 공동주택관리정보시스템(K-apt) · 역까지 거리 — 카카오맵</p>
+  </div></div>
+
+  <div class="card" id="info-card"><div class="pad">
+    <h2 class="section-title"><svg class="ic" style="color:var(--sub)"><use href="#i-info"/></svg><span id="info-title">정렬 근거</span></h2>
+    <div id="info-body"></div>
+  </div></div>
+
+  <!-- 표본 범위·제외 단지는 별도 카드. 예전엔 푸터의 유의사항·출처와 <br> 로 이어붙어
+       "무엇이 빠졌는가"가 잡문에 묻혔다. 표본에서 빠진 단지는 사용자의 판단을 바꾸는 정보다.
+       제외 사유는 K-apt 매칭 실패와 카카오 장소명(미준공 표기) 양쪽에서 나온다. -->
+  <div class="card" id="scope-card" style="margin-top:14px;display:none"><div class="pad">
+    <h2 class="section-title"><svg class="ic" style="color:var(--sub)"><use href="#i-sample"/></svg><span>표본 범위 · 제외 단지</span></h2>
+    <div class="warn" id="scope-note" style="display:none"></div>
+    <div class="exlist" id="excluded-list"></div>
+    <p class="src">공동주택관리정보시스템(K-apt) · 카카오맵</p>
+  </div></div>
+
+  <div class="note" id="note"></div>
+</div>
+
+<script type="application/json" id="ipzi-data">{}</script>
+<script>
+/* 이 템플릿은 고정이다. 실행마다 바뀌는 것은 아래 templateData 블록 하나뿐이다.
+   - 정렬키는 카카오 POI 최근접역까지의 직선거리(m)다. K-apt 신고 도보시간은 검증 불가한 자기보고값이라
+     정렬키로 쓰지 않고 참고 열로만 병기한다. (SKILL.md 「정렬키」 참조)
+   - 직선거리 결측 단지는 rows 에서 빼고 excluded 에 사유를 남긴다. 0으로 채우지 않는다.
+   - map.url 이 null 이면 지도 패널이 통째로 숨는다. */
+const templateDataShape = {
+  brand: "IPZI TALK",
+  title: "",                 // "지하철 도보권 단지 랭킹"
+  subtitle: "",              // "기준 단지 반경 2km · 최근접역 직선거리 기준"
+  pill: "",                  // "2km 표본"
+
+  map: {
+    url: null,
+    caption: "",
+    ttlNote: "지도 링크는 발급 후 7일간 유효합니다. 만료되면 지도가 빈 화면으로 뜨므로 재발급이 필요합니다."
+  },
+
+  rankTitle: "",             // "지하철 도보권 랭킹"
+  rows: [],                  // [{name, isSite:false, badges:[{label,tone}], meta:"연도 · 세대수 · 기준점 거리",
+                             //   station:{name:"OO역 N호선", note:"K-apt 제공 도보시간", na:false}, value:null, valLabel:"OOOm"}]
+                             //   value = 최근접역 직선거리(m). 작을수록 상위. 결측이면 rows 에 넣지 말 것.
+
+  info: {                    // 우측 근거/메모 카드
+    title: "",               // "정렬 근거"
+    rows: [],                // [{k:"정렬키", v:"카카오 POI 최근접역 직선거리"}]  (있으면 표로 렌더)
+    note: ""                 // rows 가 없을 때 대신 렌더할 한 줄 설명
+  },
+
+  sampleNote: "",            // "데모용 표본 · 전수 랭킹 아님"
+  excluded: [],              // [{name, reason:"단지 좌표 결측 — 거리 계산 불가"}]
+  hedges: [],                // ["정렬키는 직선거리로 실제 도보 경로·출입구·고저차를 반영하지 않는다.", ...]
+  sources: [],               // ["카카오맵", "네이버 지도"]
+  collectedAt: ""            // "YYYY-MM-DD"
+};
+const parsedTemplateData = JSON.parse(document.getElementById("ipzi-data").textContent);
+const templateData = Object.keys(parsedTemplateData).length ? parsedTemplateData : templateDataShape;
+
+(function(){
+  var D = templateData || {}, NA = "정보없음";
+  function esc(v){ return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
+     일반 링크는 https만 허용하고, 지도 iframe은 Ipzi Talk 정식 /map?d=<id> URL만 허용한다. */
+  function safeHttpsUrl(value){
+    try {
+      var url = new URL(String(value == null ? "" : value));
+      if(url.protocol !== "https:") return null;
+      return url.href;
+    } catch (_) { return null; }
+  }
+  function safeMapUrl(value){
+    var safe = safeHttpsUrl(value);
+    if(!safe) return null;
+    var url = new URL(safe);
+    if(url.origin !== "https://ipzi-talk.synergylabs.kr") return null;
+    if(url.username || url.password) return null;
+    if(url.pathname !== "/map") return null;
+    if(!url.searchParams.get("d")) return null;
+    if(url.searchParams.getAll("d").length !== 1) return null;
+    if(Array.from(url.searchParams.keys()).some(function(key){ return key !== "d"; })) return null;
+    if(url.hash) return null;
+    return url.href;
+  }
+  /* 스프라이트에 실재하는 심볼만 허용. 없는 id 를 <use> 로 가리키면 브라우저는 조용히 빈 자리를 그린다.
+     심볼을 추가/삭제하면 위 sprite 블록과 이 배열을 함께 고칠 것. */
+  var ICONS = ["i-info","i-sample","i-subway"];
+  function icon(id,tone){
+    if(!id) return "";
+    if(ICONS.indexOf(id)===-1){ console.warn('[result.html] 스프라이트에 없는 아이콘 id: "'+id+'" — 생략합니다.'); return ""; }
+    var c = tone ? ' style="color:var(--'+esc(tone)+')"' : "";
+    return '<svg class="ic"'+c+'><use href="#'+esc(id)+'"/></svg>';
+  }
+  function badges(list){ return (list||[]).map(function(b){ return '<span class="badge '+esc(b.tone||"gray")+'">'+esc(b.label)+'</span>'; }).join(""); }
+  function set(id,txt){ var e=document.getElementById(id); if(e) e.textContent = (txt==null?"":txt); }
+
+  set("brand", D.brand||"IPZI TALK");
+  set("title", D.title||"–");
+  set("subtitle", D.subtitle);
+  if(D.pill){ document.getElementById("pill").style.display=""; set("pill-label", D.pill); }
+  if(D.rankTitle) set("rank-title", D.rankTitle);
+
+  var rows = D.rows || [];
+  var vals = rows.map(function(r){ return typeof r.value==="number" ? r.value : null; }).filter(function(v){ return v!=null; });
+  var min = vals.length ? Math.min.apply(null, vals) : 0;
+  var rankEl = document.getElementById("rank");
+  if(!rows.length){
+    rankEl.innerHTML = '<div class="small">해당 반경 내 랭킹 대상 단지가 없습니다.</div>';
+  } else {
+    rankEl.innerHTML = rows.map(function(r,i){
+      var pct = (typeof r.value==="number" && r.value>0) ? Math.max(0,Math.min(100, min/r.value*100)).toFixed(1) : 0;
+      var st = r.station || {};
+      return '<div class="row'+(r.isSite?" site":"")+'">'
+        + '<div class="r">#'+(i+1)+'</div>'
+        + '<div><div class="name">'+esc(r.name)+badges(r.badges)+'</div><div class="meta">'+esc(r.meta)+'</div></div>'
+        + '<div class="stn">'+esc(st.name)+'<small'+(st.na?' class="na"':'')+'>'+esc(st.note)+'</small></div>'
+        + '<div class="bar"><i style="width:'+pct+'%"></i></div>'
+        + '<div class="val">'+(r.valLabel?esc(r.valLabel):NA)+'</div>'
+        + '</div>';
+    }).join("");
+  }
+
+  var info = D.info || {};
+  if(info.title) set("info-title", info.title);
+  var ib = document.getElementById("info-body");
+  if((info.rows||[]).length){
+    ib.innerHTML = '<table class="table">' + info.rows.map(function(row){
+      return '<tr><th>'+esc(row.k)+'</th><td>'+esc(row.v)+'</td></tr>';
+    }).join("") + '</table>';
+  } else if(info.note){
+    ib.innerHTML = '<p class="small">'+esc(info.note)+'</p>';
+  } else {
+    document.getElementById("info-card").style.display="none";
+  }
+
+  if(D.map && D.map.url){
+    document.getElementById("map-card").style.display="";
+    document.getElementById("map-iframe").src = safeMapUrl(D.map.url) || "about:blank";
+    var cap = [D.map.caption, D.map.ttlNote].filter(Boolean);
+    if(cap.length){
+      var mc = document.getElementById("map-cap");
+      mc.innerHTML = esc(cap[0]) + (cap[1] ? '<br><strong>'+esc(cap[1])+'</strong>' : "");
+      mc.style.display="";
+    }
+  }
+
+  /* 표본 범위와 제외 단지는 푸터가 아니라 자기 카드에 둔다.
+     "반경 내 후보 N개 중 M개만 봤다" 와 "이 단지는 왜 빠졌다" 는 결론을 바꾸는 정보다.
+     <br> 로 유의사항·출처와 이어붙이면 잡문에 묻힌다. */
+  var ex = D.excluded || [];
+  if(D.sampleNote || ex.length){
+    document.getElementById("scope-card").style.display = "";
+    if(D.sampleNote){
+      var sn = document.getElementById("scope-note");
+      sn.style.display = ""; sn.innerHTML = icon("i-sample") + esc(D.sampleNote);
+    }
+    document.getElementById("excluded-list").innerHTML = ex.map(function(e){
+      return '<div class="row"><span class="nm">' + esc(e.name) + '</span><span>' + esc(e.reason) + '</span></div>';
+    }).join("");
+  }
+
+  var n = "";
+  (D.hedges||[]).forEach(function(h,i){ n += (i?'<br>':'')+esc(h); });
+  var src = (n ? '<br>' : '') + '데이터: <a class="footlink" href="https://www.k-apt.go.kr/web/main/index.do" target="_blank" rel="noopener">공동주택관리정보시스템(K-apt)</a>';
+  (D.sources||[]).forEach(function(s){ src += ' · '+esc(s); });
+  if(D.collectedAt) src += ' · 기준일 '+esc(D.collectedAt);
+  document.getElementById("note").innerHTML = n + src;
+})();
+</script>
+</body>
+</html>
