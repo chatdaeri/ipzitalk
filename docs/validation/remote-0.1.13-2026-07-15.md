@@ -42,9 +42,9 @@
 ## 남은 gate
 
 - Remote `0.1.13` Claude·Codex 사용자 프로필 설치 완료, 새 세션 문서 추출 회귀는 남음
-- `remote-mcp` CSP Report-Only 브랜치의 push·PR·리뷰·배포
+- `remote-mcp` CSP Report-Only [PR #67](https://github.com/chatdaeri/remote-mcp/pull/67)의 리뷰·병합·배포
 - 배포 뒤 실제 지도 콘솔 CSP 위반 확인과 강제 CSP 전환 판단
-- 오늘 작업 종료 후 사용자 지시에 따른 push·PR
+- 생성한 PR의 리뷰·병합 대기: [Skill #18](https://github.com/chatdaeri/ipzitalk-skill/pull/18), [플러그인 #2](https://github.com/chatdaeri/ipzitalk/pull/2), [Remote 오류 #68](https://github.com/chatdaeri/remote-mcp/pull/68), [Remote CSP #67](https://github.com/chatdaeri/remote-mcp/pull/67)
 
 ## 사용자 프로필
 

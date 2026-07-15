@@ -74,4 +74,4 @@ Codex 인앱 브라우저에는 연결 가능한 브라우저가 없었다. Brow
 
 기존 2026-07-13 결정에 따라 강제 정책보다 Report-Only를 먼저 적용했다. `/map` 요청마다 `crypto.randomUUID()`로 nonce를 만들고 데이터·Naver SDK·렌더 스크립트 세 곳에 같은 nonce를 부여한다. 정책은 `strict-dynamic`과 Naver SDK fallback origin을 사용하고 `object-src`, `base-uri`, `form-action`을 차단한다. Referrer·Permissions·nosniff 헤더도 함께 적용했다.
 
-이 변경은 아직 push·PR·배포하지 않았으므로 현재 운영 지도 응답에는 반영되지 않았다.
+이 변경은 [remote-mcp PR #67](https://github.com/chatdaeri/remote-mcp/pull/67)로 공유했지만 아직 병합·배포하지 않았으므로 현재 운영 지도 응답에는 반영되지 않았다.
