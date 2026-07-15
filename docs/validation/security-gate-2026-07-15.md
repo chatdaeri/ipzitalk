@@ -2,20 +2,21 @@
 
 - 날짜: 2026-07-15
 - Decision: 류호윤 + Codex
-- 대상: Remote `0.1.12` 패키지와 `ipzitalk-skill` 문서·HTML 보안 계약
+- 대상: Remote `0.1.14` 패키지와 `ipzitalk-skill` 문서·HTML 보안 계약
 - 범위: 실제 지도 응답, iframe 경계, 악성 PDF, legacy HWP, HWPX 제한 추출
 
 ## 종합 판정
 
-문서 입력과 HTML 정적 보안 계약은 통과했다. 실제 지도 URL도 HTTP 200으로 Naver 지도 SDK, 실제 장소 마커 7개, 1,500m 반경 원 데이터를 반환했다. 다만 지도 페이지 응답에는 CSP(Content Security Policy, 콘텐츠 보안 정책) 헤더가 없고, Codex 인앱 브라우저 연결이 캐시 버전 불일치로 시작되지 않아 지도 픽셀과 브라우저 콘솔을 독립 재검증하지 못했다. 따라서 Phase 1A 전체 보안 gate는 아직 완료가 아니다.
+문서 입력과 HTML 정적 보안 계약을 통과했다. `remote-mcp` PR #67의 요청별 nonce 기반 CSP(Content Security Policy, 콘텐츠 보안 정책) Report-Only 정책을 운영 배포한 뒤 Claude Code Browser 페인에서 콘솔 캡처를 페이지 이동 전에 시작해 최초 로드와 지도 상호작용을 재검증했다. 같은 응답의 CSP 헤더와 실행 스크립트 nonce가 모두 일치했고, 기본·위성·지적편집도와 Skill iframe에서 CSP 위반 및 일반 JavaScript 오류가 0건이었다. 따라서 Phase 1A의 지도 CSP·iframe 보안 gate는 완료한다. 지도 화면이 마커 범위로 자동 확대되지 않고 전국 뷰에 머무는 현상은 보안 결함과 분리한 `remote-mcp` 기능 개선 항목으로 기록하며 현재 릴리스를 차단하지 않는다.
 
 | 항목 | 판정 | 근거 |
 |---|---|---|
 | HTML 악성 데이터 경계 | PASS | 비실행 JSON 경계·이스케이프·URL 제한·iframe 속성 회귀 통과 |
 | 지도 iframe 정적 계약 | PASS | `sandbox="allow-scripts allow-same-origin"`, `referrerpolicy="strict-origin-when-cross-origin"`, 공식 `/map?d=<id>`만 허용 |
-| 실제 지도 응답 | PARTIAL PASS | HTTP 200, Naver SDK, 마커 7개, 반경 1,500m 확인 |
-| 지도 페이지 CSP | LOCAL GREEN | `remote-mcp` 전용 브랜치에서 nonce 기반 Report-Only 구현·402개 테스트 통과, 배포 전 |
-| 지도 픽셀·콘솔 | BLOCKED | 인앱 브라우저 미노출 및 브라우저 Skill 진단 문서 캐시 버전 불일치 |
+| 실제 지도 응답 | PASS | HTTP 200, Naver SDK와 기본·위성·지적편집도 타일, 테스트 마커 2개, 반경 원 객체 확인 |
+| 지도 페이지 CSP | PASS | 운영 Report-Only 헤더, 같은 응답의 실행 스크립트 nonce 3개 일치·누락 0개 |
+| 지도 픽셀·콘솔 | PASS | 페이지 이동 전 콘솔 캡처를 시작하고 최초 로드·상호작용·iframe에서 CSP 및 일반 오류 0건 확인 |
+| 지도 자동 줌 | DEFERRED | 전국 뷰 고정 현상은 보안과 분리한 후속 MCP 기능 개선 항목이며 현재 릴리스 비차단 |
 | 정상 PDF 제한 추출 | PASS | 구리역 하이니티 리버파크 PDF 3,488줄·500,533바이트 추출 |
 | 손상·명령 삽입 PDF | PASS | 손상된 xref PDF를 exit 2로 거부하고 출력 파일을 남기지 않음 |
 | legacy HWP | PASS | 격리 환경에서 실제 HWP 65줄·618바이트 추출, 4KB 손상 HWP는 빈 결과로 거부 |
@@ -50,28 +51,30 @@ node --test tests/document_security.test.mjs tests/all_skill_html_security.test.
 - 4,096바이트로 잘린 손상 입력의 최초 실증에서는 `hwp5txt`가 성공 코드와 0바이트 결과를 반환했다.
 - 추출기가 비어 있거나 공백뿐인 결과를 거부하도록 보강한 뒤 exit 2, `text output is empty`, 최종 출력 파일 0개를 확인했다.
 
-### 실제 지도 응답
+### 실제 지도 응답과 브라우저 CSP
 
-- Location Report 산출물의 발급 지도 URL을 직접 조회했다.
-- 응답: HTTP 200, `content-type: text/html`, `x-content-type-options: nosniff`
-- 본문: `oapi.map.naver.com` SDK, 실제 장소 마커 7개, 중심 좌표, `radius_m:1500`, `naver.maps.Circle` 확인
-- 누락: `Content-Security-Policy` 응답 헤더와 동등한 meta 정책
+- 운영 테스트 지도 URL을 Claude Code Browser 페인에서 직접 열고 최초 로드 전부터 콘솔을 수집했다.
+- 응답: HTTP 200, CSP Report-Only·Referrer·Permissions·nosniff 헤더 확인, 강제 CSP는 현재 단계에서 의도대로 부재한다.
+- 같은 `fetch(cache:no-store)` 응답의 헤더와 HTML을 비교해 실행 스크립트 3개의 nonce가 모두 일치하고 누락이 없음을 확인했다.
+- 기본·위성·지적편집도, 마커 체크박스, 더블클릭 확대와 localhost iframe 하네스까지 실행한 뒤에도 CSP 위반과 일반 JavaScript 오류는 0건이었다.
+- iframe의 `sandbox="allow-scripts allow-same-origin"`, `referrerpolicy="strict-origin-when-cross-origin"`와 공식 `/map?d=<id>` URL을 라이브 DOM에서 확인했다.
+- 반경 원 객체는 DOM에 생성됐지만 자동 줌이 전국 뷰에 머물러 화면상 가시성은 확인하지 못했다. 이 현상은 보안 gate와 분리한 후속 기능 개선으로 이관했다.
 
-## 브라우저 검증 차단 사유
+## 최초 브라우저 검증 차단과 해소
 
-Codex 인앱 브라우저에는 연결 가능한 브라우저가 없었다. Browser Skill의 필수 진단도 설치된 Skill 버전과 런타임이 참조하는 캐시 버전이 달라 문서를 찾지 못했다. Skill 지침에 따라 독립 Chrome·Playwright 같은 다른 브라우저 표면으로 우회하지 않았다.
+최초 Codex 인앱 브라우저에는 연결 가능한 브라우저가 없었다. Browser Skill의 필수 진단도 설치된 Skill 버전과 런타임이 참조하는 캐시 버전이 달라 문서를 찾지 못했다. 이 초기 실행에서는 독립 Chrome·Playwright로 우회하지 않고 BLOCKED를 유지했다.
 
-이전 Claude Desktop 실행 대화에는 지도 렌더와 콘솔 오류 없음 보고가 있지만 보존된 콘솔 로그나 스크린샷이 없으므로 이번 독립 보안 검증의 PASS 근거로 확대하지 않는다.
+후속 Claude Code Browser 페인 검증은 Codex 인앱 브라우저와 독립된 캐시·컨텍스트에서 실행했고, 콘솔 원본 로그와 재현 절차를 `/plugintest/Map_CSP`에 보존했다. 자동화 도구가 PNG 파일 저장을 지원하지 않아 스크린샷은 세션 내 시각 확인에 그쳤지만, 콘솔 선행 수집·응답 헤더·동일 응답 nonce·DOM·iframe 계측 근거로 CSP 보안 gate를 완료한다.
 
 ## 후속 조치
 
-1. `remote-mcp/security/map-csp-2026-07-15`의 nonce 기반 `Content-Security-Policy-Report-Only`를 리뷰·배포한다. RED `4a9ca71`, GREEN `3a48b5c`이며 typecheck·402개 테스트·build가 통과했다.
-2. 배포 뒤 인앱 브라우저에서 지도 픽셀·마커·반경 원과 CSP 콘솔 위반을 재검증하고 위반 0건일 때만 강제 `Content-Security-Policy`로 전환한다.
-3. 문서 추출 보강이 포함된 Remote `0.1.13`을 새 세션에서 한 번 회귀 검증한다.
-4. 위 1~3은 현재 PR 전 작업에서 미완료 gate로 유지하며, 검증 결과를 과장해 PASS 처리하지 않는다.
+1. 지도 CSP Report-Only와 iframe 보안 검증은 완료 상태로 유지한다.
+2. 강제 `Content-Security-Policy` 전환은 현재 릴리스 완료 조건이 아니다. 실제 사용자 트래픽의 위반 수집을 위한 CSP 리포팅 엔드포인트와 관측 기간을 별도 보안 강화 작업으로 검토한다.
+3. 전국 뷰에 머무는 자동 줌 현상은 `remote-mcp` 후속 기능 개선 항목으로 분리하고, 수정할 때 마커·반경 원의 실제 화면 가시성을 다시 확인한다.
+4. Remote `0.1.14` 새 세션에서 27개 Skill 노출과 대표 서브 Skill 실행을 확인한다.
 
 ## CSP 로컬 보강
 
 기존 2026-07-13 결정에 따라 강제 정책보다 Report-Only를 먼저 적용했다. `/map` 요청마다 `crypto.randomUUID()`로 nonce를 만들고 데이터·Naver SDK·렌더 스크립트 세 곳에 같은 nonce를 부여한다. 정책은 `strict-dynamic`과 Naver SDK fallback origin을 사용하고 `object-src`, `base-uri`, `form-action`을 차단한다. Referrer·Permissions·nosniff 헤더도 함께 적용했다.
 
-이 변경은 [remote-mcp PR #67](https://github.com/chatdaeri/remote-mcp/pull/67)로 공유했지만 아직 병합·배포하지 않았으므로 현재 운영 지도 응답에는 반영되지 않았다.
+이 변경은 [remote-mcp PR #67](https://github.com/chatdaeri/remote-mcp/pull/67)로 병합됐고 운영 Version `067aef55-6449-45cb-a8a3-78e733bed2b8`에 배포됐다. 운영 응답과 독립 브라우저 검증에서 Report-Only 헤더·nonce·콘솔·iframe 계약을 확인했다.

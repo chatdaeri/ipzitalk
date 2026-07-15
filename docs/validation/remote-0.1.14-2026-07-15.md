@@ -53,5 +53,5 @@ git diff --check
 - 메인 6개는 기존 E2E 증빙을 유지하되, 27개 확대에 따른 대표 서브 Skill 호출을 새 세션에서 확인한다.
 - `ipzitalk-announcement-search`와 `ipzitalk-presale-compare-card`는 직접 MCP 도구명이 없어 24개 MCP 의존 Skill 탐지 집합에는 포함되지 않는다. 지원 상태에서는 Remote와 Local을 동시에 활성화하지 않는 설치 계약으로 출처 충돌을 막고, 공개 전에는 두 Skill의 명시적 provenance 규칙 필요 여부를 재검토한다.
 - Skill 원본 저장소에 추적된 `.DS_Store` 정리는 별도 Skill 변경으로 처리한다. 현재 플러그인 동기화는 해당 파일을 명시적으로 제외한다.
-- 실제 브라우저에서 운영 지도 픽셀과 CSP 콘솔 위반 0건을 확인하기 전에는 강제 CSP로 전환하지 않는다.
+- 운영 지도 CSP Report-Only·동일 응답 nonce·최초 로드와 상호작용 콘솔·iframe 보안 검증은 PASS다. 자동 줌이 전국 뷰에 머무는 현상은 보안과 분리한 후속 `remote-mcp` 기능 개선으로 두며 현재 릴리스를 차단하지 않는다. 강제 CSP 전환도 이번 릴리스 조건이 아니고, 리포팅 엔드포인트와 관측 기간을 갖춘 별도 보안 강화 작업으로 검토한다.
 - 사용자 지시에 따라 이 작업에서는 push와 PR을 생성하지 않는다.
