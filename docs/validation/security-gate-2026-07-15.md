@@ -14,7 +14,7 @@
 | HTML 악성 데이터 경계 | PASS | 비실행 JSON 경계·이스케이프·URL 제한·iframe 속성 회귀 통과 |
 | 지도 iframe 정적 계약 | PASS | `sandbox="allow-scripts allow-same-origin"`, `referrerpolicy="strict-origin-when-cross-origin"`, 공식 `/map?d=<id>`만 허용 |
 | 실제 지도 응답 | PARTIAL PASS | HTTP 200, Naver SDK, 마커 7개, 반경 1,500m 확인 |
-| 지도 페이지 CSP | NEEDS FIX | 응답에 CSP 헤더·동등한 meta 정책이 없음 |
+| 지도 페이지 CSP | LOCAL GREEN | `remote-mcp` 전용 브랜치에서 nonce 기반 Report-Only 구현·402개 테스트 통과, 배포 전 |
 | 지도 픽셀·콘솔 | BLOCKED | 인앱 브라우저 미노출 및 브라우저 Skill 진단 문서 캐시 버전 불일치 |
 | 정상 PDF 제한 추출 | PASS | 구리역 하이니티 리버파크 PDF 3,488줄·500,533바이트 추출 |
 | 손상·명령 삽입 PDF | PASS | 손상된 xref PDF를 exit 2로 거부하고 출력 파일을 남기지 않음 |
@@ -64,7 +64,13 @@ Codex 인앱 브라우저에는 연결 가능한 브라우저가 없었다. Brow
 
 ## 후속 조치
 
-1. 지도 페이지에 최소 CSP를 설계·적용하고 Naver 지도 SDK가 허용 범위 안에서 동작하는지 확인한다.
-2. 인앱 브라우저 런타임 캐시 불일치를 해소한 새 세션에서 지도 픽셀·마커·반경 원과 콘솔 CSP 오류를 재검증한다.
+1. `remote-mcp/security/map-csp-2026-07-15`의 nonce 기반 `Content-Security-Policy-Report-Only`를 리뷰·배포한다. RED `4a9ca71`, GREEN `3a48b5c`이며 typecheck·402개 테스트·build가 통과했다.
+2. 배포 뒤 인앱 브라우저에서 지도 픽셀·마커·반경 원과 CSP 콘솔 위반을 재검증하고 위반 0건일 때만 강제 `Content-Security-Policy`로 전환한다.
 3. legacy HWP 공개 지원을 유지하려면 승인된 환경에 `hwp5txt`를 준비해 정상 문서와 손상 문서의 성공·거부 경계를 재검증한다.
 4. 위 1~3은 현재 PR 전 작업에서 미완료 gate로 유지하며, 검증 결과를 과장해 PASS 처리하지 않는다.
+
+## CSP 로컬 보강
+
+기존 2026-07-13 결정에 따라 강제 정책보다 Report-Only를 먼저 적용했다. `/map` 요청마다 `crypto.randomUUID()`로 nonce를 만들고 데이터·Naver SDK·렌더 스크립트 세 곳에 같은 nonce를 부여한다. 정책은 `strict-dynamic`과 Naver SDK fallback origin을 사용하고 `object-src`, `base-uri`, `form-action`을 차단한다. Referrer·Permissions·nosniff 헤더도 함께 적용했다.
+
+이 변경은 아직 push·PR·배포하지 않았으므로 현재 운영 지도 응답에는 반영되지 않았다.

@@ -72,6 +72,6 @@ Location Report의 호출 계약은 숫자 하나를 강제하지 않는다. 검
 - 손상·명령 삽입 PDF: exit 2, 출력 파일 없이 안전 거부
 - 실제 legacy HWP: `hwp5txt` 미설치로 exit 2, 출력 파일 없이 안전 중단
 - 지도 응답: HTTP 200, Naver SDK·마커 7개·1,500m 반경 원 확인
-- 남은 gate: 지도 페이지 CSP 부재, 인앱 브라우저 캐시 불일치로 픽셀·콘솔 독립 검증 차단, legacy HWP 정상 추출 미검증
+- 남은 gate: 지도 CSP Report-Only 변경의 리뷰·배포, 인앱 브라우저 픽셀·콘솔 독립 검증, 위반 0건 후 강제 CSP 전환, legacy HWP 정상 추출
 
 따라서 문서·HTML 정적 보안은 PASS지만 Phase 1A 전체는 완료 처리하지 않는다.
