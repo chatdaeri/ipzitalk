@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-14",
+  "generatedAt": "2026-07-15",
   "plugins": {
     "launcher": {
       "id": "ipzitalk",
@@ -8,7 +8,7 @@
     },
     "remote": {
       "id": "ipzitalk-remote",
-      "version": "0.1.9"
+      "version": "0.1.10"
     },
     "local": {
       "id": "ipzitalk-local",
@@ -18,15 +18,15 @@
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": "0454bc335e22c17a3e176d889523aadc2749ed35",
+      "commit": "213eae4de25f41ea6c9b46ad5a8912c39d4d712f",
       "availability": "local-only",
       "versions": {
-        "ipzitalk-complex-overview-all": "1.1.1",
-        "ipzitalk-location-report": "1.3.2",
-        "ipzitalk-presale-report": "1.1.1",
-        "ipzitalk-read-notice-compare": "1.2.2",
-        "ipzitalk-read-notice-report": "1.2.2",
-        "ipzitalk-recent-market-trend": "1.2.2"
+        "ipzitalk-complex-overview-all": "1.1.3",
+        "ipzitalk-location-report": "1.3.3",
+        "ipzitalk-presale-report": "1.1.2",
+        "ipzitalk-read-notice-compare": "1.2.3",
+        "ipzitalk-read-notice-report": "1.2.3",
+        "ipzitalk-recent-market-trend": "1.2.5"
       },
       "artifacts": [
         "scripts/document_extract.py",

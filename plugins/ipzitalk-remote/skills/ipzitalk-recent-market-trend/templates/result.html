@@ -71,7 +71,7 @@
   table{width:100%;border-collapse:collapse;font-size:13px}
   th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
   th{font-size:11.5px;color:var(--sub);font-weight:600}
-  td.n{font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap;text-align:right}
+  th.n,td.n{font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap;text-align:right}
   td.na{color:var(--sub2)}
   tbody tr:nth-child(even){background:var(--zebra)}
   .foot{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--sub);line-height:1.75}
@@ -216,7 +216,7 @@ const templateDataShape = {
                              // }]
                              // deltaPct: null = 정보없음(0 아님). base/compare 는 원시 수치.
 
-  table: { columns: [], rows: [] },  // 상세 표. rows 셀은 문자열 또는 {n:"우측정렬 숫자"} 또는 null(정보없음)
+  table: { columns: [], rows: [] },  // 상세 표. 첫 열은 지역 문자열, 이후 열은 {n:"우측정렬 숫자"} 또는 null(정보없음)
 
   hedges: [],                // ["구성 미보정 참고 신호이며 시세 감정이 아니다", "최근 2개월은 신고 지연으로 제외했다"]
   sources: [],               // ["국토교통부 실거래가"]
@@ -402,7 +402,9 @@ const templateDataShape = {
   if((tbl.rows || []).length){
     show("detail-box");
     document.getElementById("detail-head").innerHTML = "<tr>"
-      + (tbl.columns || []).map(function(c){ return "<th>" + esc(c) + "</th>"; }).join("") + "</tr>";
+      + (tbl.columns || []).map(function(c, i){
+        return '<th' + (i > 0 ? ' class="n"' : '') + '>' + esc(c) + '</th>';
+      }).join("") + "</tr>";
     document.getElementById("detail-body").innerHTML = tbl.rows.map(function(row){
       return "<tr>" + row.map(cell).join("") + "</tr>";
     }).join("");
