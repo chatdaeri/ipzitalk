@@ -66,10 +66,36 @@ PASS
 - `auditIncomplete:false`
 - HTML `ipzi-data`와 `result.json`: 구조 일치
 
-## 남은 새 세션 검증
+## 새 세션 대표 서브 Skill 검증
 
-1. Parking Ranking을 같은 입력으로 다시 실행해 고정 template prefix·suffix와 iframe 보안 속성을 확인한다.
-2. 대표 서브 5종이 정해진 동적 사용자 파일명으로 생성되는지 확인한다.
-3. `audit.json.generatedFiles`가 실제 상대경로와 일치하는지 확인한다.
-4. 새 세션 검증이 통과하면 `ipzitalk-skill` 변경을 push하고 PR을 생성한다.
-5. Skill PR 병합 SHA로 `source-lock.json`을 다시 잠근 뒤 Remote 플러그인 PR을 생성한다.
+사용자 결정에 따라 대표 5종 전체를 다시 실행하지 않고 Parking Ranking과 Find Fit 2종으로 범위를 고정했다. `AllSkillTest2` 산출물을 감사한 결과 두 실행 모두 PASS다.
+
+### Find Fit
+
+- 동적 파일명: `의왕시_84㎡_청약맞춤분석.html`
+- 고정 template prefix·suffix: 일치
+- HTML `ipzi-data`와 `result.json`: 일치
+- 대출한도·추정 가능 주택가격 공식 재계산: 일치
+- 주택형 5개의 가능/초과 분류와 예산 차이 부호: 일치
+- 종료 공고 3건의 가격 참고용 표시: 확인
+- 금지 문구·개인 절대경로·비밀값·위험 URL: 0건
+
+### Parking Ranking
+
+- 동적 파일명: `잠실르엘_주차랭킹.html`
+- 고정 template prefix·suffix: 일치
+- HTML `ipzi-data`와 `result.json`: 일치
+- iframe `sandbox`·`referrerpolicy`: 존재
+- 지도 URL: 공식 HTTPS `/map?d=<id>` 형식
+- 랭킹: 22개, 순번 연속, 세대당 주차 내림차순
+- `parking_ground + parking_underground = parking_total` 및 `parking_total / units = per_unit`: 22개 모두 일치
+- 검색 기준 잠실르엘: 7위, 1.53대/세대
+- 결측 단지 0 처리 금지와 표본 비전수 안내: 확인
+
+두 실행의 `audit.json`에는 `auditIncomplete`와 `generatedFiles`가 없다. 계산·HTML·보안 무결성 문제는 아니며 기존 개선 문서의 감사 원장 최소 스키마 후속 항목으로 유지한다. 이번 Remote `0.1.15` 배포를 차단하지 않는다.
+
+## 다음 단계
+
+1. `ipzitalk-skill` 변경을 push하고 PR을 생성한다.
+2. Skill PR 병합 SHA로 `source-lock.json`을 다시 잠근다.
+3. 패키지 전체 검증 후 Remote 플러그인 PR을 생성한다.
