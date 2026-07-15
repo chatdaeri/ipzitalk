@@ -60,11 +60,16 @@ Remote 플러그인을 `0.1.9`에서 `0.1.10`으로 올리고 메인 Skill 6개�
 
 사용자가 Claude Desktop의 Remote `0.1.10` 세션에서 분석 목적을 넣지 않았을 때 네이티브 목적 선택 팝업이 표시되는 것을 확인했다. 하이브리드 목적 입력 UI gate는 PASS다. 같은 버전의 Recent Market Trend 결과에서 지역 열은 왼쪽, 거래량 이후 숫자 헤더와 값은 오른쪽으로 일치하는 것도 시각 확인해 상세 표 정렬 gate를 PASS로 처리한다.
 
-남은 확인 항목:
+`plugintest/claudeTest/TEST3_recent-market-trend`의 완성 산출물도 확인했다.
 
-1. 목적 선택 전 Remote MCP 데이터 호출이 0회인가
-2. 목적 선택 후 리포트가 완성되는가
-3. 다음 행동 제안이 `시세 추이 분석`이 아니라 `실거래 추이 분석`으로 표시되는가
-4. `auditIncomplete:false`와 `2N+R` 호출식이 일치하는가
+- `PROCESS.md` 순서상 목적 팝업에서 `투자 심의 회의 자료`를 선택한 뒤에만 지역 코드와 거래 데이터를 조회했다.
+- Remote MCP 호출은 지역 코드 2회와 거래 조회 4회, 총 6회로 `2N+R` 호출식과 일치한다.
+- `audit.json`은 전 호출의 `ipzitalk-remote/ipzitalk` provenance와 `auditIncomplete:false`를 기록한다.
+- `result.json`과 `result.html`은 목적 원문을 보존하고 실제 데이터에서 결론·근거·주의사항·다음 행동을 도출한다.
+- 다음 행동 명칭은 `실거래 추이 분석`이며 구 명칭 `시세 추이 분석`은 없다.
+- 상세 표는 첫 열을 제외한 6개 숫자 헤더와 값을 모두 오른쪽 정렬한다.
+- HTML validator는 통과했다.
+
+따라서 Remote `0.1.10` Recent Market Trend의 목적 입력 대기·선택 후 완성 리포트·감사 원장·표 정렬·후속 명칭 E2E gate는 모두 PASS다. `audit.json`에 별도 `callSummary` 필드는 없지만 개별 `calls` 원장으로 6회 호출을 독립 복원할 수 있고 Skill 계약상 필수 필드가 아니므로 실패로 보지 않는다.
 
 push·PR은 생성하지 않았다.
