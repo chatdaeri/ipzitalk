@@ -6,9 +6,9 @@ See [the platform support matrix](platform-support-matrix.md) for the verified, 
 
 ## Select a runtime
 
-Run `$ipzitalk:setup` in a new Codex process after installing the `ipzitalk` launcher. The setup Skill explains both modes and waits for an explicit choice before changing plugins.
+Run `$ipzitalk:setup` in a new Codex process after installing the `ipzitalk` launcher. The setup Skill explains both modes in Korean and waits for one of `Remote(호스팅형·권장)`, `OSS(로컬 실행)`, or `상태만 확인` before changing plugins.
 
-- **Remote** — hosted data, OAuth, eleven Remote tools, and six Remote Skills.
+- **Remote** — hosted data, OAuth, eleven Remote tools, and 27 Remote Skills (main 6 + sub 21).
 - **OSS** — local Node.js process, ten tools, four user-supplied API keys, and no Skills.
 
 Only one of `ipzitalk-remote@ipzitalk` and `ipzitalk-local@ipzitalk` is supported at a time. If both are present, setup stops without removing either. Runtime status comes only from `codex plugin list --json`.
@@ -23,7 +23,9 @@ The approved install command is:
 codex plugin add ipzitalk-remote@ipzitalk --json
 ```
 
-After installation, start a new Codex process and use `codex mcp login ipzitalk` if OAuth has not started automatically. A cancelled login may be resumed with the same command. Verify the server URL and authentication status with `codex mcp list --json`; never copy stored OAuth material into diagnostics.
+After installation, setup presents a Korean `브라우저에서 로그인 시작` approval. When approved in Codex CLI, it runs `codex mcp login ipzitalk`, allowing the official client flow to open the system browser without requiring the user to copy a command or authorization URL. A cancelled login may be resumed with the same command. Start a new Codex process and verify the server URL and authentication status with `codex mcp list --json`; never copy stored OAuth material into diagnostics.
+
+In Codex Desktop, do not promise that the pre-install session can open authentication automatically. Open a new local workspace or thread, then use the native connect/login prompt or invoke one Remote Skill so the client starts OAuth. The setup contract never constructs an authorization URL itself.
 
 ## OSS
 
@@ -56,7 +58,7 @@ Always re-run `codex plugin list --json` after removal and confirm the exact old
 
 Update the repository marketplace through Codex plugin commands, then reinstall only the exact managed plugin that needs refreshing. Start a new process and re-run plugin/MCP status checks. Do not edit `~/.codex/config.toml`, marketplace files, or plugin caches by hand.
 
-The current Skill lock is `local-only`. Before any public beta, replace it with a reachable release commit and re-run the sync and package validators.
+The current Skill lock is a merged commit in the private `ipzitalk-skill` repository. Before any public beta, confirm that the chosen distribution model can reach that source and re-run the sync and package validators.
 
 ## Complete removal
 

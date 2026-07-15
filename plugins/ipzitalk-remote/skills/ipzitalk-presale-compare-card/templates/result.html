@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>IPZI TALK · 분양단지 비교 카드</title>
+<style>
+  :root{
+    --bg:#e9ebf0; --card:#ffffff; --ink:#14181e; --sub:#5c6673; --sub2:#8a94a2;
+    --line:#e7eaef; --line2:#f1f3f7; --chip:#f3f5f9;
+    --g:#12a150; --g-s:#e7f6ec; --y:#e0a107; --y-s:#fbf3dd;
+    --o:#e56f1f; --o-s:#fbeee2; --r:#e5484d; --r-s:#fbe9ea; --x:#9aa4b2; --x-s:#eef1f5;
+    --brand:#2f6bff; --brand-s:#e8f0ff;
+    --a:#2f6bff; --a-s:#e8f0ff; --b:#e5484d; --b-s:#fbe9ea;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 14px 36px -16px rgba(16,24,40,.22);
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0e1116; --card:#161b22; --ink:#eef1f5; --sub:#98a2b0; --sub2:#6b7480;
+           --line:#232a33; --line2:#1c222a; --chip:#1c222a;
+           --g-s:#12251a; --y-s:#2a2410; --o-s:#2a1c10; --r-s:#2a1416; --x-s:#1c222a;
+           --brand-s:#16233f; --a-s:#16233f; --b-s:#2a1416;
+           --shadow:0 8px 30px rgba(0,0,0,.5); }
+  }
+  :root[data-theme="light"]{ --bg:#e9ebf0; --card:#fff; --ink:#14181e; --sub:#5c6673; --line:#e7eaef; --brand:#2f6bff; --a:#2f6bff; --b:#e5484d; }
+  :root[data-theme="dark"]{ --bg:#0e1116; --card:#161b22; --ink:#eef1f5; --sub:#98a2b0; --line:#232a33; --brand:#5b8bff; --a:#5b8bff; --b:#f05a5f; }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(130% 70% at 50% -5%, color-mix(in srgb,var(--card) 30%,var(--bg)), var(--bg) 55%);
+    color:var(--ink);min-height:100vh;
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;padding:22px 14px;}
+  .wrap{max-width:1000px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+  .hero{padding:26px 26px 22px;margin-bottom:16px}
+  .eyebrow{font:700 12px/1 var(--mono);color:var(--a);letter-spacing:.04em}
+  .hero h1{display:flex;align-items:center;gap:10px;margin:12px 0 6px;font-size:23px;font-weight:800;letter-spacing:-.02em}
+  .hero p{margin:0;color:var(--sub);font-size:14px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:var(--chip);color:var(--sub);font-size:12px;font-weight:700}
+  .chip.cap{background:var(--o-s);color:var(--o)}
+  /* 개요 모드 (단지 1개) */
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .sbox{padding:16px 18px}
+  .sbox .l{font-size:12px;color:var(--sub)}
+  .sbox .n{font:800 20px/1.3 var(--mono);margin-top:6px}
+  .sbox .s{font-size:11.5px;color:var(--sub2);margin-top:2px}
+  .infogrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 22px}
+  .inforow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:13.5px}
+  .inforow .k{color:var(--sub)}
+  .inforow .v{font-weight:700;text-align:right}
+  /* 비교 모드 (단지 2개+) */
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch;margin-bottom:16px}
+  .team{padding:20px 20px;border-radius:16px;border:1px solid var(--line)}
+  .team.a{background:var(--a-s);border-color:var(--a)}
+  .team.b{background:var(--b-s);border-color:var(--b)}
+  .team .tag{font:800 12px/1 var(--mono);letter-spacing:.05em}
+  .team.a .tag{color:var(--a)} .team.b .tag{color:var(--b)}
+  .team h3{margin:8px 0 4px;font-size:17px;font-weight:800}
+  .team .meta{font-size:12.5px;color:var(--sub)}
+  .team .big{font:800 22px/1.2 var(--mono);margin-top:12px}
+  .team .bigl{font-size:11.5px;color:var(--sub2);margin-top:2px}
+  .vsmid{display:flex;align-items:center;justify-content:center;font:800 20px/1 var(--mono);color:var(--sub2)}
+  .panel{padding:22px;margin-bottom:16px}
+  .panel h2{display:flex;align-items:center;gap:8px;margin:0 0 4px;font-size:17px;font-weight:800}
+  .panel .desc{color:var(--sub);font-size:13px;margin:0 0 14px}
+  table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th{background:var(--chip);color:var(--sub);text-align:center;font-size:12px;font-weight:700;padding:10px 12px}
+  th:first-child{text-align:left}
+  td{border-top:1px solid var(--line2);padding:11px 12px;vertical-align:middle;font-size:13.5px;text-align:center}
+  td:first-child{text-align:left;color:var(--sub);font-weight:600}
+  td.hl{font-weight:700;color:var(--brand)}
+  td.win-a{background:var(--a-s);font-weight:800;color:var(--a)}
+  td.win-b{background:var(--b-s);font-weight:800;color:var(--b)}
+  td.na{color:var(--sub2);font-weight:500}
+  td .note{display:block;font-size:11px;color:var(--sub2);font-weight:500;margin-top:2px}
+  .map{position:relative;width:100%;aspect-ratio:16/8;border-radius:12px;overflow:hidden;background:var(--line2);border:1px solid var(--line)}
+  .map iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .map-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:var(--a);color:#fff;border-radius:9px;text-decoration:none;font-size:12.5px;font-weight:700}
+  .warn{margin-top:10px;padding:11px 14px;border-radius:10px;background:var(--o-s);color:var(--o);font-size:12.5px;font-weight:600}
+  .foot{font-size:12px;color:var(--sub);padding:6px 4px}
+  .src{font-size:10.5px;color:var(--sub2);margin:6px 0 0;text-align:right;letter-spacing:-.01em}
+  @media(max-width:720px){ .summary{grid-template-columns:repeat(2,1fr)} .infogrid{grid-template-columns:1fr} .vs{grid-template-columns:1fr;} .vsmid{display:none} }
+  .ic{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none}
+</style>
+</head>
+<body>
+<!--
+  아이콘 스프라이트 — 인라인이어야 한다. <use href="#i-…"> 는 같은 문서 안의 <symbol> 만 찾는다.
+  산출물은 사용자가 혼자 여는 단일 HTML이라 외부 sprite.svg·CDN 을 따라가지 않는다. 이 블록이 아이콘의 유일한 운반체다.
+
+  [주의] 심볼을 임의로 삭제하지 말 것.
+  일부 심볼은 마크업이 아니라 아래 ICONS 화이트리스트/렌더 JS 문자열로만 참조된다.
+  "안 쓰는 심볼"로 보고 지우면 에러 없이 조용히 아이콘이 사라진다. 이 블록과 ICONS 배열은 항상 같이 고친다.
+-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-battle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="8.5" height="13" rx="1.5"></rect><rect x="12.5" y="5" width="8.5" height="13" rx="1.5"></rect><path d="M12 9l-1.6 3h2L11 15"></path></g></symbol><symbol id="i-doc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6V3Z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h4"></path></g></symbol><symbol id="i-won" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M7.8 8l2 6.4 2.2-5.2 2.2 5.2 2-6.4M7.5 11h9M7.5 13.5h9"></path></g></symbol><symbol id="i-compare" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M6 20h12"></path><path d="M12 6 5 8.5M12 6l7 2.5"></path><path d="M2 13l3-6 3 6a3 3 0 0 1-6 0ZM16 13l3-6 3 6a3 3 0 0 1-6 0Z"></path></g></symbol><symbol id="i-map" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"></path><path d="M9 4v14M15 6v14"></path></g></symbol></svg>
+<div class="wrap">
+  <section class="card hero">
+    <div class="eyebrow">IPZI TALK</div>
+    <h1><svg class="ic" style="color:var(--brand)"><use href="#i-battle"/></svg><span id="h-title">–</span></h1>
+    <p id="h-desc">–</p>
+    <div class="chips" id="h-chips"></div>
+  </section>
+
+  <!-- 개요 모드: 단지 1개 -->
+  <section class="summary" id="single-summary" style="display:none"></section>
+
+  <section class="card panel" id="single-info" style="display:none">
+    <h2><svg class="ic" style="color:var(--sub)"><use href="#i-doc"/></svg>공고 개요</h2>
+    <p class="desc" id="info-desc"></p>
+    <div class="infogrid" id="infogrid"></div>
+    <p class="src">청약홈</p>
+  </section>
+
+  <section class="card panel" id="single-units" style="display:none">
+    <h2><svg class="ic" style="color:var(--sub)"><use href="#i-won"/></svg><span id="units-title">주택형별 분양가</span></h2>
+    <p class="desc" id="units-desc"></p>
+    <table>
+      <thead><tr><th>주택형</th><th>전용/공급(㎡)</th><th>최고 분양가</th><th>평당가</th><th>공급세대</th></tr></thead>
+      <tbody id="units-body"></tbody>
+    </table>
+    <p class="src">청약홈</p>
+  </section>
+
+  <!-- 비교 모드: 단지 2개+ -->
+  <section class="vs" id="vs" style="display:none">
+    <div class="team a">
+      <div class="tag">A</div>
+      <h3 id="a-name">–</h3>
+      <div class="meta" id="a-meta"></div>
+      <div class="big" id="a-big">–</div>
+      <div class="bigl" id="a-bigl"></div>
+    </div>
+    <div class="vsmid">VS</div>
+    <div class="team b">
+      <div class="tag">B</div>
+      <h3 id="b-name">–</h3>
+      <div class="meta" id="b-meta"></div>
+      <div class="big" id="b-big">–</div>
+      <div class="bigl" id="b-bigl"></div>
+    </div>
+  </section>
+
+  <section class="card panel" id="compare-panel" style="display:none">
+    <h2><svg class="ic" style="color:var(--sub)"><use href="#i-compare"/></svg><span id="table-title">축별 비교</span></h2>
+    <p class="desc" id="table-desc"></p>
+    <table>
+      <thead><tr><th>항목</th><th id="th-a">A</th><th id="th-b">B</th></tr></thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <p class="src">청약홈</p>
+  </section>
+
+  <!-- 위치 지도: 공통 -->
+  <section class="card panel" id="map-panel">
+    <h2><svg class="ic" style="color:var(--sub)"><use href="#i-map"/></svg><span id="map-title">위치</span></h2>
+    <p class="desc" id="map-desc"></p>
+    <div class="map"><iframe id="map-iframe" src="about:blank" title="지도" loading="lazy" sandbox="allow-scripts allow-same-origin" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    <div class="map-actions">
+      <a class="btn" id="map-open" href="#" target="_blank" rel="noopener">지도 크게 열기 ↗</a>
+    </div>
+    <div class="warn" id="map-warn" style="display:none"></div>
+    <p class="src">네이버 지도 · 청약홈</p>
+  </section>
+
+  <p class="foot" id="price-note"></p>
+  <p class="foot" id="foot-note" style="margin-top:2px"></p>
+  <p class="foot" id="source-note" style="margin-top:2px"></p>
+</div>
+
+<script type="application/json" id="ipzi-data">{}</script>
+<script>
+/* ─ 고정 템플릿: 실행마다 바뀌는 것은 아래 templateData 블록 하나뿐이다.
+   - listings 길이로 분기한다: 1개 = 개요 카드, 2개+ = 축별 비교. 0개면 두 모드 모두 숨긴다.
+   - 결측은 0이 아니라 "정보없음". 값 추정 금지.
+   - 분양가·평당가는 주택형별 최고가 기준(priceNote 항상 표기).
+   - map.url 이 null 이면 지도 패널을 통째로 숨긴다. 지도 링크는 발급 후 7일간 유효. ─ */
+const templateDataShape = {
+  "title": "",
+  "desc": "",
+  "chips": [],
+  "listings": [],
+  "axes": [],
+  "compareTitle": "",
+  "compareDesc": "",
+  "priceNote": "",
+  "map": { "url": null, "title": "", "desc": "", "warn": "" },
+  "footNote": "",
+  "sourceNote": ""
+};
+const parsedTemplateData = JSON.parse(document.getElementById("ipzi-data").textContent);
+const templateData = Object.keys(parsedTemplateData).length ? parsedTemplateData : templateDataShape;
+(function(){
+  var D = templateData || {};
+  var NA = "정보없음";
+  var TTL = "지도 링크는 발급 후 7일간 유효합니다. 만료되면 지도가 빈 화면으로 뜨므로 재발급이 필요합니다.";
+  var PRICE = "분양가·평당가는 주택형별 최고가 기준(공급면적 평당가)입니다. 평균가·최저가와 다를 수 있으며, 종합 우열은 사용자 가중치에 따라 달라집니다.";
+  function g(id){ return document.getElementById(id); }
+  function esc(v){ return String(v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
+     일반 링크는 https만 허용하고, 지도 iframe은 Ipzi Talk 정식 /map?d=<id> URL만 허용한다. */
+  function safeHttpsUrl(value){
+    try {
+      var url = new URL(String(value == null ? "" : value));
+      if(url.protocol !== "https:") return null;
+      return url.href;
+    } catch (_) { return null; }
+  }
+  function safeMapUrl(value){
+    var safe = safeHttpsUrl(value);
+    if(!safe) return null;
+    var url = new URL(safe);
+    if(url.origin !== "https://ipzi-talk.synergylabs.kr") return null;
+    if(url.username || url.password) return null;
+    if(url.pathname !== "/map") return null;
+    if(!url.searchParams.get("d")) return null;
+    if(url.searchParams.getAll("d").length !== 1) return null;
+    if(Array.from(url.searchParams.keys()).some(function(key){ return key !== "d"; })) return null;
+    if(url.hash) return null;
+    return url.href;
+  }
+  function na(v){ return (v===null||v===undefined||v==="") ? NA : esc(v); }
+  function show(id){ g(id).style.display=""; }
+  /* 스프라이트에 실재하는 심볼만 허용. 없는 id를 <use>로 가리키면 브라우저는 조용히 빈 자리를 그린다.
+     심볼을 추가/삭제하면 위 <svg> 블록과 이 배열을 함께 고칠 것. */
+  var ICONS = ["i-battle","i-doc","i-won","i-compare","i-map"];
+  function icon(id, tone){
+    if(!id) return "";
+    if(ICONS.indexOf(id) === -1){ console.warn('[result.html] 스프라이트에 없는 아이콘 id: "'+id+'" — 아이콘을 생략합니다.'); return ""; }
+    var color = tone ? ' style="color:var(--'+esc(tone)+')"' : "";
+    return '<svg class="ic"'+color+'><use href="#'+esc(id)+'"/></svg>';
+  }
+
+  /* 헤더 */
+  g("h-title").textContent = D.title || "–";
+  g("h-desc").textContent = D.desc || "";
+  g("h-chips").innerHTML = (D.chips||[]).map(function(c){
+    var cap = (c && c.cap) ? " cap" : "";
+    return '<span class="chip'+cap+'">'+esc((c && c.text) || c)+'</span>';
+  }).join("");
+
+  var L = D.listings || [];
+
+  if(L.length === 1){
+    /* 개요 모드 — 단지 1개 */
+    var one = L[0] || {};
+    show("single-summary");
+    g("single-summary").innerHTML = (one.summary||[]).map(function(k){
+      return '<div class="card sbox"><div class="l">'+esc(k.label)+'</div><div class="n">'+na(k.value)+'</div>'
+        + (k.sub? '<div class="s">'+esc(k.sub)+'</div>':'') + '</div>';
+    }).join("");
+
+    show("single-info");
+    g("info-desc").textContent = one.infoDesc || "";
+    g("infogrid").innerHTML = (one.info||[]).map(function(r){
+      return '<div class="inforow"><span class="k">'+esc(r.k)+'</span><span class="v">'+na(r.v)+'</span></div>';
+    }).join("");
+
+    show("single-units");
+    g("units-title").textContent = one.unitsTitle || "주택형별 분양가";
+    g("units-desc").textContent = one.unitsDesc || "";
+    g("units-body").innerHTML = (one.units||[]).map(function(u){
+      return '<tr><td>'+na(u.type)+'</td><td>'+na(u.area)+'</td><td class="hl">'+na(u.maxPrice)+'</td><td>'+na(u.pp)+'</td><td>'+na(u.supply)+'</td></tr>';
+    }).join("");
+  } else if(L.length >= 2){
+    /* 비교 모드 — 단지 2개+ (앞 2개를 축별 비교) */
+    var A = L[0]||{}, B = L[1]||{};
+    show("vs");
+    g("a-name").textContent = A.name || "–"; g("a-meta").textContent = A.meta || "";
+    g("a-big").textContent = A.big || "–"; g("a-bigl").textContent = A.bigl || "";
+    g("b-name").textContent = B.name || "–"; g("b-meta").textContent = B.meta || "";
+    g("b-big").textContent = B.big || "–"; g("b-bigl").textContent = B.bigl || "";
+
+    show("compare-panel");
+    g("table-title").textContent = D.compareTitle || "축별 비교";
+    g("table-desc").textContent = D.compareDesc || "";
+    g("th-a").textContent = "A · " + (A.name || "A");
+    g("th-b").textContent = "B · " + (B.name || "B");
+    g("table-body").innerHTML = (D.axes||[]).map(function(x){
+      var ca = x.winner==="A" ? "win-a" : "";
+      var cb = x.winner==="B" ? "win-b" : "";
+      return '<tr><td>'+esc(x.key)+(x.note?'<span class="note">'+esc(x.note)+'</span>':'')+'</td>'
+        +'<td class="'+ca+'">'+na(x.a)+'</td><td class="'+cb+'">'+na(x.b)+'</td></tr>';
+    }).join("");
+  }
+
+  /* 위치 지도 — url 이 없으면 패널째 숨긴다 */
+  var map = D.map || {};
+  var mapPanel = g("map-panel");
+  if(map.url){
+    g("map-title").textContent = map.title || "위치";
+    g("map-desc").textContent = map.desc || TTL;
+    g("map-iframe").src = safeMapUrl(map.url) || "about:blank"; g("map-open").href = safeMapUrl(map.url) || "#";
+    if(map.warn){ var w=g("map-warn"); w.style.display=""; w.textContent = map.warn; }
+  } else { mapPanel.style.display = "none"; }
+
+  /* 분양가 기준 문구는 항상 표기 */
+  g("price-note").textContent = D.priceNote || PRICE;
+  g("foot-note").textContent = D.footNote || "";
+  g("source-note").textContent = D.sourceNote || "";
+})();
+</script>
+</body>
+</html>

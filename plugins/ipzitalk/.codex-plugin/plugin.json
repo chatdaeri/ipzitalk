@@ -1,7 +1,7 @@
 {
   "name": "ipzitalk",
-  "version": "0.1.1",
-  "description": "Choose and configure one Ipzi Talk runtime for Codex.",
+  "version": "0.1.2",
+  "description": "입지톡 Remote 또는 OSS 실행 방식을 선택하고 설정합니다.",
   "author": {
     "name": "SynergyLabs",
     "url": "https://synergylabs.kr"
@@ -11,14 +11,14 @@
   "keywords": ["real-estate", "presale", "korea", "setup"],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Ipzi Talk",
-    "shortDescription": "Choose the Remote or OSS runtime",
-    "longDescription": "A setup-only launcher that explains and installs one Ipzi Talk runtime payload after approval.",
+    "displayName": "입지톡 설정",
+    "shortDescription": "Remote 또는 OSS 실행 방식 선택",
+    "longDescription": "Remote와 OSS의 차이를 한국어로 설명하고, 사용자가 승인한 실행 방식 하나만 설치하는 설정 전용 플러그인입니다.",
     "developerName": "SynergyLabs",
     "category": "Productivity",
     "capabilities": ["Setup"],
     "defaultPrompt": [
-      "Help me choose and set up Ipzi Talk Remote or OSS mode."
+      "입지톡 Remote 또는 OSS 실행 방식을 선택하고 설정해 주세요."
     ]
   }
 }

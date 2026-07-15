@@ -1,6 +1,6 @@
 {
   "name": "ipzitalk",
-  "description": "Ipzi Talk launcher and selectable Remote or OSS runtime payloads.",
+  "description": "입지톡 설정 플러그인과 선택형 Remote·OSS 실행 패키지입니다.",
   "owner": {
     "name": "SynergyLabs"
   },
@@ -8,24 +8,24 @@
     {
       "name": "ipzitalk",
       "source": "./plugins/ipzitalk",
-      "description": "Recommended setup launcher for choosing an Ipzi Talk runtime.",
-      "version": "0.1.1",
+      "description": "입지톡 Remote 또는 OSS 실행 방식을 한국어로 선택하고 설정합니다.",
+      "version": "0.1.2",
       "category": "productivity",
       "tags": ["real-estate", "korea", "setup"]
     },
     {
       "name": "ipzitalk-remote",
       "source": "./plugins/ipzitalk-remote",
-      "description": "Hosted Ipzi Talk MCP with OAuth and six Remote Skills.",
-      "version": "0.1.13",
+      "description": "공식 OAuth 기반 호스팅 입지톡 MCP와 27개 Remote Skill입니다.",
+      "version": "0.1.16",
       "category": "productivity",
       "tags": ["real-estate", "korea", "mcp", "remote"]
     },
     {
       "name": "ipzitalk-local",
       "source": "./plugins/ipzitalk-local",
-      "description": "Local OSS presale-mcp runtime with secure user configuration and no Skills.",
-      "version": "0.1.1",
+      "description": "안전한 사용자 설정으로 실행하는 로컬 OSS presale-mcp이며 Skill은 포함하지 않습니다.",
+      "version": "0.1.2",
       "category": "productivity",
       "tags": ["real-estate", "korea", "mcp", "local"]
     }

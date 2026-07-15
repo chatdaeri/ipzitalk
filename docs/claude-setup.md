@@ -13,7 +13,7 @@ claude plugin marketplace add /path/to/ipzitalk --scope user
 claude plugin install ipzitalk@ipzitalk --scope user
 ```
 
-In Claude Code CLI, run `/reload-plugins`, then invoke `/ipzitalk:setup`. The setup Skill explains Remote and OSS and waits for an explicit choice before installing a runtime payload.
+In Claude Code CLI, run `/reload-plugins`, then invoke `/ipzitalk:setup`. The setup Skill explains Remote and OSS in Korean and waits for one of `Remote(호스팅형·권장)`, `OSS(로컬 실행)`, or `상태만 확인` before installing a runtime payload.
 
 In Claude Desktop's local Code tab, use `+` → `Plugins` to add, manage, and invoke plugin Skills. After installation, enablement, disablement, or removal, open a new local session and select `ipzitalk` → `setup` in that menu. Do not paste `/ipzitalk:setup` or `/ipzitalk-remote:*` as a raw command; the current Desktop surface may classify those strings as CLI-only. The Code tab has no `/reload-plugins` command, and plugins are not available in Desktop remote sessions.
 
@@ -25,7 +25,9 @@ The approved install command is:
 claude plugin install ipzitalk-remote@ipzitalk --scope user
 ```
 
-In the CLI, run `/reload-plugins`, open `/mcp`, and complete OAuth for the plugin-provided `ipzitalk` server. In the Desktop Code tab, confirm the plugin in `+` → `Plugins`, open a new local session, and complete any OAuth prompt before a representative Remote call. Remote includes six Skills and the hosted data path.
+In the CLI, run `/reload-plugins`. Setup then presents a Korean `브라우저에서 로그인 시작` approval and, when approved, runs `claude mcp login plugin:ipzitalk-remote:ipzitalk` so the official client opens the system browser. If the server has not loaded yet, start a new CLI session and repeat the same official login action; do not infer success.
+
+In the Desktop Code tab, confirm the plugin in `+` → `Plugins`, open a new local session, and use the native connect/login button or invoke a Remote Skill to raise the OAuth prompt. The previous session is not guaranteed to hot-load the MCP server, and setup must not construct an authorization URL itself. Remote includes 27 Skills (main 6 + sub 21) and the hosted data path.
 
 ## OSS
 
