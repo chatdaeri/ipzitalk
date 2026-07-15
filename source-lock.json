@@ -8,7 +8,7 @@
     },
     "remote": {
       "id": "ipzitalk-remote",
-      "version": "0.1.14"
+      "version": "0.1.15"
     },
     "local": {
       "id": "ipzitalk-local",
@@ -18,8 +18,8 @@
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": "575ab5514f055f1c8835102e1ebc9267f0330a89",
-      "availability": "private-release",
+      "commit": "d3b0b55af75bd379e8d277114449addec701b384",
+      "availability": "local-checkpoint",
       "versions": {
         "ipzitalk-announcement-search": "1.0.0",
         "ipzitalk-building-age-analysis": "1.0.3",
@@ -29,25 +29,25 @@
         "ipzitalk-education-environment": "1.0.3",
         "ipzitalk-elementary-proximity": "1.0.2",
         "ipzitalk-find-commute": "1.0.0",
-        "ipzitalk-find-fit": "1.0.0",
+        "ipzitalk-find-fit": "1.0.1",
         "ipzitalk-find-nearby": "1.0.0",
         "ipzitalk-find-region": "2.0.0",
         "ipzitalk-hospital-proximity": "1.0.4",
         "ipzitalk-living-environment": "1.0.0",
         "ipzitalk-location-report": "1.3.5",
         "ipzitalk-park-proximity": "1.0.0",
-        "ipzitalk-parking-ranking": "1.0.3",
-        "ipzitalk-presale-compare-card": "1.0.1",
+        "ipzitalk-parking-ranking": "1.0.4",
+        "ipzitalk-presale-compare-card": "1.0.2",
         "ipzitalk-presale-kit": "1.0.0",
         "ipzitalk-presale-report": "1.1.4",
-        "ipzitalk-price-trend": "1.2.4",
+        "ipzitalk-price-trend": "1.2.5",
         "ipzitalk-read-notice-compare": "1.2.5",
         "ipzitalk-read-notice-report": "1.2.5",
         "ipzitalk-recent-market-trend": "1.2.6",
         "ipzitalk-retail-proximity": "1.0.5",
         "ipzitalk-subway-proximity": "1.0.1",
         "ipzitalk-transit-complex-ranking": "1.0.3",
-        "ipzitalk-transit-environment": "1.0.0"
+        "ipzitalk-transit-environment": "1.0.1"
       },
       "paths": {
         "ipzitalk-announcement-search": "sub/ipzitalk-announcement-search",

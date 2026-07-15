@@ -4,7 +4,7 @@ description: >
   기준 주소·단지명·지역 주변 반경의 K-apt 단지를 수집하고, 세대당 주차대수 기준으로 랭킹을 만든다.
   "주차 좋은 단지", "세대당 주차", "주차 랭킹", "이 지역 아파트 주차 비교"를 물을 때 사용한다.
   enrich_complex_info의 parking_total과 get_complex_info(detail)의 derived.parking_per_unit을 함께 활용한다.
-version: 1.0.3
+version: 1.0.4
 license: proprietary
 ---
 
@@ -69,6 +69,14 @@ license: proprietary
   - `excluded` 가 비고 `sampleNote` 도 없으면 카드째 숨는다(전수 랭킹이면 표시할 게 없다).
 - 화면 표기는 사용자용 용어만: 출처는 `공동주택관리정보시스템(K-apt)` · `카카오맵` · `네이버 지도`.
   내부 필드명(주차 원값 등)은 화면에 노출하지 않는다.
+
+## HTML 산출물 계약 🚨
+
+- 먼저 완성한 렌더 데이터만 `result.json`에 저장한다. 사용자 전달 HTML은 고정 정본 `templates/result.html`로 렌더하며, 마크업·CSS·렌더 JS는 손대지 않는다.
+- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs`를 `--file-name "<기준대상>_주차랭킹"`과 함께 사용한다. 최종 파일명은 `<기준대상>_주차랭킹.html`이며 공용 렌더러가 경로 문자·예약문자·길이를 안전화한다.
+- `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 읽고 비실행 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
+- 템플릿을 참고해 새 HTML을 작성하지 않는다. iframe을 직접 만들거나 기존 `sandbox="allow-scripts allow-same-origin"`·`referrerpolicy="strict-origin-when-cross-origin"`를 제거하지 않는다.
+- 내부 데이터·감사 파일은 `result.json`·`audit.json`을 유지하되, 사용자 전달 HTML을 `result.html`이나 `index.html`이라는 고정 이름으로 내지 않는다.
 
 ## 엣지 · 실패 처리
 | 상황 | 처리 |
@@ -178,6 +186,7 @@ K-apt 좌표   └─ 261m 떨어져 있음     ← 기본 radius_m=250 을 11m 
 | 1.0.1 | 2026-07-10 | **`enrich_complex_info` 매칭 실패 사유를 구분 표기**하는 규칙 추가. 이름이 완전히 같은 단지도 좌표 261m 차이로 제외된다(위례2차아이파크 실측). `not_found` 를 'K-apt 미매칭'으로 뭉뚱그리지 않는다 · 반경 눈금 마커 제거 |
 | 1.0.2 | 2026-07-10 | 요약 카드에 **상위 3개 단지** 블록 추가(`rows` 에서 직접 파생 — 별도 필드 없음). 왼쪽 랭킹 대비 빈 공간 해소 |
 | 1.0.3 | 2026-07-10 | **표본 범위·제외 단지를 독립 카드로 분리.** 푸터 유의사항·출처와 `<br>` 로 붙어 있어 제외 사유가 묻혔다 · 섹션별 출처 표기 · `javascript:` 스킴 가드 |
+| 1.0.4 | 2026-07-15 | 공용 고정 템플릿 렌더러 사용을 의무화하고 `<기준대상>_주차랭킹.html` 동적 파일명·iframe 보안 속성 보존·새 HTML 작성 금지를 명시 |
 
 
 ## MCP 도구 네임스페이스와 출처

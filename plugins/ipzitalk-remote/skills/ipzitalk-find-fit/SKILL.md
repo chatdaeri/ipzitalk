@@ -1,7 +1,7 @@
 ---
 name: ipzitalk-find-fit
 description: "사용자 소득·현금·대출조건과 희망면적을 기준으로 Ipzi Talk 청약공고 후보를 선별하고 HTML 표로 보여준다."
-version: 1.0.0
+version: 1.0.1
 author: Synergy Labs + Hermes Agent
 license: proprietary
 metadata:
@@ -131,11 +131,20 @@ REF_DB stores `search_announcement_info` API responses verbatim, so it is alread
 - [ ] `ipzi-data.priceNote` is set whenever `maxPrice`/`diff` is shown, stating the price and budget gap are a max-price basis.
 - [ ] Any backdata/XLSX review material is delivered separately from the user-facing HTML.
 
+## HTML 산출물 계약 🚨
+
+- 렌더 데이터는 `result.json`에 저장하고, 사용자 전달 HTML은 고정 정본 `templates/result.html`의 `ipzi-data` 블록만 교체해 만든다. 새 HTML을 작성하거나 마크업·CSS·렌더 JS를 수정하지 않는다.
+- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs`를 `--file-name "<지역>_<전용면적>_청약맞춤분석"`과 함께 사용한다. 최종 사용자 파일명은 `<지역>_<전용면적>_청약맞춤분석.html`이다.
+- shell-free 환경에서는 같은 파일명으로 저장하고 교체 전후의 fixed template region이 원본과 같은지 비교한다.
+- 내부 파일 `result.json`·`audit.json`·`backdata.xlsx`는 고정 이름을 유지하되, 사용자 전달 HTML을 `result.html`이나 `index.html`이라는 고정 이름으로 내지 않는다.
+
 ## Output structure
 
 ```txt
 out/<screen-name>/
-  result.html
+  <지역>_<전용면적>_청약맞춤분석.html
+  result.json
+  audit.json
   backdata.xlsx        # when applicable
 ```
 

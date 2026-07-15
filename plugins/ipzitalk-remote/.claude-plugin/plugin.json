@@ -1,6 +1,6 @@
 {
   "name": "ipzitalk-remote",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Connect Claude Code to the hosted Ipzi Talk MCP and 27 Remote Skills.",
   "author": {
     "name": "SynergyLabs"

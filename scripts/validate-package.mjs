@@ -94,8 +94,8 @@ assert(!('env' in localServer), 'local MCP must not embed environment values');
 
 const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
-assert(sourceLock.sources.skills.availability === 'private-release', 'merged private Skill lock must be marked private-release');
-assert(sourceLock.plugins.remote.version === '0.1.14', 'Remote full-Skill release package must be version 0.1.14');
+assert(sourceLock.sources.skills.availability === 'local-checkpoint', 'unpublished Skill checkpoint must be marked local-checkpoint');
+assert(sourceLock.plugins.remote.version === '0.1.15', 'Remote sub-Skill artifact-contract package must be version 0.1.15');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 27, 'Remote release must contain exactly 27 skills');
 assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
