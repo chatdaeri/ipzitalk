@@ -2,6 +2,8 @@
 
 This document covers Claude Code CLI and the local Code tab. It does not claim support for Claude Desktop Chat/Cowork or remote/web sessions.
 
+See [the platform support matrix](platform-support-matrix.md) for the verified, pending, and out-of-scope boundaries across Codex and Claude surfaces.
+
 ## Install the launcher
 
 Add the local marketplace for this proof of concept and install the recommended launcher:
