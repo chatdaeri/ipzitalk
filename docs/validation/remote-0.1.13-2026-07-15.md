@@ -41,7 +41,15 @@
 
 ## 남은 gate
 
-- Remote `0.1.13` 사용자 프로필 설치와 새 세션 문서 추출 회귀
+- Remote `0.1.13` Claude·Codex 사용자 프로필 설치 완료, 새 세션 문서 추출 회귀는 남음
 - `remote-mcp` CSP Report-Only 브랜치의 push·PR·리뷰·배포
 - 배포 뒤 실제 지도 콘솔 CSP 위반 확인과 강제 CSP 전환 판단
 - 오늘 작업 종료 후 사용자 지시에 따른 push·PR
+
+## 사용자 프로필
+
+- Claude: `ipzitalk-remote@ipzitalk` `0.1.13`, user scope, enabled
+- Codex: `ipzitalk-remote@ipzitalk` `0.1.13`, enabled
+- Local: Claude·Codex 모두 미설치 상태 유지
+- Claude·Codex 설치 cache와 저장소 Remote 패키지: 차이 0건
+- 새 세션 반영을 위해 Claude·Codex 앱 재시작 필요
