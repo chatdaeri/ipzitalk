@@ -78,6 +78,9 @@
         "ipzitalk-transit-complex-ranking": "sub/ipzitalk-transit-complex-ranking",
         "ipzitalk-transit-environment": "sub/ipzitalk-transit-environment"
       },
+      "excludedFiles": [
+        "sub/ipzitalk-announcement-search/.DS_Store"
+      ],
       "artifacts": [
         "scripts/document_extract.py",
         "scripts/html_artifact_contract.mjs",

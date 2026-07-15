@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { cp, mkdir, readFile, readdir } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, rm } from 'node:fs/promises';
 import { basename, dirname, relative, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -20,6 +20,7 @@ const lock = JSON.parse(await readFile(resolve(root, 'source-lock.json'), 'utf8'
 const expectedCommit = lock.sources.skills.commit;
 const allowlist = [...lock.sources.skills.allowlist].sort();
 const sourcePaths = lock.sources.skills.paths ?? {};
+const excludedFiles = [...(lock.sources.skills.excludedFiles ?? [])].sort();
 const artifactAllowlist = [...(lock.sources.skills.artifacts ?? [])].sort();
 
 if (!expectedCommit || !allowlist.length || !artifactAllowlist.length) throw new Error('skills source lock is empty');
@@ -30,7 +31,7 @@ if (actualCommit !== expectedCommit) {
   throw new Error(`source HEAD mismatch: expected ${expectedCommit}, got ${actualCommit}`);
 }
 
-async function treeSnapshot(directory) {
+async function treeSnapshot(directory, excluded = new Set()) {
   const rows = [];
   async function visit(current) {
     const entries = await readdir(current, { withFileTypes: true });
@@ -38,8 +39,10 @@ async function treeSnapshot(directory) {
       const path = resolve(current, entry.name);
       if (entry.isDirectory()) await visit(path);
       else if (entry.isFile()) {
+        const relativePath = relative(directory, path);
+        if (excluded.has(relativePath)) continue;
         const digest = createHash('sha256').update(await readFile(path)).digest('hex');
-        rows.push(`${relative(directory, path)} ${digest}`);
+        rows.push(`${relativePath} ${digest}`);
       }
     }
   }
@@ -55,7 +58,13 @@ for (const skill of allowlist) {
   const from = resolve(source, sourcePath);
   execFileSync('git', ['-C', source, 'diff', '--quiet', expectedCommit, '--', sourcePath]);
   await cp(from, resolve(target, skill), { recursive: true, force: true });
-  const sourceSnapshot = await treeSnapshot(from);
+  const excludedForSkill = new Set(
+    excludedFiles
+      .filter((file) => file.startsWith(`${sourcePath}/`))
+      .map((file) => file.slice(sourcePath.length + 1)),
+  );
+  for (const file of excludedForSkill) await rm(resolve(target, skill, file), { force: true });
+  const sourceSnapshot = await treeSnapshot(from, excludedForSkill);
   const targetSnapshot = await treeSnapshot(resolve(target, skill));
   if (targetSnapshot !== sourceSnapshot) throw new Error(`copied skill mismatch: ${skill}`);
 }
