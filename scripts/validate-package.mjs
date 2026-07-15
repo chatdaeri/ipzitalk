@@ -109,6 +109,8 @@ const mainSkillNames = [
 ].sort();
 const lockedSkillPaths = sourceLock.sources.skills.paths ?? {};
 assert(Object.keys(lockedSkillPaths).sort().join('\n') === lockedSkills.join('\n'), 'locked Skill paths must match the allowlist');
+const excludedSkillFiles = [...(sourceLock.sources.skills.excludedFiles ?? [])].sort();
+assert(JSON.stringify(excludedSkillFiles) === JSON.stringify(['sub/ipzitalk-announcement-search/.DS_Store']), 'unexpected excluded Skill source files');
 for (const skill of lockedSkills) {
   assert(lockedSkillPaths[skill] === `main/${skill}` || lockedSkillPaths[skill] === `sub/${skill}`, `invalid locked Skill path: ${skill}`);
 }
@@ -140,6 +142,8 @@ const packagedSkills = (await readdir(resolve(root, 'plugins/ipzitalk-remote/ski
   .map((entry) => entry.name)
   .sort();
 assert(packagedSkills.join('\n') === lockedSkills.join('\n'), 'packaged Remote skills do not match source lock');
+const packagedSkillFiles = await walk('plugins/ipzitalk-remote/skills');
+assert(!packagedSkillFiles.some((file) => file.endsWith('/.DS_Store')), 'packaged Remote skills must exclude .DS_Store files');
 for (const skill of packagedSkills) {
   const skillFiles = (await walk(`plugins/ipzitalk-remote/skills/${skill}`)).filter((file) => file.endsWith('.md'));
   const skillText = (await Promise.all(skillFiles.map((file) => readFile(file, 'utf8')))).join('\n');
