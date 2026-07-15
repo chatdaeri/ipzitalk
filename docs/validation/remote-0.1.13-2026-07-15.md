@@ -42,10 +42,11 @@
 ## 남은 gate
 
 - Remote `0.1.13` Claude·Codex 사용자 프로필 설치 완료, 새 세션 문서 추출 회귀는 남음
-- `remote-mcp` CSP Report-Only [PR #67](https://github.com/chatdaeri/remote-mcp/pull/67)의 리뷰·병합·배포
-- 배포 뒤 실제 지도 콘솔 CSP 위반 확인과 강제 CSP 전환 판단
+- `remote-mcp` CSP Report-Only [PR #67](https://github.com/chatdaeri/remote-mcp/pull/67)은 `main` `8c5602b`로 병합되고 운영 Version `067aef55-6449-45cb-a8a3-78e733bed2b8`로 배포 완료
+- 운영 `/map` HTTP 200, Report-Only·Referrer·Permissions·nosniff 헤더, 스크립트 nonce 3개 일치, Naver SDK·마커·반경 원 코드 확인 완료
+- 현재 Codex 세션은 사용 가능한 브라우저가 0개라 실제 지도 픽셀·콘솔 CSP 위반 확인과 강제 CSP 전환 판단은 남음
 - [Remote 오류 #68](https://github.com/chatdaeri/remote-mcp/pull/68)은 `main` `1c5c80e`로 병합 완료
-- 리뷰·병합 대기: [Skill #18](https://github.com/chatdaeri/ipzitalk-skill/pull/18), [플러그인 #2](https://github.com/chatdaeri/ipzitalk/pull/2), [Remote CSP #67](https://github.com/chatdaeri/remote-mcp/pull/67). Remote CSP #67은 #68 병합 뒤 최신 `main` 위로 재배치했고 전체 48개 테스트 파일·403개 테스트를 다시 통과했다.
+- 리뷰·병합 대기: [Skill #18](https://github.com/chatdaeri/ipzitalk-skill/pull/18), [플러그인 #2](https://github.com/chatdaeri/ipzitalk/pull/2). Remote CSP #67은 #68 병합 뒤 최신 `main` 위로 재배치해 전체 48개 테스트 파일·403개 테스트를 통과한 뒤 병합·배포됐다.
 
 ## 사용자 프로필
 
