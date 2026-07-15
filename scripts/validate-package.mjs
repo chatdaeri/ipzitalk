@@ -95,18 +95,18 @@ assert(!('env' in localServer), 'local MCP must not embed environment values');
 const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.availability === 'local-only', 'unpublished PoC skill lock must be marked local-only');
-assert(sourceLock.plugins.remote.version === '0.1.9', 'Remote goal-contract test package must be version 0.1.9');
+assert(sourceLock.plugins.remote.version === '0.1.10', 'Remote hybrid-goal package must be version 0.1.10');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 6, 'Remote PoC must contain exactly six skills');
 assert(lockedSkills.includes('ipzitalk-recent-market-trend'), 'Remote PoC must package recent-market-trend');
 const lockedSkillVersions = sourceLock.sources.skills.versions ?? {};
 assert(Object.keys(lockedSkillVersions).sort().join('\n') === lockedSkills.join('\n'), 'locked Skill versions must match the allowlist');
-assert(lockedSkillVersions['ipzitalk-complex-overview-all'] === '1.1.1', 'complex-overview-all goal-contract version mismatch');
-assert(lockedSkillVersions['ipzitalk-location-report'] === '1.3.2', 'location-report goal-contract version mismatch');
-assert(lockedSkillVersions['ipzitalk-presale-report'] === '1.1.1', 'presale-report goal-contract version mismatch');
-assert(lockedSkillVersions['ipzitalk-read-notice-compare'] === '1.2.2', 'read-notice-compare goal-contract version mismatch');
-assert(lockedSkillVersions['ipzitalk-read-notice-report'] === '1.2.2', 'read-notice-report goal-contract version mismatch');
-assert(lockedSkillVersions['ipzitalk-recent-market-trend'] === '1.2.2', 'recent-market-trend goal-contract version mismatch');
+assert(lockedSkillVersions['ipzitalk-complex-overview-all'] === '1.1.3', 'complex-overview-all hybrid-goal version mismatch');
+assert(lockedSkillVersions['ipzitalk-location-report'] === '1.3.3', 'location-report hybrid-goal version mismatch');
+assert(lockedSkillVersions['ipzitalk-presale-report'] === '1.1.2', 'presale-report hybrid-goal version mismatch');
+assert(lockedSkillVersions['ipzitalk-read-notice-compare'] === '1.2.3', 'read-notice-compare hybrid-goal version mismatch');
+assert(lockedSkillVersions['ipzitalk-read-notice-report'] === '1.2.3', 'read-notice-report hybrid-goal version mismatch');
+assert(lockedSkillVersions['ipzitalk-recent-market-trend'] === '1.2.5', 'recent-market-trend hybrid-goal version mismatch');
 assert(remote.version === sourceLock.plugins.remote.version, 'Codex Remote version mismatch');
 const lockedSkillArtifacts = [...(sourceLock.sources.skills.artifacts ?? [])].sort();
 assert(JSON.stringify(lockedSkillArtifacts) === JSON.stringify([
@@ -128,6 +128,9 @@ for (const skill of packagedSkills) {
   assert(skillText.includes('mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>'), `missing plugin namespace fallback: ${skill}`);
   assert(skillText.includes('presale-mcp'), `missing local provenance exclusion: ${skill}`);
   assert(skillText.includes('원하는 분석 목적을 한 문장으로 알려주세요'), `missing purpose question: ${skill}`);
+  assert(skillText.includes('네이티브 사용자 입력 UI'), `missing native goal UI contract: ${skill}`);
+  assert(skillText.includes('지원 가능한 수가 2~3개'), `missing compact goal UI contract: ${skill}`);
+  assert(skillText.includes('기타(직접 입력)'), `missing direct goal input contract: ${skill}`);
   assert(skillText.includes('그 턴을 종료해 답을 기다린다'), `missing purpose wait contract: ${skill}`);
   assert(skillText.includes('데이터 조회·수집이 완료된 후에만'), `missing evidence-first summary contract: ${skill}`);
   assert(skillText.includes('../../scripts/html_artifact_contract.mjs'), `missing HTML artifact renderer contract: ${skill}`);
@@ -138,6 +141,10 @@ for (const skill of packagedSkills) {
 const recentMarketTrend = await readFile(resolve(root, 'plugins/ipzitalk-remote/skills/ipzitalk-recent-market-trend/SKILL.md'), 'utf8');
 assert(recentMarketTrend.includes('검증된 사항은 런타임 fallback 또는 실행값 대체에 사용하지 않는다'), 'missing runtime fixture fallback prohibition');
 assert(recentMarketTrend.includes('auditIncomplete:true`이면 정상 완료를 주장하지 않는다'), 'missing incomplete-audit failure contract');
+assert(recentMarketTrend.includes('실거래 추이 분석'), 'missing reported-trade trend cross-reference');
+const recentMarketTemplate = await readFile(resolve(root, 'plugins/ipzitalk-remote/skills/ipzitalk-recent-market-trend/templates/result.html'), 'utf8');
+assert(recentMarketTemplate.includes('th.n,td.n'), 'missing aligned numeric detail columns');
+assert(recentMarketTemplate.includes(`i > 0 ? ' class="n"' : ''`), 'missing numeric detail header class');
 for (const artifact of lockedSkillArtifacts) {
   const content = await readFile(resolve(root, 'plugins/ipzitalk-remote', artifact), 'utf8');
   assert(content.length > 0, `empty packaged Skill artifact: ${artifact}`);
