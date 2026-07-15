@@ -72,4 +72,25 @@ Remote 플러그인을 `0.1.9`에서 `0.1.10`으로 올리고 메인 Skill 6개�
 
 따라서 Remote `0.1.10` Recent Market Trend의 목적 입력 대기·선택 후 완성 리포트·감사 원장·표 정렬·후속 명칭 E2E gate는 모두 PASS다. `audit.json`에 별도 `callSummary` 필드는 없지만 개별 `calls` 원장으로 6회 호출을 독립 복원할 수 있고 Skill 계약상 필수 필드가 아니므로 실패로 보지 않는다.
 
+## Presale Report TEST4
+
+`plugintest/claudeTest/TEST4_presale-report`의 헬리오시티 반경 3km 결과를 확인했다.
+
+통과 항목:
+
+- 목적 선택 후 `get_address` 1회, 전량 `search_announcement_info` 1회, 지도 1회로 총 3회 호출했다.
+- 전 호출은 `ipzitalk-remote/ipzitalk` provenance이며 `has_more:false`, `auditIncomplete:false`다.
+- 최근 6개월 0건을 정상 빈 상태로 렌더하고 전량 6건 목록을 유지했다.
+- KPI·공급유형·전용면적·목록의 세대수 합이 모두 4,652세대로 일치한다.
+- HTML의 `ipzi-data`와 `result.json`이 일치하고 HTML validator가 통과했다.
+- 다음 행동의 사용자 노출 명칭은 `실거래 추이 분석`이다.
+
+수정 필요 항목:
+
+- 조회일은 2026-07-15이고 입주월은 2026.01인데 결론이 잠실 르엘을 “앞으로 입주 대기 물량”으로 표현한다. 같은 데이터의 `movein.years`는 2026년을 과거로 올바르게 표시하므로 맞춤 요약의 시점 판정 오류다.
+- 반경 3km의 최근 6개월 신규 공고 0건만으로 “신규 청약이 사실상 소진된 성숙 시장”이라고 단정한다. 확인 가능한 사실은 최근 신규 공고가 없다는 데까지이며 시장 성숙도는 근거 부족 추론이다.
+- 후속 Skill 이름은 `실거래 추이 분석`으로 고쳤지만 자연어 예시는 “최근 시세 흐름”을 사용한다. 실거래 데이터임을 명확히 하려면 “최근 실거래가 추이”로 통일할 필요가 있다.
+
+따라서 TEST4의 호출·집계·렌더·감사 계약은 PASS지만 목적 맞춤 내러티브의 시점·추론 품질은 NEEDS FIX로 판정한다.
+
 push·PR은 생성하지 않았다.
