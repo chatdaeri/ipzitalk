@@ -231,14 +231,15 @@ const templateDataShape = {
 (function(){
   var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   function el(id){ return document.getElementById(id); }
+  function esc(v){ return String(v == null ? "" : v).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
 
   el("h-title").textContent = (D.title||"–") + " 공고 리포트";
   el("h-desc").textContent = D.desc || "";
-  el("h-chips").innerHTML = (D.chips||[]).map(function(c){ return '<span class="chip">'+c+'</span>'; }).join("");
+  el("h-chips").innerHTML = (D.chips||[]).map(function(c){ return '<span class="chip">'+esc(c)+'</span>'; }).join("");
 
   el("kpis").innerHTML = (D.kpis||[]).map(function(k){
-    return '<div class="card kpi"><div class="l">'+k.label+'</div><div class="n">'+k.value+'</div>'
-      + (k.sub? '<div class="s">'+k.sub+'</div>' : '') + '</div>';
+    return '<div class="card kpi"><div class="l">'+esc(k.label)+'</div><div class="n">'+esc(k.value)+'</div>'
+      + (k.sub? '<div class="s">'+esc(k.sub)+'</div>' : '') + '</div>';
   }).join("");
 
   if (D.brief){
@@ -246,17 +247,17 @@ const templateDataShape = {
     el("brief-summary").textContent = D.brief.summary || "";
     el("brief-note").textContent = D.brief.summaryNote || "";
     el("brief-table-body").innerHTML = (D.brief.unitTable||[]).map(function(u){
-      return '<tr><td>'+u.type+'</td><td>'+u.maxPrice+'</td><td>'+u.floorAvg+'</td><td>'+u.perPyeong+'</td></tr>';
+      return '<tr><td>'+esc(u.type)+'</td><td>'+esc(u.maxPrice)+'</td><td>'+esc(u.floorAvg)+'</td><td>'+esc(u.perPyeong)+'</td></tr>';
     }).join("");
   }
 
   if (D.dday){
     el("sec-dday").hidden = false;
     el("dday-checklist").innerHTML = (D.dday.checklist||[]).map(function(c){
-      return '<tr><td class="box">□</td><td>'+c.label+'</td><td>'+c.date+'</td><td>'+c.todo+'</td></tr>';
+      return '<tr><td class="box">□</td><td>'+esc(c.label)+'</td><td>'+esc(c.date)+'</td><td>'+esc(c.todo)+'</td></tr>';
     }).join("");
     el("dday-timeline").innerHTML = (D.dday.checklist||[]).map(function(c){
-      return '<div class="step"><b>'+c.label+'</b><span>'+c.date+'</span></div>';
+      return '<div class="step"><b>'+esc(c.label)+'</b><span>'+esc(c.date)+'</span></div>';
     }).join("");
     el("dday-prep").textContent = D.dday.prepNote || "";
   }
@@ -265,24 +266,25 @@ const templateDataShape = {
     el("sec-funding").hidden = false;
     if (D.funding.basis) el("funding-basis").textContent = D.funding.basis;
     el("funding-timeline").innerHTML = (D.funding.schedule||[]).map(function(s){
-      return '<div class="step"><b>'+s.label+'</b><span>'+s.date+' · '+s.amount+'</span></div>';
+      return '<div class="step"><b>'+esc(s.label)+'</b><span>'+esc(s.date)+' · '+esc(s.amount)+'</span></div>';
     }).join("");
     el("funding-incl").textContent = D.funding.included || "";
     el("funding-excl").textContent = D.funding.excluded || "";
     el("funding-note").textContent = D.funding.basisNote || "";
     el("funding-table").innerHTML = (D.funding.paymentTable||[]).map(function(p){
-      return '<tr><td>'+p.label+'</td><td>'+p.date+'</td><td>'+p.ratio+'</td><td>'+p.amount+'</td><td>'+p.basis+'</td></tr>';
+      return '<tr><td>'+esc(p.label)+'</td><td>'+esc(p.date)+'</td><td>'+esc(p.ratio)+'</td><td>'+esc(p.amount)+'</td><td>'+esc(p.basis)+'</td></tr>';
     }).join("");
   }
 
   if (D.limits){
     el("sec-limits").hidden = false;
     el("limits-cards").innerHTML = (D.limits.restrictions||[]).map(function(r){
-      return '<div class="card rcard"><span class="pill '+(r.cls||"a")+'">'+(r.status||"확인됨")+'</span>'
-        + '<h3>'+r.label+'</h3><p class="val">'+r.value+'</p>'
-        + (r.quote? '<div class="quote">'+r.quote+'</div>' : '') + '</div>';
+      var cls = ["g","a","o","x","r"].indexOf(r.cls) >= 0 ? r.cls : "a";
+      return '<div class="card rcard"><span class="pill '+cls+'">'+esc(r.status||"확인됨")+'</span>'
+        + '<h3>'+esc(r.label)+'</h3><p class="val">'+esc(r.value)+'</p>'
+        + (r.quote? '<div class="quote">'+esc(r.quote)+'</div>' : '') + '</div>';
     }).join("");
-    el("limits-questions").innerHTML = (D.limits.questions||[]).map(function(q){ return '<li>'+q+'</li>'; }).join("");
+    el("limits-questions").innerHTML = (D.limits.questions||[]).map(function(q){ return '<li>'+esc(q)+'</li>'; }).join("");
   }
 
   el("foot-note").textContent = D.footNote || "";

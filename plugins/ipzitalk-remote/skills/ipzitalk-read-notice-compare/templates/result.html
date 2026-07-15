@@ -188,34 +188,36 @@ const templateDataShape = {
   var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   var TEAM = ["a","b","c","d"], TAG = ["A","B","C","D"];
   function el(id){ return document.getElementById(id); }
-  function tcolor(i){ return "var(--"+TEAM[i%4]+")"; }
+  function esc(v){ return String(v == null ? "" : v).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function safeIndex(i){ var n = Number(i); return Number.isInteger(n) && n >= 0 && n < 4 ? n : 0; }
+  function tcolor(i){ return "var(--"+TEAM[safeIndex(i)]+")"; }
 
-  el("h-chips").innerHTML = (D.chips||[]).map(function(c){ return '<span class="chip">'+c+'</span>'; }).join("");
+  el("h-chips").innerHTML = (D.chips||[]).map(function(c){ return '<span class="chip">'+esc(c)+'</span>'; }).join("");
 
   var N = D.notices||[];
   el("vs").innerHTML = N.map(function(n,i){
     return '<span class="team" style="border-color:'+tcolor(i)+';color:'+tcolor(i)+'">'
-      + '<span class="tag">'+TAG[i]+'</span>'+n.name
-      + (n.noticeDate? ' <span style="font-weight:600;font-size:12px;opacity:.75">공고 '+n.noticeDate+'</span>' : '')
+      + '<span class="tag">'+TAG[i]+'</span>'+esc(n.name)
+      + (n.noticeDate? ' <span style="font-weight:600;font-size:12px;opacity:.75">공고 '+esc(n.noticeDate)+'</span>' : '')
       + '</span>';
   }).join('<span class="x">VS</span>');
 
   if (N.length < 2){ el("foot-note").textContent = D.footNote || ""; return; }
 
-  function nameTh(i){ return '<th class="tname" style="color:'+tcolor(i)+'">'+TAG[i]+' · '+N[i].name+'</th>'; }
-  function warnHtml(list){ return (list||[]).map(function(w){ return '<div class="warn">⚠ <span>'+w+'</span></div>'; }).join(""); }
+  function nameTh(i){ return '<th class="tname" style="color:'+tcolor(i)+'">'+TAG[i]+' · '+esc(N[i].name)+'</th>'; }
+  function warnHtml(list){ return (list||[]).map(function(w){ return '<div class="warn">⚠ <span>'+esc(w)+'</span></div>'; }).join(""); }
 
   if (D.schedule){
     el("sec-schedule").hidden = false;
     var dates = [];
     (D.schedule.events||[]).forEach(function(e){ if (dates.indexOf(e.date) < 0) dates.push(e.date); });
     dates.sort();
-    var head = '<tr><th></th>' + dates.map(function(d){ return '<th>'+d+'</th>'; }).join("") + '</tr>';
+    var head = '<tr><th></th>' + dates.map(function(d){ return '<th>'+esc(d)+'</th>'; }).join("") + '</tr>';
     var rows = N.map(function(n,i){
       var cells = dates.map(function(d){
         var evs = (D.schedule.events||[]).filter(function(e){ return e.notice===i && e.date===d; });
         return '<td class="evt">' + evs.map(function(e){
-          return '<span style="color:'+tcolor(i)+';font-weight:800">■</span> '+e.label;
+          return '<span style="color:'+tcolor(i)+';font-weight:800">■</span> '+esc(e.label);
         }).join("<br>") + '</td>';
       }).join("");
       return '<tr>'+nameTh(i)+cells+'</tr>';
@@ -229,14 +231,15 @@ const templateDataShape = {
     if (D.funding.basis) el("fund-basis").textContent = D.funding.basis;
     el("fund-bars").innerHTML = (D.funding.perNotice||[]).map(function(f,i){
       var segs = (f.segments||[]).map(function(s,si){
-        return '<div class="seg s'+(si%3)+'" style="flex:'+(s.ratio||0)+'" title="'+s.label+' '+s.ratio+'%">'
-          + s.label+' '+s.ratio+'%'+(s.note? ' · '+s.note : '')+'</div>';
+        var ratio = Number.isFinite(Number(s.ratio)) ? Math.max(0, Number(s.ratio)) : 0;
+        return '<div class="seg s'+(si%3)+'" style="flex:'+ratio+'" title="'+esc(s.label)+' '+ratio+'%">'
+          + esc(s.label)+' '+ratio+'%'+(s.note? ' · '+esc(s.note) : '')+'</div>';
       }).join("");
       var winCls = (D.funding.initialCashWinner===i);
-      return '<div class="barrow"><div class="bname" style="color:'+tcolor(i)+'">'+TAG[i]+' · '+N[i].name+'</div>'
+      return '<div class="barrow"><div class="bname" style="color:'+tcolor(i)+'">'+TAG[i]+' · '+esc(N[i].name)+'</div>'
         + '<div class="bar">'+segs+'</div>'
-        + (f.initialCash? '<div class="bmeta">초기 필요 현금(계약금): <b'+(winCls? ' style="color:var(--g)"':'')+'>'+f.initialCash+'</b>'
-            + (f.initialCashSub? ' <span>· '+f.initialCashSub+'</span>':'') + (winCls? ' <b style="color:var(--g)">●부담 낮음</b>':'') + '</div>' : '')
+        + (f.initialCash? '<div class="bmeta">초기 필요 현금(계약금): <b'+(winCls? ' style="color:var(--g)"':'')+'>'+esc(f.initialCash)+'</b>'
+            + (f.initialCashSub? ' <span>· '+esc(f.initialCashSub)+'</span>':'') + (winCls? ' <b style="color:var(--g)">●부담 낮음</b>':'') + '</div>' : '')
         + '</div>';
     }).join("");
     el("fund-note").textContent = D.funding.note || "";
@@ -248,10 +251,10 @@ const templateDataShape = {
       var same = r.values.every(function(v){ return v===r.values[0]; });
       var cells = r.values.map(function(v,i){
         var win = (r.winner===i)? ' class="win"' : '';
-        return '<td'+win+'>'+v+((r.winner===i)? ' ●':'')+'</td>';
+        return '<td'+win+'>'+esc(v)+((r.winner===i)? ' ●':'')+'</td>';
       }).join("");
-      return '<tr><th>'+r.label+(same? ' <span style="font-weight:600">(동일)</span>':'')
-        +(r.note? '<br><span style="font-weight:600;font-size:11px">'+r.note+'</span>':'')+'</th>'+cells+'</tr>';
+      return '<tr><th>'+esc(r.label)+(same? ' <span style="font-weight:600">(동일)</span>':'')
+        +(r.note? '<br><span style="font-weight:600;font-size:11px">'+esc(r.note)+'</span>':'')+'</th>'+cells+'</tr>';
     }).join("");
     el(tid).innerHTML = head + body;
   }
@@ -260,7 +263,8 @@ const templateDataShape = {
     el("sec-limits").hidden = false;
     compareTable("lim-table", D.limits.rows);
     el("lim-quotes").innerHTML = (D.limits.quotes||[]).map(function(q){
-      return '<div class="quote"><b style="color:'+tcolor(q.notice)+'">'+TAG[q.notice]+' · '+q.label+'</b> — '+q.text+'</div>';
+      var qi = safeIndex(q.notice);
+      return '<div class="quote"><b style="color:'+tcolor(qi)+'">'+TAG[qi]+' · '+esc(q.label)+'</b> — '+esc(q.text)+'</div>';
     }).join("");
   }
 

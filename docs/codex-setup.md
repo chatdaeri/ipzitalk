@@ -2,6 +2,8 @@
 
 This document describes the internal proof-of-concept flow. It is not a public release guide.
 
+See [the platform support matrix](platform-support-matrix.md) for the verified, pending, and out-of-scope boundaries across Codex and Claude surfaces.
+
 ## Select a runtime
 
 Run `$ipzitalk:setup` in a new Codex process after installing the `ipzitalk` launcher. The setup Skill explains both modes and waits for an explicit choice before changing plugins.

@@ -71,7 +71,7 @@
   table{width:100%;border-collapse:collapse;font-size:13px}
   th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
   th{font-size:11.5px;color:var(--sub);font-weight:600}
-  td.n{font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap;text-align:right}
+  th.n,td.n{font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap;text-align:right}
   td.na{color:var(--sub2)}
   tbody tr:nth-child(even){background:var(--zebra)}
   .foot{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--sub);line-height:1.75}
@@ -115,7 +115,7 @@
   아이콘 스프라이트 — 인라인이어야 한다. <use href="#i-…"> 는 같은 문서 안의 <symbol> 만 찾는다.
   산출물은 사용자가 혼자 여는 단일 HTML이라 옆에 sprite.svg 를 둬도, CDN 도 따라가지 않는다.
 
-  [주의] 심볼을 임의로 지우지 말 것. 마크업이 직접 참조하지 않고 __DATA__ 렌더 JS의
+  [주의] 심볼을 임의로 지우지 말 것. 마크업이 직접 참조하지 않고 ipzi-data 렌더 JS의
   아이콘 문자열로만 참조되는 심볼이 있어, "안 쓰는 심볼"로 보고 지우면 아이콘이 조용히 사라진다.
   아래 ICONS 배열과 이 블록은 항상 같이 고친다.
 -->
@@ -216,7 +216,7 @@ const templateDataShape = {
                              // }]
                              // deltaPct: null = 정보없음(0 아님). base/compare 는 원시 수치.
 
-  table: { columns: [], rows: [] },  // 상세 표. rows 셀은 문자열 또는 {n:"우측정렬 숫자"} 또는 null(정보없음)
+  table: { columns: [], rows: [] },  // 상세 표. 첫 열은 지역 문자열, 이후 열은 {n:"우측정렬 숫자"} 또는 null(정보없음)
 
   hedges: [],                // ["구성 미보정 참고 신호이며 시세 감정이 아니다", "최근 2개월은 신고 지연으로 제외했다"]
   sources: [],               // ["국토교통부 실거래가"]
@@ -227,8 +227,14 @@ const templateDataShape = {
   var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   var NA = "정보없음";
   /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
-     링크·iframe 은 http/https 만 허용한다. 아니면 링크를 걸지 않는다. */
-  function safeUrl(u){ return /^https?:\/\//i.test(String(u == null ? "" : u)) ? String(u) : null; }
+     일반 링크는 https만 허용하고, 지도 iframe은 Ipzi Talk 정식 /map?d=<id> URL만 허용한다. */
+  function safeHttpsUrl(value){
+    try {
+      var url = new URL(String(value == null ? "" : value));
+      if(url.protocol !== "https:") return null;
+      return url.href;
+    } catch (_) { return null; }
+  }
 
   function esc(v){
     return String(v).replace(/[&<>"']/g, function(c){
@@ -389,14 +395,16 @@ const templateDataShape = {
 
   /* 구성 변화 신호는 (1) KPI 카드의 `구성 변화 가능성` 칩과 (2) 푸터 hedge 로만 낸다.
      예전엔 같은 문장을 콜아웃으로 한 번 더 띄웠다 — 화면에서 세 번 반복돼 걷어냈다.
-     [주의] isComposition() 이 참인 지역이 있으면 __DATA__.hedges 에 그 사실을 반드시 한 줄 넣을 것. */
+     [주의] isComposition() 이 참인 지역이 있으면 ipzi-data.hedges에 그 사실을 반드시 한 줄 넣을 것. */
 
   /* 상세 표 */
   var tbl = D.table || {};
   if((tbl.rows || []).length){
     show("detail-box");
     document.getElementById("detail-head").innerHTML = "<tr>"
-      + (tbl.columns || []).map(function(c){ return "<th>" + esc(c) + "</th>"; }).join("") + "</tr>";
+      + (tbl.columns || []).map(function(c, i){
+        return '<th' + (i > 0 ? ' class="n"' : '') + '>' + esc(c) + '</th>';
+      }).join("") + "</tr>";
     document.getElementById("detail-body").innerHTML = tbl.rows.map(function(row){
       return "<tr>" + row.map(cell).join("") + "</tr>";
     }).join("");

@@ -92,7 +92,7 @@
   table{width:100%;border-collapse:collapse;font-size:13px}
   th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
   th{font-size:11.5px;color:var(--sub);font-weight:600}
-  td.n{font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap;text-align:right}
+  th.n,td.n{font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap;text-align:right}
   td.na{color:var(--sub2)}
   tbody tr:nth-child(even){background:var(--zebra)}
   .flag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;margin-left:6px;background:var(--o-s);color:var(--o)}
@@ -126,7 +126,7 @@
   [주의] 심볼을 임의로 지우지 말 것.
   16개 중 마크업이 직접 참조하는 것은 6개(i-report·i-target·i-ruler·i-doc·i-source·i-calendar2)이고,
   목적 레일이 4개(i-check·i-evidence·i-warn·i-arrow)를 렌더 JS의 <use>로 참조하며,
-  나머지 6개(i-transit·i-living·i-education·i-map·i-info·i-truncated)는 __DATA__ 의 icon 문자열로만
+  나머지 6개(i-transit·i-living·i-education·i-map·i-info·i-truncated)는 ipzi-data의 icon 문자열로만
   참조된다. "안 쓰는 심볼"로 보고 지우면 축 카드·pill·목적 레일 아이콘이 에러 없이 조용히 사라진다.
   아래 ICONS 배열과 이 블록은 항상 같이 고친다.
 -->
@@ -169,7 +169,7 @@
   </div>
 
   <div id="map-panel">
-    <div class="map"><iframe id="map-iframe" src="about:blank" title="세부입지 종합 지도" loading="lazy"></iframe></div>
+    <div class="map"><iframe id="map-iframe" src="about:blank" title="세부입지 종합 지도" loading="lazy" sandbox="allow-scripts allow-same-origin" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
     <p class="src" style="padding:0 22px 10px">네이버 지도 · 카카오맵</p>
   </div>
 
@@ -273,8 +273,27 @@ const templateDataShape = {
   var D = JSON.parse(document.getElementById("ipzi-data").textContent);
   var NA = "정보없음";
   /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
-     링크·iframe 은 http/https 만 허용한다. 아니면 링크를 걸지 않는다. */
-  function safeUrl(u){ return /^https?:\/\//i.test(String(u == null ? "" : u)) ? String(u) : null; }
+     일반 링크는 https만 허용하고, 지도 iframe은 Ipzi Talk 정식 /map?d=<id> URL만 허용한다. */
+  function safeHttpsUrl(value){
+    try {
+      var url = new URL(String(value == null ? "" : value));
+      if(url.protocol !== "https:") return null;
+      return url.href;
+    } catch (_) { return null; }
+  }
+  function safeMapUrl(value){
+    var safe = safeHttpsUrl(value);
+    if(!safe) return null;
+    var url = new URL(safe);
+    if(url.origin !== "https://ipzi-talk.synergylabs.kr") return null;
+    if(url.username || url.password) return null;
+    if(url.pathname !== "/map") return null;
+    if(!url.searchParams.get("d")) return null;
+    if(url.searchParams.getAll("d").length !== 1) return null;
+    if(Array.from(url.searchParams.keys()).some(function(key){ return key !== "d"; })) return null;
+    if(url.hash) return null;
+    return url.href;
+  }
 
   function esc(v){
     return String(v).replace(/[&<>"']/g, function(c){
@@ -302,6 +321,13 @@ const templateDataShape = {
     if(typeof v === "object" && v.n !== undefined) return '<td class="n">' + esc(v.n) + '</td>';
     return "<td>" + esc(v) + "</td>";
   }
+  function headerCell(v, index, rows){
+    var numeric = (rows || []).some(function(row){
+      var value = row && row[index];
+      return value && typeof value === "object" && value.n !== undefined;
+    });
+    return '<th' + (numeric ? ' class="n"' : '') + '>' + esc(v) + '</th>';
+  }
   function stars(n){
     if(n === null || n === undefined) return {html:"판정 유보", tone:"x"};
     n = Math.max(0, Math.min(3, n|0));
@@ -318,7 +344,7 @@ const templateDataShape = {
     return '<span class="pill">' + icon(p.icon, p.tone) + " " + esc(p.label) + "</span>";
   });
   if (D.map && D.map.url){
-    acts.push('<a class="open-btn" target="_blank" rel="noopener" href="'+esc(safeUrl(D.map.url)||"#")+'">'
+    acts.push('<a class="open-btn" target="_blank" rel="noopener" href="'+esc(safeMapUrl(D.map.url)||"#")+'">'
       + icon("i-map") + " 지도 크게 열기</a>");
   }
   document.getElementById("h-actions").innerHTML = acts.join("");
@@ -359,7 +385,7 @@ const templateDataShape = {
 
   /* 지도 — url 이 없으면 패널째 숨긴다 */
   if (D.map && D.map.url){
-    document.getElementById("map-iframe").src = safeUrl(D.map.url) || "about:blank";
+    document.getElementById("map-iframe").src = safeMapUrl(D.map.url) || "about:blank";
     var cap = [D.map.caption, D.map.ttlNote].filter(Boolean);
     if (cap.length){
       var el = document.getElementById("map-cap");
@@ -395,7 +421,7 @@ const templateDataShape = {
       body = '<div class="empty">해당 반경 내 결과 없음 — 거리를 추정하지 않는다.</div>';
     } else {
       body = "<table><thead><tr>"
-        + (sec.columns || []).map(function(c){ return "<th>" + esc(c) + "</th>"; }).join("")
+        + (sec.columns || []).map(function(c, i){ return headerCell(c, i, sec.rows); }).join("")
         + "</tr></thead><tbody>"
         + sec.rows.map(function(r){ return "<tr>" + r.map(cell).join("") + "</tr>"; }).join("")
         + "</tbody></table>";
@@ -415,7 +441,7 @@ const templateDataShape = {
     document.getElementById("wide-title").textContent = D.wide.title || "광역 축";
     document.getElementById("wide-note").textContent = D.wide.note || "";
     document.getElementById("wide-head").innerHTML = "<tr>"
-      + (D.wide.columns || []).map(function(c){ return "<th>" + esc(c) + "</th>"; }).join("") + "</tr>";
+      + (D.wide.columns || []).map(function(c, i){ return headerCell(c, i, D.wide.rows); }).join("") + "</tr>";
     document.getElementById("wide-body").innerHTML = D.wide.rows.map(function(r){
       return "<tr>" + r.map(cell).join("") + "</tr>";
     }).join("");

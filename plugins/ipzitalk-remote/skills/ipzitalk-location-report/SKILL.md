@@ -5,7 +5,7 @@ description: >
   종합 지도)를 생성한다. "세부 입지", "입지 분석", "입지 보고서", "이 사업지 입지 어때",
   "입지 종합", "주변 환경 종합" 등의 표현이 있으면 이 스킬을 사용한다.
   단일 분야만 물으면(교통만/학군만) 해당 단일 스킬을 쓴다. 점수화는 입지 평가 스킬로 분리한다.
-version: 1.3.0
+version: 1.3.5
 license: proprietary
 ---
 
@@ -46,20 +46,22 @@ references/education-workflow.md    교육 환경
 
 
 ## 워크플로우
-1. **좌표 확보 (1회만)** — `resolve-site` 규약으로 표준번들(좌표·region_code·bjd) 확보. 후보 다수 → 선택.
-   **3분야가 이 center를 공유한다. 재해소 금지**(크레딧 낭비). 최초 resolver가 좌표를 반환하면 region code·정규화 주소 **보강용 `get_geocode` 호출을 금지**하고, 없는 보조 필드는 `null`로 둔다.
+1. **논리적 center 해소 1회** — 입력 유형별로 아래 하나의 체인만 실행해 표준번들(좌표·region_code·bjd)을 확정한다. 후보 다수 → 선택.
+   - 단지명(`complex_query`)은 `get_complex_info(detail=true)`를 먼저 1회 호출한다. 좌표가 없으면 그 응답의 **공식 도로명 또는 지번 주소로 `get_geocode`를 한 번만** 호출한다. 단지 해소가 성공한 뒤 `get_address`를 호출하거나 모델하우스 검색을 반복하는 것은 금지한다.
+   - 주소 입력은 `resolve-site` 규약의 주소 resolver를 1회 사용한다. 좌표를 반환하면 보강용 `get_geocode`를 호출하지 않고 없는 보조 필드는 `null`로 둔다.
+   - **3분야가 확정된 center를 공유하며 이후 재해소하지 않는다.** 허용된 단지 체인은 MCP 2콜이어도 논리적 center 확정은 1회다.
 2. **교통 환경** — `references/transit-workflow.md`를 읽어 검색·밴드·등급 단계를 center로 실행.
 3. **생활 환경** — `references/living-workflow.md`를 읽어 실행.
 4. **교육 환경** — `references/education-workflow.md`를 읽어 실행.
 5. **종합 지도 (1콜)** — 입력 `radius_m`과 같은 반경 원 + 3분야 대표 마커. 아래 **지도 규칙** 준수.
-6. **조립·출력** — 채팅 요약 + `result.json` 및 호출 ledger `out/ipzitalk-location-report/audit.json` 저장 → **출력 형식(html/pptx/docx) 1개 필수 선택** 후 렌더. 아래 **출력 포맷** 참조.
+6. **조립·출력** — 채팅 요약 + `result.json` 및 호출 ledger `out/ipzitalk-location-report/audit.json` 저장 → **출력 형식(html/pptx/docx) 1개 필수 선택** 후 렌더. 아래 **출력 포맷** 참조. 모든 정본 산출물과 과정 문서는 `out/ipzitalk-location-report/` 안에만 저장하고 작업 루트에 중복 파일을 만들지 않는다.
 
 ### 호출 ledger·검색 사실 계약 🚨
-- 기본 경로는 center 해소 1회 + 교통 3회 + 생활 7회 + 교육 5회 + 지도 1회인 **총 17회**다. reference에 명시된 0건 fallback만 조건부 추가 호출이며 `reason` allowlist로 구분한다.
+- 검색·지도 고정분은 교통 3회 + 생활 7회 + 교육 5회 + 지도 1회인 **16회**다. 여기에 실제 center 해소 호출 수를 더한다. 주소 resolver가 1콜이면 기본 경로는 총 17회, 단지 공식주소 geocode 체인이 2콜이면 총 18회다. reference의 0건 fallback만 그 밖의 조건부 추가 호출이며 `reason` allowlist로 구분한다.
 - 각 MCP 호출 직후 **최초 반환을 바로 `out/ipzitalk-location-report/audit.json`에** `skillBaseDirectory`, `axis`, `baseToolName`, `query` 또는 `category`, `radius_m`, `resultCount`, `truncated`, `provenance`와 함께 한 행씩 누적한다. 조건부 재호출은 `reason`도 기록하고, 파일 도구·실행 환경은 `shellUsed`, `webUsed`, `generatedFiles`로 별도 기록한다.
 - 최종 도구별 횟수와 총합은 `audit.json` 행에서 자동 집계한다. 중간 자연어 메모를 더해 수기로 합계를 만들지 않는다.
 - **감사 누락 복구·보완을 위한 MCP 재호출은 금지**한다. 병렬 출력 표시 누락이나 ledger 기록 실패가 생기면 기존 최초 반환으로 복구하고, 불가능하면 `auditIncomplete:true`로 남긴 뒤 재조회하지 않는다.
-- `audit.json`의 총 호출 수를 기본 경로 17회와 비교한다. 초과 행은 reference에 미리 정의된 0건 fallback `reason`이 없으면 완료 처리하지 않는다.
+- `audit.json`의 총 호출 수를 `16 + center 해소 호출 수 + 허용된 0건 fallback 수`와 비교한다. center 체인은 `complex_info`·`official_address_geocode`처럼 각 단계와 사유를 기록하고, 그 밖의 초과 행에 allowlist `reason`이 없으면 완료 처리하지 않는다.
 - `radius_m`은 근린 검색·통합 지도 원·지도 캡션에서 같은 의미와 값을 사용한다. 광역 축은 `radius_m: null`로 ledger에 구분한다.
 - 구청은 검색하지 않는다. 검색 신뢰도 한계로 평가 제외라고만 쓰며, 호출하지 않은 구청을 `0건`으로 표현하지 않는다.
 - 최근접 시설은 운영상태 제외 전 후보, 제외 후 후보, 최종 선택 사유를 `audit.json`의 `selection`에 남긴다. 고정 fixture는 값 자체가 아니라 center·검색 인자·필터·정렬의 재현성을 검증한다.
@@ -135,17 +137,19 @@ references/education-workflow.md    교육 환경
 
 | 선택 | 절차 | 산출 |
 |---|---|---|
-| (1) HTML | `templates/result.html` 복사 → 비실행 `ipzi-data` JSON 블록을 `result.json` 내용으로 **통째 치환**. 마크업·CSS·렌더 JS는 손대지 않는다 | `result.html` (동적 지도 iframe) |
-| (2) PPTX | `python3 templates/build_pptx.py result.json result.pptx` (`pip install python-pptx`) | `result.pptx` — **HTML 리포트와 같은 다크 스타일**(동일 토큰). 표지 → 종합요약(**좌: 지도 / 우: 요약·축 카드** 2분할) → 섹션별 표(등급 pill·밴드·회색 각주) → 광역축 → 유의사항. 표는 한 장에 8행까지 |
-| (3) DOCX | `python3 templates/build_docx.py result.json result.docx` (`pip install python-docx`) | `result.docx` — 상단에 지도 이미지 + 동적 지도 링크 |
+| (1) HTML | `templates/result.html` 복사 → 비실행 `ipzi-data` JSON 블록을 `result.json` 내용으로 **통째 치환**. 마크업·CSS·렌더 JS는 손대지 않는다 | `<대상>_입지보고서.html` (동적 지도 iframe) |
+| (2) PPTX | `python3 templates/build_pptx.py result.json <대상>_입지보고서.pptx` (`pip install python-pptx`) | `<대상>_입지보고서.pptx` — **HTML 리포트와 같은 다크 스타일**(동일 토큰). 표지 → 종합요약(**좌: 지도 / 우: 요약·축 카드** 2분할) → 섹션별 표(등급 pill·밴드·회색 각주) → 광역축 → 유의사항. 표는 한 장에 8행까지 |
+| (3) DOCX | `python3 templates/build_docx.py result.json <대상>_입지보고서.docx` (`pip install python-docx`) | `<대상>_입지보고서.docx` — 상단에 지도 이미지 + 동적 지도 링크 |
 
 - 베타 고지 문구는 세 템플릿 모두에 이미 박혀 있다. 렌더 후 따로 덧붙이지 않는다.
 - 렌더러가 실패하면(모듈 없음 등) 조용히 다른 형식으로 바꾸지 말고 원인을 알린다.
 
 ### HTML 산출물 계약 🚨
-- HTML 선택 시 공유 `result.html`을 덮어쓰지 말고 반드시 `out/ipzitalk-location-report/result.html`에 저장한다.
-- 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 `result.json`, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
+- `result.json`·`audit.json`은 모든 렌더러가 공유하는 내부 계약용 고정 이름으로 유지한다. 사용자 전달 HTML·PPTX·DOCX만 같은 `<대상>_입지보고서` basename을 쓴다.
+- `<대상>`은 resolver가 확정한 공식 단지명이다. 주소 입력에서 공식 단지명이 없으면 정규화 주소를 사용하며, 둘 다 없으면 이름을 지어내지 말고 `ipzitalk-location-report`로 폴백한다.
+- HTML은 `out/ipzitalk-location-report/<대상>_입지보고서.html`에 저장한다. 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 `--file-name "<대상>_입지보고서"`와 함께 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 `result.json`, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
 - `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 직접 읽고 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
+- 사용자가 완료 뒤 다른 형식을 추가 요청하면 같은 basename으로 렌더하고 MCP는 재호출하지 않는다. `audit.json.generatedFiles`에는 실제 최종 파일명과 경로를 추가하고 과정 문서도 갱신한다.
 - 검증기가 통과하기 전에는 완료로 주장하지 않는다. File Read/Write나 고정 영역 비교를 수행할 수 없거나 금지된 도구를 사용했다면 완료 처리하지 말고 제약과 실제 사용 도구를 보고한다.
 
 ### 지도: 동적 지도를 헤드리스 Chrome으로 캡처한다
@@ -212,17 +216,44 @@ A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규
 
 ## 분석 목적 맞춤 요약
 
-- 사용자가 목적을 이미 밝혔으면 그대로 사용하고 다시 묻지 않는다.
-- 목적이 없으면 분석 전에 한 번만 묻고 건너뛸 수 있음을 알린다. 끝내 목적을 주지 않으면 `goal:null`로 두고 목적 섹션 없이 진행하며 목적을 지어내지 않는다.
-- `goal`은 `purpose`, `conclusions`(3~5), `evidence`(1~3), `cautions`(0~2), `nextActions`(1~3)로 구성한다.
-- 목적 요약은 본문에서 이미 조회·판정한 값만 재구성한다. 새 데이터나 없는 수치를 창작하지 않고 본문 판정·누락·경고를 목적에 맞춰 바꾸지 않는다.
-- 결론에는 실제 근거를 최소 1개 연결하고, 다음 행동에는 URL이나 원시 Skill ID 대신 한글 Skill 이름과 자연어 질의 예시를 쓴다.
+### 목적을 확보하는 방법
+
+- 사용자가 처음부터 목적을 밝혔으면 다시 묻지 않고 사용자 문장을 `goal.purpose`에 그대로 보존한다.
+- 목적이 없고 현재 클라이언트가 **4개 선택지와 직접 입력(Other/기타)을 함께 지원하는 네이티브 사용자 입력 UI**를 제공하면 그 UI를 정확히 한 번 사용한다.
+  - `4인가족 실거주 검토`
+  - `투자 심의 회의 자료`
+  - `분양 제안서용 자료`
+  - `건너뛰기`
+  - UI가 자동 제공하는 `기타(직접 입력)`으로 자유 입력도 허용한다.
+- 네이티브 UI가 직접 입력을 지원하고 지원 가능한 수가 2~3개이면, 그 수만큼 위 목적 프리셋을 앞에서부터 선택지로 제시한다. 질문에는 `건너뛰기`를 `기타(직접 입력)`에 입력해도 된다고 알린다.
+- 네이티브 사용자 입력 UI가 없거나 직접 입력을 지원하지 않으면 다음 질문만 출력하고 그 턴을 종료해 답을 기다린다:
+  > 원하는 분석 목적을 한 문장으로 알려주세요. (예: "4인가족 실거주 검토", "투자 심의 회의 자료", "분양 제안서용 자료") 건너뛰셔도 됩니다.
+- 질문 단계에서는 목적 입력 UI 또는 위 텍스트 질문 외의 도구를 사용하지 않는다.
+- 사용자가 목적 또는 명시적인 건너뛰기로 답변하기 전에는 MCP·웹·파일·셸 도구를 호출하지 않는다.
+- 프리셋을 고르면 해당 문구를 `goal.purpose`에 그대로 저장하고, 직접 입력을 고르면 사용자가 입력한 원문을 그대로 저장한다.
+- `건너뛰기`를 고르거나 사용자가 건너뛰겠다고 답한 경우에만 `goal:null`로 두고 목적 섹션 없이 진행한다. 목적을 지어내지 않는다.
+
+### 데이터 수집 후 맞춤 요약
+
+- `purpose`에는 사용자 문장을 그대로 보존한다.
+- 데이터 조회·수집이 완료된 후에만 `conclusions`(결론)·`evidence`(근거)·`cautions`(주의사항)·`nextActions`(다음 행동 제안)를 작성한다. 조회 전에 문구나 결론을 미리 만들지 않는다.
+- `goal`은 사용자 표현을 그대로 보존한 `purpose`, `conclusions`(3~5), `evidence`(1~3), `cautions`(0~2), `nextActions`(1~3)로 구성한다.
+- `conclusions`는 실제 조회·판정 결과만 목적에 맞춰 요약하고, 각 결론에 실제 `evidence`를 최소 1개 연결한다.
+- `evidence`에는 이번 실행에서 확보한 필드·수치·비교 결과만 쓴다. 예시·검증값·모델 지식으로 빈 값을 채우지 않는다.
+- 새 데이터나 없는 수치를 창작하지 않는다.
+- `cautions`는 실제로 확인된 데이터 누락·표본 한계·시점 차이·방법상 제약만 쓴다. 본문 경고를 약화하거나 새 위험을 지어내지 않는다.
+- `nextActions`는 실제 발견사항·누락·사용자 목적에서 이어지는 검토 행동만 제안한다. URL이나 원시 Skill ID 대신 한글 Skill 이름과 자연어 질의 예시를 쓰며, 거래 후속 분석은 `실거래 추이` 또는 `최근 실거래가 추이`로 표현한다. `실거래가·시세 추이`처럼 서로 다른 범위를 섞지 않는다.
 - 템플릿은 배열 상한을 잘라내고 빈 단계는 숨긴다. `goal:null`이면 `goal-box` 전체를 숨긴다.
 
 
 ## 변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| 1.3.5 | 2026-07-15 | 단지 공식주소 기반 2콜 center 해소 체인과 동적 호출 예산을 허용하고 불필요한 주소 재검색·산출물 분산·시세 혼용 문구를 금지 |
+| 1.3.4 | 2026-07-15 | 교통·생활·교육·광역 축의 숫자 헤더와 거리 셀 정렬을 통일하고 HTML/PPTX/DOCX를 대상 기반 `<대상>_입지보고서` 이름으로 동적화 |
+| 1.3.3 | 2026-07-15 | 팝업 지원 환경의 4개 목적 프리셋+직접 입력과 텍스트 대체 질문을 함께 지원하는 하이브리드 목적 입력 계약 추가 |
+| 1.3.2 | 2026-07-15 | 목적 미제공 시 질문 후 턴 종료·도구 호출 대기, 실데이터 수집 후에만 근거·주의사항·다음 행동을 도출하도록 계약 강화 |
+| 1.3.1 | 2026-07-15 | `mapshot.py`가 정식 Ipzi Talk HTTPS `/map?d=<id>`만 캡처하도록 제한하고 localhost·사설망·로컬 파일·추가 query를 차단 |
 | 1.3.0 | 2026-07-14 | 목적 맞춤 요약 `goal`과 내러티브 레일 추가. 기존 기본 17콜·no-recall·공통 audit 계약 유지 |
 | 1.2.1 | 2026-07-14 | 고유 HTML 출력·비실행 JSON 렌더 계약 추가. 입력 반경과 통합 지도 반경을 통일하고 구조화 `audit.json` ledger·구청 평가 제외 규칙 명시 |
 | 1.2.2 | 2026-07-14 | 기본 17콜 예산·최초 반환 즉시 ledger·감사용 재호출 금지·center 보강용 geocode 금지 계약 추가 |
@@ -231,5 +262,5 @@ A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규
 | 0.2 | 2026-07-09 | **이관 대비.** 스킬 폴더 밖 경로 의존 제거(디자인 규칙 인라인화, `_commons` 문구를 워크스페이스 전용 블록으로 격리). 지도 TTL 7일 규칙 추가(데모 캡션 반영). `.map` overflow 규칙 보강. 패키징 매핑표·frontmatter 주의 추가 |
 | 0.2 | 2026-07-10 | `references/education-workflow.md` 갱신 — **휴교·폐교 학교 제외 규칙**(카카오는 운영 상태를 장소명 문자열로만 준다). 반경 눈금 마커 제거 |
 | 1.2.0 | 2026-07-12 | PPTX를 HTML 리포트와 동일한 다크 토큰으로 재설계(카드·등급 pill·헤어라인 표·모노 숫자). 지도는 **동적 지도 헤드리스 캡처**로 일원화(정적 지도 경로 제거) |
-| 1.1.0 | 2026-07-12 | **JSON-first 출력.** 1차 산출물 `result.json`(스키마 = 템플릿 `__DATA__`) → **html/pptx/docx 중 1개 필수 선택** 렌더. `templates/build_pptx.py`(검정 배경 다크 덱 · 종합요약 좌우 2분할 지도)·`build_docx.py` 신규(입력=result.json, 레이아웃 고정). 지도는 `map.imageUrl`(= `/map/image?d=`) 정적 PNG + 동적 링크 병기. 템플릿 푸터에 베타 고지 문구 추가. **tone 매핑표**·**노선색 표** 명시(임의 판단·색 창작 금지) |
+| 1.1.0 | 2026-07-12 | **JSON-first 출력.** 1차 산출물 `result.json`(스키마 = 템플릿 `ipzi-data` JSON) → **html/pptx/docx 중 1개 필수 선택** 렌더. `templates/build_pptx.py`(검정 배경 다크 덱 · 종합요약 좌우 2분할 지도)·`build_docx.py` 신규(입력=result.json, 레이아웃 고정). 지도는 `map.imageUrl`(= `/map/image?d=`) 정적 PNG + 동적 링크 병기. 템플릿 푸터에 베타 고지 문구 추가. **tone 매핑표**·**노선색 표** 명시(임의 판단·색 창작 금지) |
 | 1.0.0 | 2026-07-10 | 스킬 패키지화 확정. 섹션별 출처 표기(`.src`), `javascript:` 스킴 가드(`safeUrl`), 반경 눈금 마커 제거 규칙 반영 |

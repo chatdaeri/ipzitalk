@@ -12,6 +12,19 @@ Ipzi Talk plugin marketplace for Codex and Claude Code.
 
 The setup Skill asks the user to choose exactly one runtime. It derives status from `codex plugin list --json`; it does not create a separate state file or alter unrelated MCP servers.
 
+## Support matrix
+
+| Surface | Remote | OSS | Invocation and current boundary |
+|---|---|---|---|
+| Codex CLI | Internally validated | Conditional, CLI-only | Use `$ipzitalk:setup`; OSS still requires publication and registry verification. |
+| Codex Desktop local workspace | Internally validated on earlier Remote payloads; `0.1.11` retest pending | Unsupported | Start a new local session after plugin changes. Safe Finder/Dock secret delivery for OSS has not been verified. |
+| Claude Code CLI | Internally validated | Pending registry verification | Use `/reload-plugins`, `/ipzitalk:setup`, and `/mcp`. |
+| Claude Desktop local Code tab | Remote validated through `0.1.10`; `0.1.11` retest in progress | Pending a separate-profile registry test | Use `+` → `Plugins` and a new local session; do not paste CLI-only plugin namespaces as raw commands. |
+| Claude Desktop Chat or Cowork | Out of scope | Out of scope | These are not Claude Code plugin surfaces. |
+| Claude remote/web sessions | Out of scope | Out of scope | The current plugin contract covers local Claude Code sessions only. |
+
+`Internally validated` describes this private proof of concept, not a public support commitment. Remote and OSS must not be enabled together except in an isolated diagnostic profile. Platform command syntax differs because Codex and Claude expose different plugin interfaces; repository visibility does not change the command syntax. See [the detailed platform support matrix](docs/platform-support-matrix.md).
+
 ## Codex setup
 
 Install the repository marketplace and launcher, start a new Codex process, and explicitly invoke `$ipzitalk:setup`:
