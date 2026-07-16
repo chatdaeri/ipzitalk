@@ -1,12 +1,8 @@
 # Ipzi Talk (입지톡)
 
-> **[Synergy Labs / 챗대리](https://synergylabs.kr)가 만든 Claude Code 플러그인입니다.**
->
-> **[공식 URL](https://ipzi-talk.synergylabs.kr)**
-> 
-> 부동산 **분양·청약·입지 분석**을 채팅으로 한 줄 말하면 자동으로 해줍니다.
+> 부동산 **분양·청약·입지 분석**을 채팅으로 한 줄 말하면 자동으로 해주는 클로드 코드 플러그인이에요.
 > “풍무역 반경 3km내 아파트 단지 비교해줘”, "OO시 최근 분양 공고는?", “수원시 영통구에 분양 예정인 아파트 조사해줘”라고 입력하면 공공데이터 및 카카오 지도 데이터를 끌어와 대답해 줍니다.
-> 부동산 데이터를 일일이 뒤지거나, API를 다룰 줄 알 필요가 없습니다.
+**[입지톡 공식 URL](https://ipzi-talk.synergylabs.kr)에서 자세한 소개를 보실 수 있어요**
 
 ![Author](https://img.shields.io/badge/author-Synergy%20Labs-0b1f3a)
 ![Skills](https://img.shields.io/badge/skills-27-brightgreen)
