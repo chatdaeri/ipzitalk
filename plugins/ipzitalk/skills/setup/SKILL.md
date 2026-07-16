@@ -55,10 +55,11 @@ description: 입지톡 Remote 또는 OSS 실행 방식의 설치 상태를 확�
    - 현재 명령 실행 컨텍스트가 대화형 터미널(TTY)인지 확인할 수 없으면 모델의 셸 도구나 채팅의 `!` 실행으로 로그인 명령을 대신 실행하지 않는다. 사용자가 Warp·iTerm2·Terminal.app 같은 외부 대화형 터미널에서 정확한 공식 명령을 직접 실행하게 한다.
    - 공식 명령이 시스템 기본 브라우저의 OAuth 페이지를 열도록 맡긴다. 임의 URL을 만들거나 브라우저 주소를 직접 조합하지 않는다.
    - 로그인 명령이 비대화형 터미널 오류를 반환하면 콜백 URL·인가 코드·state를 채팅에 붙여 넣게 하지 않는다. 실패 원인을 한국어로 알리고 외부 대화형 터미널에서 같은 공식 명령을 다시 제안한다.
+   - Claude Code CLI에서 외부 터미널 로그인이 성공하면 실행 중이던 Claude Code 세션이 로그인 전 MCP 인증 상태를 계속 보유할 수 있다. `/reload-plugins`만으로 OAuth 상태 갱신을 보장하지 않는다. 기존 Claude Code를 완전히 종료하고, 로그인 명령과 같은 프로필(`CLAUDE_CONFIG_DIR`을 사용했다면 같은 값)로 새 Claude Code 프로세스를 실행한 뒤 setup과 대표 호출로 확인하게 한다.
    - 로그인이 취소되거나 MCP 서버가 아직 로드되지 않았으면 실패 원인을 한국어로 알리고, 새 프로세스·새 세션에서 같은 공식 로그인 동작을 다시 제안한다. 로그인 성공을 추정하지 않는다.
 7. Codex Desktop과 Claude Desktop의 로컬 Code 탭에서는 플러그인 변경 후 새 로컬 세션을 열고 `+` → `Plugins`의 연결·로그인 버튼 또는 첫 Remote Skill 호출에서 나타나는 플랫폼 인증 버튼을 누르게 한다. 이전 세션에서 브라우저 자동 실행을 보장하지 않는다.
-8. 로그인 후 MCP 상태와 대표 Remote 호출을 확인한다. 인증 URL·코드·토큰을 출력하거나 기록하지 않는다.
-9. Codex는 새 프로세스, Claude Code CLI는 `/reload-plugins`, Claude Desktop Code 탭은 새 로컬 세션이 필요하다. 즉시 반영된다고 약속하지 않는다.
+8. 로그인 후 새 프로세스·새 로컬 세션에서 MCP 상태와 대표 Remote 호출을 확인한다. 인증 URL·코드·토큰을 출력하거나 기록하지 않는다.
+9. 플러그인 설치 반영은 Codex 새 프로세스, Claude Code CLI `/reload-plugins`, Claude Desktop Code 탭 새 로컬 세션이 필요하다. 별도 터미널에서 완료한 Claude Code CLI OAuth 반영은 기존 세션 reload가 아니라 같은 프로필의 새 Claude Code 프로세스를 기본으로 한다. 즉시 반영된다고 약속하지 않는다.
 
 ## OSS 설치
 

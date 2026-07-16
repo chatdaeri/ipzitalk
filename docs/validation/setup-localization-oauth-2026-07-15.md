@@ -4,7 +4,7 @@
 
 This change localizes the launcher-controlled installation experience and defines a platform-native Remote authentication handoff. It does not modify the hosted MCP server, OAuth protocol, user credentials, or marketplace client implementation.
 
-The original localization candidate used launcher `0.1.2`, Remote `0.1.16`, and Local `0.1.2`. The 2026-07-16 registry and switching follow-up produces launcher `0.1.4`; Remote remains `0.1.16` and Local remains `0.1.2`.
+The original localization candidate used launcher `0.1.2`, Remote `0.1.16`, and Local `0.1.2`. Registry and switching follow-up produced launcher `0.1.4`; the first-login new-process guidance produces launcher `0.1.5`. Remote remains `0.1.16` and Local remains `0.1.2`.
 
 ## Korean UI contract
 
@@ -77,6 +77,14 @@ Fresh temporary Codex and Claude profiles installed only `ipzitalk@ipzitalk` `0.
 - verify OAuth reuse instead of claiming plugin removal always deletes credentials.
 
 Neither isolated profile installed Remote or Local as a side effect. This is a cache/package contract check; browser OAuth and real Local calls are covered by the preceding interactive evidence.
+
+### Launcher 0.1.5 first-login process boundary — 2026-07-16
+
+On a different computer with no active Ipzi Talk MCP authorization in the running Claude session, OAuth completed successfully in an external interactive terminal. Returning to the already-running Claude Code process and using `/reload-plugins` did not always make that process observe the new credential. Starting a new Claude Code process with the same profile connected successfully.
+
+Launcher `0.1.5` therefore distinguishes plugin application from credential application: `/reload-plugins` remains the plugin-install step, while successful external OAuth login is followed by completely exiting the old Claude Code process and starting a new process with the same `CLAUDE_CONFIG_DIR` when one is used. This is guidance-only; no OAuth server, Remote MCP, or credential storage code changed.
+
+Fresh temporary Codex and Claude profiles installed only launcher `0.1.5`. Both installed caches contained the same-profile restart guidance and neither profile installed Remote or Local as a side effect. Package validation and all four Claude strict validations passed after the version and contract update.
 
 Final repository validation after recording the interactive evidence:
 
