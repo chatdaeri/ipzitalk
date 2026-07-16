@@ -7,7 +7,7 @@ description: 입지톡 Remote 또는 OSS 실행 방식의 설치 상태를 확�
 
 현재 플랫폼의 플러그인 명령으로만 실행 방식을 관리한다. 설치된 플러그인 목록을 유일한 상태 근거로 사용하며, 별도 상태 파일을 만들거나 플랫폼 설정을 직접 편집하지 않는다.
 
-이 빌드는 내부 검증용이다. Remote와 OSS 패키지는 준비되어 있지만 npm 게시가 끝나기 전까지 OSS 레지스트리 명령은 정적 계약에 불과하다. 공개 배포가 완료됐다고 표현하지 않는다.
+이 빌드는 내부 검증용이다. OSS 실행체 `presale-mcp@0.1.0`은 npm registry 게시·기계 검증과 Claude Code CLI의 사용자 API 키 Local E2E 및 Remote→OSS→Remote 복구 검증을 통과했다. 이 결과만으로 전체 플랫폼 공개 베타가 완료됐다고 표현하지 않는다.
 
 ## 상태 확인
 
@@ -49,10 +49,12 @@ description: 입지톡 Remote 또는 OSS 실행 방식의 설치 상태를 확�
 3. 반대 실행 패키지가 있으면 별도 승인을 받아 먼저 제거한다. 제거가 실패하거나 거절되면 Remote를 설치하지 않는다.
 4. 승인 후에만 설치 명령을 실행한다.
 5. 플랫폼 플러그인 목록을 다시 읽어 Remote만 존재하는지 확인한다. Codex에서는 `codex mcp list --json`도 확인한다.
-6. CLI에서는 설치 확인 후 네이티브 승인 UI로 `브라우저에서 로그인 시작`을 한 번 묻는다. 승인되면 사용자가 명령을 복사하지 않도록 현재 플랫폼의 공식 명령을 실행한다.
+6. 설치한 같은 실행에서는 로그인 질문을 이어서 하지 않는다. Codex CLI는 새 프로세스, Claude Code CLI는 사용자의 `/reload-plugins`가 필요한 이유를 설명하고 일단 종료한다. 다시 실행된 setup에서 인증 상태를 먼저 확인하고, 미인증일 때만 네이티브 승인 UI로 `브라우저에서 로그인 시작`을 한 번 묻는다.
    - Codex CLI: `codex mcp login ipzitalk`
-   - Claude Code CLI: 먼저 사용자가 `/reload-plugins`를 실행한 뒤 `claude mcp login plugin:ipzitalk-remote:ipzitalk`
+   - Claude Code CLI: `claude mcp login plugin:ipzitalk-remote:ipzitalk`
+   - 현재 명령 실행 컨텍스트가 대화형 터미널(TTY)인지 확인할 수 없으면 모델의 셸 도구나 채팅의 `!` 실행으로 로그인 명령을 대신 실행하지 않는다. 사용자가 Warp·iTerm2·Terminal.app 같은 외부 대화형 터미널에서 정확한 공식 명령을 직접 실행하게 한다.
    - 공식 명령이 시스템 기본 브라우저의 OAuth 페이지를 열도록 맡긴다. 임의 URL을 만들거나 브라우저 주소를 직접 조합하지 않는다.
+   - 로그인 명령이 비대화형 터미널 오류를 반환하면 콜백 URL·인가 코드·state를 채팅에 붙여 넣게 하지 않는다. 실패 원인을 한국어로 알리고 외부 대화형 터미널에서 같은 공식 명령을 다시 제안한다.
    - 로그인이 취소되거나 MCP 서버가 아직 로드되지 않았으면 실패 원인을 한국어로 알리고, 새 프로세스·새 세션에서 같은 공식 로그인 동작을 다시 제안한다. 로그인 성공을 추정하지 않는다.
 7. Codex Desktop과 Claude Desktop의 로컬 Code 탭에서는 플러그인 변경 후 새 로컬 세션을 열고 `+` → `Plugins`의 연결·로그인 버튼 또는 첫 Remote Skill 호출에서 나타나는 플랫폼 인증 버튼을 누르게 한다. 이전 세션에서 브라우저 자동 실행을 보장하지 않는다.
 8. 로그인 후 MCP 상태와 대표 Remote 호출을 확인한다. 인증 URL·코드·토큰을 출력하거나 기록하지 않는다.
@@ -62,10 +64,10 @@ description: 입지톡 Remote 또는 OSS 실행 방식의 설치 상태를 확�
 
 1. Node.js 18 이상과 `PATH`의 `npx`를 확인한다.
 2. Codex CLI에서는 필수 환경변수 이름 4개의 설정 여부만 확인하고 값을 출력하지 않는다. Claude Code에서는 플러그인 설정 UI가 필수 sensitive `userConfig` 값 4개를 안전하게 입력받는다고 설명한다.
-3. 실행 명령은 `npx -y presale-mcp@0.1.0`이지만 npm 게시 전까지 레지스트리 설치 검증은 완료되지 않았다고 설명한다.
+3. 실행 명령은 npm registry 게시본 `npx -y presale-mcp@0.1.0`이며, 도구 10개·키 누락 오류 계약과 Claude Code CLI의 사용자 API 키 실제 호출 및 Remote→OSS→Remote 복구까지 검증됐다고 설명한다. 다른 플랫폼까지 검증됐다고 확대하지 않는다.
 4. Codex 또는 Claude Code CLI에서는 정확한 명령과 영향을 한국어로 보여준다: `codex plugin add ipzitalk-local@ipzitalk --json` 또는 `claude plugin install ipzitalk-local@ipzitalk --scope user`. Claude Desktop 로컬 Code 탭에서는 `+` → `Plugins`의 `ipzitalk-local` 항목과 설정 UI로 안내한다.
 5. 실행 전에 승인을 받는다. Remote가 설치되어 있으면 별도 승인을 받아 먼저 제거하고, 제거가 실패하거나 거절되면 중단한다.
-6. 설치 후 플랫폼 플러그인 목록을 확인해 OSS만 존재하는지 검증한다. Codex에서는 `codex mcp list --json`을 확인한다. Claude Code CLI에서는 사용자가 sensitive 필드 4개를 설정한 뒤 `/reload-plugins`와 `/mcp`를 실행하게 한다. Desktop Code 탭에서는 설정 UI를 사용하고 새 로컬 세션에서 값을 노출하지 않은 채 `presale-mcp`를 확인한다.
+6. 설치 후 플랫폼 플러그인 목록을 확인해 OSS만 존재하는지 검증한다. Codex에서는 `codex mcp list --json`을 확인한다. Claude Code CLI에서는 설치 직후 `/reload-plugins`를 먼저 실행한 다음 `/plugin configure ipzitalk-local@ipzitalk`로 sensitive 필드 4개를 설정하고, 다시 `/reload-plugins`와 `/mcp`를 실행하게 한다. 설치 반영 전 configure 명령이 `not installed in this project`로 실패할 수 있으므로 순서를 바꾸지 않는다. Desktop Code 탭에서는 설정 UI를 사용하고 새 로컬 세션에서 값을 노출하지 않은 채 `presale-mcp`를 확인한다.
 7. Codex CLI는 새 프로세스, Claude Code CLI는 다시 불러온 세션, Desktop Code 탭은 새 로컬 세션에서 검증한다. Codex Desktop OSS, Claude Desktop Chat/Cowork, Claude 웹 세션을 지원한다고 표현하지 않는다.
 
 ## 전환 또는 제거
@@ -80,6 +82,8 @@ Remote에서 OSS 또는 OSS에서 Remote로 전환할 때 다음 순서를 지�
 4. 플랫폼 플러그인 목록을 다시 읽어 기존 패키지가 실제로 사라졌는지 확인한다. 제거 명령의 성공 종료 상태만으로는 충분하지 않다. Codex는 이미 없는 플러그인을 제거해도 성공으로 보고할 수 있다.
 5. 새 실행 패키지의 정확한 설치 명령을 보여주고 승인받는다.
 6. 설치가 실패하면 `설치되지 않음`으로 판정하고, 기존 패키지 재설치를 별도 승인 작업으로 제안한다.
+
+실행 패키지를 제거했다고 OAuth 자격증명이 반드시 삭제된다고 단정하지 않는다. Remote를 다시 설치한 뒤 인증 상태와 대표 호출로 재사용 여부를 확인하며, 이미 인증된 경우 브라우저 로그인을 다시 요구하지 않는다.
 
 `ipzitalk` launcher를 제거해도 실행 패키지를 자동 제거하지 않는다. 완전 제거는 실행 패키지를 먼저, launcher를 나중에 각각 별도 승인받아 제거한다.
 

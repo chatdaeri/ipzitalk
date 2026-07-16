@@ -71,6 +71,13 @@ assert(setupSkill.includes('27개 Remote Skill'), 'setup must describe the curre
 assert(setupSkill.includes('claude mcp login plugin:ipzitalk-remote:ipzitalk'), 'setup must use Claude native OAuth login');
 assert(setupSkill.includes('codex mcp login ipzitalk'), 'setup must use Codex native OAuth login');
 assert(setupSkill.includes('인증 URL·코드·토큰을 출력하거나 기록하지 않는다'), 'setup must protect OAuth material');
+assert(setupSkill.includes('npm registry 게시본 `npx -y presale-mcp@0.1.0`'), 'setup must identify the published Local registry command');
+assert(!setupSkill.includes('npm 게시 전까지'), 'setup must not describe the published Local package as unpublished');
+assert(setupSkill.includes('설치한 같은 실행에서는 로그인 질문을 이어서 하지 않는다'), 'setup must stop before login until plugin reload/application');
+assert(setupSkill.includes('외부 대화형 터미널'), 'setup must use an interactive terminal for first-login OAuth when model shell TTY is unavailable');
+assert(setupSkill.includes('콜백 URL·인가 코드·state를 채팅에 붙여 넣게 하지 않는다'), 'setup must not move one-time OAuth callback material through chat');
+assert(setupSkill.includes('설치 직후 `/reload-plugins`를 먼저 실행한 다음 `/plugin configure ipzitalk-local@ipzitalk`'), 'setup must reload Claude plugins before Local configuration');
+assert(setupSkill.includes('실행 패키지를 제거했다고 OAuth 자격증명이 반드시 삭제된다고 단정하지 않는다'), 'setup must verify OAuth reuse after switching');
 assert(/[가-힣]/.test(launcher.description), 'Codex launcher description must be Korean');
 assert(/[가-힣]/.test(launcher.interface?.shortDescription ?? ''), 'Codex launcher short description must be Korean');
 assert(/[가-힣]/.test(launcher.interface?.longDescription ?? ''), 'Codex launcher long description must be Korean');
@@ -118,7 +125,7 @@ assert(!('env' in localServer), 'local MCP must not embed environment values');
 const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.availability === 'private-release', 'merged private Skill lock must be marked private-release');
-assert(sourceLock.plugins.launcher.version === '0.1.2', 'localized launcher package must be version 0.1.2');
+assert(sourceLock.plugins.launcher.version === '0.1.4', 'setup UX launcher package must be version 0.1.4');
 assert(sourceLock.plugins.remote.version === '0.1.16', 'localized Remote package must be version 0.1.16');
 assert(sourceLock.plugins.local.version === '0.1.2', 'localized Local package must be version 0.1.2');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
@@ -223,7 +230,8 @@ for (const skill of ['ipzitalk-read-notice-compare', 'ipzitalk-read-notice-repor
 }
 assert(sourceLock.plugins.local?.id === 'ipzitalk-local', 'local plugin lock missing');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.localMcp.commit), 'local MCP commit must be a full SHA');
-assert(sourceLock.sources.localMcp.availability === 'local-only', 'unpublished local MCP lock must be marked local-only');
+assert(sourceLock.sources.localMcp.commit === 'a78e7cebbf3fd154b18dfa6fbd1e91142399f8bd', 'published local MCP lock must use the registry source SHA');
+assert(sourceLock.sources.localMcp.availability === 'public-registry', 'published local MCP lock must be marked public-registry');
 assert(sourceLock.sources.localMcp.package === 'presale-mcp', 'local MCP package mismatch');
 assert(sourceLock.sources.localMcp.toolsSnapshotSha256 === '08df02512148d67604a375c5fef689170e795093eeaf2fbe50dc5335a33f26e3', 'local tool snapshot mismatch');
 

@@ -37,7 +37,7 @@ The runtime plugin ID is `ipzitalk-local`; its MCP server ID and npm package are
 codex plugin add ipzitalk-local@ipzitalk --json
 ```
 
-The payload forwards the variable names through `env_vars` to `npx -y presale-mcp@0.1.0`. The package is not yet available from the registry in this phase, so registry-backed runtime installation remains incomplete until publication. Tarball testing must use an untracked temporary manifest and must not leave local paths in committed files.
+The payload forwards the variable names through `env_vars` to the published registry package `npx -y presale-mcp@0.1.0`. A clean-cache registry smoke verified ten tools and the missing-key error contract. Real API-key calls and Remote→OSS→Remote recovery passed in an isolated Claude Code CLI profile; Codex OSS remains conditional until its own environment-based representative-call regression is completed.
 
 Codex Desktop OSS is unsupported in this proof of concept because safe secret delivery from a Finder/Dock launch has not been verified.
 

@@ -46,7 +46,7 @@ The plugin declares four `string` options that are both `required` and `sensitiv
 
 Sensitive values are masked and stored through Claude Code secure storage. Do not pass them through `--config KEY=value`, paste them into chat, or place them in settings, manifests, logs, or documentation.
 
-After configuration, use `/reload-plugins` and `/mcp` in the CLI. In the Desktop Code tab, open a new local session and verify the configured `presale-mcp` server without exposing any sensitive value. The committed command remains registry-backed and cannot be marked complete until `presale-mcp@0.1.0` is published. OSS contains ten tools and no Skills.
+In Claude Code CLI, reload once after installation before opening `/plugin configure ipzitalk-local@ipzitalk`, then reload again after saving the four sensitive values. Use `/mcp` and a representative call without exposing any value. In the Desktop Code tab, open a new local session and verify the configured `presale-mcp` server. The published `presale-mcp@0.1.0` passed clean-cache registry smoke, real Kakao/Naver/public-data calls in an isolated Claude CLI profile, and Remote→OSS→Remote recovery. OSS contains ten tools and no Skills; this CLI evidence does not imply Desktop OSS support.
 
 ## Switch and remove
 

@@ -9,7 +9,7 @@
       "name": "ipzitalk",
       "source": "./plugins/ipzitalk",
       "description": "입지톡 Remote 또는 OSS 실행 방식을 한국어로 선택하고 설정합니다.",
-      "version": "0.1.2",
+      "version": "0.1.4",
       "category": "productivity",
       "tags": ["real-estate", "korea", "setup"]
     },
