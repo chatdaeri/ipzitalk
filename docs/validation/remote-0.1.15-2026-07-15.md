@@ -36,7 +36,7 @@ Parking Ranking은 고정 `templates/result.html`을 사용하고 비실행 `ipz
 node --test tests/*.test.mjs
 59 tests, 59 passed
 
-node scripts/sync-skills.mjs --source /Users/synergylabs/Documents/GitHub/ipzitalk-skill
+node scripts/sync-skills.mjs --source <ipzitalk-skill-repo>
 Synced 27 skills and 3 artifacts
 
 node scripts/validate-package.mjs

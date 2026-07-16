@@ -28,7 +28,7 @@
 ```text
 node --test tests/*.test.mjs
 node scripts/validate_namespace_compat.mjs
-node scripts/sync-skills.mjs --source /Users/synergylabs/Documents/GitHub/ipzitalk-skill
+node scripts/sync-skills.mjs --source <ipzitalk-skill-repo>
 node scripts/validate-package.mjs
 claude plugin validate --strict .
 claude plugin validate --strict plugins/ipzitalk-remote

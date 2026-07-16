@@ -13,10 +13,10 @@ This document records observed proof-of-concept behavior. It separates verified 
 
 | Product surface | Remote runtime | OSS runtime | Skill invocation | Apply changes | Evidence boundary |
 |---|---|---|---|---|---|
-| Codex CLI | Validated for the main 6 Skills; 27-Skill discovery pending | Conditional | `$ipzitalk:setup` and plugin-prefixed Remote Skills | Start a new Codex process | Remote OAuth, MCP canary, main six-Skill discovery, and representative reports have been exercised. The expanded 27-Skill package needs a new-process discovery check. OSS registry publication remains incomplete. |
-| Codex Desktop local workspace | Pending `0.1.11` regression | Out of scope for OSS | Use the Desktop Skill picker in a new local workspace | Start a new local workspace/session | Earlier Remote payloads produced representative artifacts. The current `0.1.11` filename and report regressions still need a Desktop run. Finder/Dock secret delivery for OSS is unverified. |
-| Claude Code CLI | Validated for Remote | Pending | `/ipzitalk:setup`, `/ipzitalk-remote:<skill>`, `/mcp` | `/reload-plugins` | Launcher, Remote status, OAuth reuse, and representative Remote calls were observed. OSS awaits registry-backed installation. |
-| Claude Desktop local Code tab | Validated through Remote `0.1.10`; `0.1.11` pending | Pending in a separate profile | `+` → `Plugins` → `ipzitalk` or `ipzitalk-remote` | Open a new local session | The Code tab has no `/reload-plugins`. Raw CLI namespace strings can be rejected as CLI-only. `0.1.11` Location, Overview, and Presale regressions remain interactive checks. |
+| Codex CLI | Validated for Remote `0.1.16` and 27-Skill discovery | Conditional | `$ipzitalk:setup` and plugin-prefixed Remote Skills | Start a new Codex process | Remote installation, OAuth, 27 Skills, representative calls, and authentication reuse were observed in an independent terminal. OSS registry smoke passed; actual API-key calls and switching remain. |
+| Codex Desktop local workspace | Deferred by team decision | Out of scope for OSS | Use the Desktop Skill picker in a new local workspace | Start a new local workspace/session | CLI evidence is not promoted to Desktop evidence. Finder/Dock secret delivery for OSS is unverified. |
+| Claude Code CLI | Validated for Remote `0.1.16` | Validated for Local `0.1.2` / `presale-mcp@0.1.0` | `/ipzitalk:setup`, `/ipzitalk-remote:<skill>`, `/mcp` | `/reload-plugins` | Korean setup, Remote representative calls and OAuth reuse were observed. A separate profile entered four sensitive values through configure UI, exercised Kakao/Naver/public-data Local calls, and passed Remote→OSS→Remote recovery without simultaneous payloads. |
+| Claude Desktop local Code tab | Validated for Remote `0.1.16` | Pending in a separate profile | `+` → `Plugins` → `ipzitalk` or `ipzitalk-remote` | Open a new local session | Installation, a new local Code session, Remote use, and authentication reuse without another login were observed. The Code tab has no `/reload-plugins`. |
 | Claude Desktop Chat | Out of scope | Out of scope | Not defined | Not defined | This is not the local Claude Code plugin surface. |
 | Claude Desktop Cowork | Out of scope | Out of scope | Not defined | Not defined | This is not the local Claude Code plugin surface. |
 | Claude remote/web session | Out of scope | Out of scope | Not defined | Not defined | The current package is tested only in local Claude Code sessions. |
@@ -40,23 +40,26 @@ Do not document a raw Desktop slash command merely because the equivalent CLI co
 - Remote packages 27 Skills (main 6 + sub 21) in the private release.
 - A Remote Skill must use tools whose plugin/server provenance resolves to `ipzitalk-remote` / `ipzitalk`.
 - If Remote and Local expose the same base tool name and provenance is ambiguous, stop instead of falling back to Local.
-- The current Claude user profile has Remote `0.1.11`; its Location Report, Complex Overview All, and Presale Report regressions still require new-session Desktop evidence.
+- Remote `0.1.16` was verified in Claude Code CLI, Claude Desktop local Code, and Codex CLI. Codex Desktop remains deferred by team decision.
 
 ## OSS boundary
 
 - OSS is MCP-only: ten tools and zero Skills.
 - The runtime plugin ID is `ipzitalk-local`; the MCP server ID and package name are `presale-mcp`.
-- `presale-mcp@0.1.0` is not yet registry-verified, so committed registry-backed manifests are not complete runtime evidence.
+- `presale-mcp@0.1.0` is published and clean-cache registry verification exposed exactly ten tools and a valid missing-key error response without `structuredContent`.
 - Codex Desktop OSS is unsupported until a safe secret-delivery path from Finder/Dock launch is proven.
 - Claude OSS testing must use a separate profile or an explicitly approved maintenance window because switching removes the currently active Remote payload.
 - Sensitive values belong only in the supported environment or configure UI. Never paste them into chat, command arguments, manifests, logs, or documentation.
 
-## Current interactive regression gate
+## Completed Claude CLI interactive regression
 
-Remote `0.1.11` is installed in the Claude user profile. A new local Code tab session must verify:
+Claude Code CLI completed the Local OSS regression in a separate profile:
 
-1. `ipzitalk-location-report`: numeric distance headers align with values and the user artifact uses `<target>_입지보고서.html`.
-2. `ipzitalk-complex-overview-all`: the user artifact uses `<complex>_한눈에보기.html`, while the 12 confirmed months, 23-call budget, and audit ledger remain intact.
-3. `ipzitalk-presale-report`: past move-in dates are not described as future inventory, zero recent announcements do not imply market maturity, and the region/complex filename rule is applied.
+1. Install launcher `0.1.4` and `ipzitalk-local` while confirming Remote is absent.
+2. Enter four API keys only through the supported environment or Claude sensitive configuration UI.
+3. Verify ten Local tools and representative real API calls without exposing values.
+4. Remove Local, reinstall Remote, and confirm OAuth reuse plus a representative Remote call.
 
-The release lock cannot be finalized until the Skill security and namespace work is merged into a reachable source commit. Push, pull request, publication, merge, and deployment remain separate approval gates.
+The first configure attempt before plugin reload failed as not installed; the verified order is install, `/reload-plugins`, configure, `/reload-plugins`, then `/mcp` and representative calls. Remote reinstall reused the existing OAuth session without another browser login. After `/clear`, the client enumerated the expected 27 Remote Skill names. Its summary label incorrectly said 30, but the category counts and listed names total exactly 27; this is recorded as a response counting error, not a package inventory mismatch.
+
+Codex Desktop remains deferred. Pull request, tag, and public-beta transitions remain separate approval gates.
