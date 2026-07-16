@@ -15,7 +15,7 @@ This document records observed proof-of-concept behavior. It separates verified 
 |---|---|---|---|---|---|
 | Codex CLI | Validated for Remote `0.1.16` and 27-Skill discovery | Conditional | `$ipzitalk:setup` and plugin-prefixed Remote Skills | Start a new Codex process | Remote installation, OAuth, 27 Skills, representative calls, and authentication reuse were observed in an independent terminal. OSS registry smoke passed; actual API-key calls and switching remain. |
 | Codex Desktop local workspace | Deferred by team decision | Out of scope for OSS | Use the Desktop Skill picker in a new local workspace | Start a new local workspace/session | CLI evidence is not promoted to Desktop evidence. Finder/Dock secret delivery for OSS is unverified. |
-| Claude Code CLI | Validated for Remote `0.1.16` | Validated for Local `0.1.2` / `presale-mcp@0.1.0` | `/ipzitalk:setup`, `/ipzitalk-remote:<skill>`, `/mcp` | `/reload-plugins` | Korean setup, Remote representative calls and OAuth reuse were observed. A separate profile entered four sensitive values through configure UI, exercised Kakao/Naver/public-data Local calls, and passed Remote→OSS→Remote recovery without simultaneous payloads. |
+| Claude Code CLI | Validated for Remote `0.1.16` | Validated for Local `0.1.2` / `presale-mcp@0.1.0` | `/ipzitalk:setup`, `/ipzitalk-remote:<skill>`, `/mcp` | `/reload-plugins` for plugin changes; new process after external OAuth login | Korean setup, Remote representative calls and OAuth reuse were observed. A first-login test showed that an already running process may retain pre-login MCP auth state, while a new process using the same profile connects successfully. A separate profile entered four sensitive values through configure UI, exercised Kakao/Naver/public-data Local calls, and passed Remote→OSS→Remote recovery without simultaneous payloads. |
 | Claude Desktop local Code tab | Validated for Remote `0.1.16` | Pending in a separate profile | `+` → `Plugins` → `ipzitalk` or `ipzitalk-remote` | Open a new local session | Installation, a new local Code session, Remote use, and authentication reuse without another login were observed. The Code tab has no `/reload-plugins`. |
 | Claude Desktop Chat | Out of scope | Out of scope | Not defined | Not defined | This is not the local Claude Code plugin surface. |
 | Claude Desktop Cowork | Out of scope | Out of scope | Not defined | Not defined | This is not the local Claude Code plugin surface. |
@@ -55,7 +55,7 @@ Do not document a raw Desktop slash command merely because the equivalent CLI co
 
 Claude Code CLI completed the Local OSS regression in a separate profile:
 
-1. Install launcher `0.1.4` and `ipzitalk-local` while confirming Remote is absent.
+1. Install launcher `0.1.5` and `ipzitalk-local` while confirming Remote is absent.
 2. Enter four API keys only through the supported environment or Claude sensitive configuration UI.
 3. Verify ten Local tools and representative real API calls without exposing values.
 4. Remove Local, reinstall Remote, and confirm OAuth reuse plus a representative Remote call.

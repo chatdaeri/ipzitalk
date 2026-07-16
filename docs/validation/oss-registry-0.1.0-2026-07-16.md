@@ -137,4 +137,6 @@ Claude 내부 비대화형 셸에서 공식 OAuth 로그인 명령을 실행하�
 
 별도 `/tmp` Codex·Claude 프로필에 launcher `0.1.4`만 설치해 양쪽 cache의 setup 본문과 버전을 확인했다. 설치가 Remote 또는 Local payload를 자동으로 추가하지 않는 것도 함께 확인했다.
 
+후속 최초 로그인 실증에서 외부 터미널 OAuth 성공 후 이미 실행 중이던 Claude Code가 `/reload-plugins`만으로 새 인증 상태를 인식하지 못하는 경우가 있었고, 같은 프로필의 새 Claude Code 프로세스에서는 정상 연결됐다. 이 안내 보강 후보는 launcher `0.1.5`이며 OAuth 서버·Remote·Local 코드는 변경하지 않는다.
+
 서울 조건 분양공고 요약에 표시된 인천 공고 1건은 단일 원본 호출에서도 재현됐다. 해당 공고의 복합 사업지 주소 뒤쪽에 서울 강서구가 포함돼 청약홈 `HSSPLY_ADRES::LIKE` 조건에 매칭된 것으로, 원천 레코드 오염이나 Claude 요약 혼입은 아니다. 대표 행정구역 조회와 주소 전체 부분 일치의 의미 차이는 OSS·Remote 공통 MCP 후속 기능 개선으로 분리하며 이번 설치·전환 PASS에는 영향을 주지 않는다.

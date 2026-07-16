@@ -25,7 +25,7 @@ The approved install command is:
 claude plugin install ipzitalk-remote@ipzitalk --scope user
 ```
 
-In the CLI, run `/reload-plugins`. Setup then presents a Korean `브라우저에서 로그인 시작` approval and, when approved, runs `claude mcp login plugin:ipzitalk-remote:ipzitalk` so the official client opens the system browser. If the server has not loaded yet, start a new CLI session and repeat the same official login action; do not infer success.
+In the CLI, run `/reload-plugins`, then invoke setup again. If authentication is still absent, run `claude mcp login plugin:ipzitalk-remote:ipzitalk` in an external interactive terminal so the official client can open the system browser and complete the localhost callback. After login succeeds, completely exit the Claude Code process that was already running and start a new one with the same profile. If `CLAUDE_CONFIG_DIR` was used, apply the same value to both the login command and the new Claude process. `/reload-plugins` alone does not guarantee that an existing process reloads OAuth state. Do not construct or copy authorization URLs, codes, state, or tokens; verify success through setup, `/mcp`, and a representative Remote call in the new process.
 
 In the Desktop Code tab, confirm the plugin in `+` → `Plugins`, open a new local session, and use the native connect/login button or invoke a Remote Skill to raise the OAuth prompt. The previous session is not guaranteed to hot-load the MCP server, and setup must not construct an authorization URL itself. Remote includes 27 Skills (main 6 + sub 21) and the hosted data path.
 
