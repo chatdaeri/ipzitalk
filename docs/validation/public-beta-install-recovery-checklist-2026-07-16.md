@@ -6,7 +6,7 @@ This document is the release-gate checklist for installing, removing, switching,
 
 Package baseline:
 
-- launcher candidate: `ipzitalk@ipzitalk` `0.1.5`
+- launcher candidate: `ipzitalk@ipzitalk` `0.1.6`
 - hosted runtime: `ipzitalk-remote@ipzitalk` `0.1.16`
 - local runtime: `ipzitalk-local@ipzitalk` `0.1.2`
 - npm runtime: `presale-mcp@0.1.0`
@@ -117,8 +117,8 @@ Status: **CONDITIONAL**. The public beta support statement must not imply Codex 
 - [x] Remote Skill count is 27; Remote HTML template count is 26; Local Skill count is zero.
 - [x] Plugin and marketplace roots contain no symbolic links.
 - [x] Validated package/document scope contains no secret patterns or personal absolute paths.
-- [x] Fresh isolated Codex and Claude profiles install launcher `0.1.5` without installing either runtime as a side effect.
-- [x] README files are unchanged in the launcher `0.1.5` candidate.
+- [x] Fresh isolated Codex and Claude profiles install launcher `0.1.6` without installing either runtime as a side effect.
+- [x] README files are unchanged in the launcher `0.1.6` candidate.
 - [ ] The optional Python compatibility validators were not run because PyYAML is unavailable; no dependency was installed merely for this check.
 
 ## Public beta decision gate
@@ -130,7 +130,7 @@ The following remain before public marketplace, tag, or repository visibility ch
 - [ ] Review Privacy, Terms, License, third-party notices, logos, icons, dark assets, and representative screenshots.
 - [ ] Decide the exact public support boundary for Codex CLI Local, Codex Desktop, and Claude Desktop Local.
 - [ ] Decide whether OAuth cancellation/retry needs a separate isolated-profile release gate.
-- [ ] Obtain explicit user approval for the launcher `0.1.5` commit, push, and pull request.
+- [x] Explicit user approval was received for the launcher `0.1.6` commit, push, and pull request.
 - [ ] Obtain explicit user approval before public marketplace publication, tag creation, or repository visibility change.
 
 ## Evidence
