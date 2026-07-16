@@ -1,6 +1,9 @@
 # Ipzi Talk (입지톡)
 
-> **[Synergy Labs / 챗대리](https://synergylabs.kr)가 만든 Claude Code · Codex 플러그인입니다.**
+> **[Synergy Labs / 챗대리](https://synergylabs.kr)가 만든 Claude Code 플러그인입니다.**
+>
+> **[공식 URL](https://ipzi-talk.synergylabs.kr)**
+> 
 > 부동산 **분양·청약·입지 분석**을 채팅으로 한 줄 말하면 자동으로 해줍니다.
 > “풍무역 반경 3km내 아파트 단지 비교해줘”, "OO시 최근 분양 공고는?", “수원시 영통구에 분양 예정인 아파트 조사해줘”라고 입력하면 공공데이터 및 카카오 지도 데이터를 끌어와 대답해 줍니다.
 > 부동산 데이터를 일일이 뒤지거나, API를 다룰 줄 알 필요가 없습니다.
@@ -46,7 +49,7 @@
 
 ## 처음 설치하는 분을 위한 준비
 
-Ipzi Talk 입지톡은 **Claude Code** 또는 **Claude Desktop (코드 탭)** 안에서 동작합니다. "명령줄에서 쓰는 AI 비서"라고 생각하시면 돼요. 실행 방식은 두 가지 중 하나를 **한 번만** 고르면 됩니다.
+Ipzi Talk 입지톡은 **Claude Code** 안에서 동작합니다. "명령줄에서 쓰는 AI 비서"라고 생각하시면 돼요. 실행 방식은 두 가지 중 하나를 **한 번만** 고르면 됩니다.
 
 
 | 실행 모드         | 무엇                                                                   | 준비물                  |
@@ -72,18 +75,12 @@ Claude Code CLI 채팅창에 순서대로 입력하세요:
 /reload-plugins
 ```
 
-그다음 런처를 실행하고, 안내에 따라 **Remote** (추천) 또는 **OSS**를 고르면 됩니다:
-
 ```
 /ipzitalk:setup
 ```
+그 다음 2가지 버전 중 하나를 골라 안내에 따라 진행하면됩니다.
 
 **중요** : 설치가 끝나면 클로드를 한번 완전 종료 후 켜주세요.
-
-`/reload-plugins`를 한 번 더 실행하고 `/mcp`로 연결을 확인하세요.
-
-> Claude Desktop의 로컬 Code 탭에서는 슬래시 명령 대신 `+` → `Plugins`에서
-> `ipzitalk` → `setup`을 실행하고, 플러그인 변경 후 **새 로컬 세션**을 열어 확인하세요.
 
 > * 코덱스 (ChatGPT) 지원은 준비중
 
@@ -274,17 +271,6 @@ ipzitalk/
 - **`ipzitalk-local`** — 오픈소스 `presale-mcp`를 내 컴퓨터에서 실행하는 MCP-only 모드.
 
 세 플러그인이 한 마켓플레이스로 묶여 있고, 런처가 그중 하나만 활성화하도록 관리합니다.
-
----
-
-## 현재 상태
-
-이 저장소는 **내부 검증 단계의 비공개 릴리스**입니다. Remote(27종 스킬)는 내부적으로
-검증되었고, OSS `presale-mcp` npm 패키지는 아직 레지스트리에 게시되지 않았습니다.
-상세한 플랫폼별 지원 범위는 [플랫폼 지원 매트릭스](docs/platform-support-matrix.md)를 참고하세요.
-
-- [Codex 설치·수명주기](docs/codex-setup.md)
-- [Claude Code 설치·수명주기](docs/claude-setup.md)
 
 ---
 
