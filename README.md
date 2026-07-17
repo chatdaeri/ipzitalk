@@ -78,7 +78,8 @@ Claude Code CLI 채팅창에 순서대로 입력하세요:
 
 **중요** : 설치가 끝나면 클로드를 한번 완전 종료 후 켜주세요.
 
-> * 코덱스 (ChatGPT) 지원은 준비중
+> * 클로드 데스크탑 또는 ChatGPT를 사용하는 경우, 다음 링크에 따라 설치해주세요:
+> * [클로드 데스크탑 or ChatGPT / Codex 연결방법](https://ipzi-talk.synergylabs.kr#Quickstart)
 
 ---
 
