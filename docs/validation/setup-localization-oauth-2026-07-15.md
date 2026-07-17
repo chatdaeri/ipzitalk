@@ -86,6 +86,12 @@ Launcher `0.1.5` therefore distinguishes plugin application from credential appl
 
 Fresh temporary Codex and Claude profiles installed only launcher `0.1.5`. Both installed caches contained the same-profile restart guidance and neither profile installed Remote or Local as a side effect. Package validation and all four Claude strict validations passed after the version and contract update.
 
+### Launcher 0.1.6 same-terminal OAuth guidance — 2026-07-16
+
+Claude Code CLI users do not need to open a separate terminal by default. The launcher now instructs them to run `/exit`, execute the official `claude mcp login plugin:ipzitalk-remote:ipzitalk` command in the same interactive terminal, and start `claude` again in that terminal. A new terminal remains a fallback only when the current terminal cannot be reused. This is a guidance-only change; it does not modify the OAuth server, Remote MCP, browser behavior, or credential storage.
+
+Fresh temporary Codex and Claude profiles installed only launcher `0.1.6`. Both installed caches contained the same-terminal `/exit` and `claude` restart guidance, and neither profile installed Remote or Local as a side effect. Package validation and all four Claude strict validations passed. The optional generic Skill validator could not start because PyYAML is unavailable; no dependency was installed for this check.
+
 Final repository validation after recording the interactive evidence:
 
 ```text

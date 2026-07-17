@@ -55,7 +55,7 @@ Do not document a raw Desktop slash command merely because the equivalent CLI co
 
 Claude Code CLI completed the Local OSS regression in a separate profile:
 
-1. Install launcher `0.1.5` and `ipzitalk-local` while confirming Remote is absent.
+1. Install launcher `0.1.6` and `ipzitalk-local` while confirming Remote is absent.
 2. Enter four API keys only through the supported environment or Claude sensitive configuration UI.
 3. Verify ten Local tools and representative real API calls without exposing values.
 4. Remove Local, reinstall Remote, and confirm OAuth reuse plus a representative Remote call.
