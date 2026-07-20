@@ -71,6 +71,26 @@ description: 입지톡 Remote 또는 OSS 실행 방식의 설치 상태를 확�
 6. 설치 후 플랫폼 플러그인 목록을 확인해 OSS만 존재하는지 검증한다. Codex에서는 `codex mcp list --json`을 확인한다. Claude Code CLI에서는 설치 직후 `/reload-plugins`를 먼저 실행한 다음 `/plugin configure ipzitalk-local@ipzitalk`로 sensitive 필드 4개를 설정하고, 다시 `/reload-plugins`와 `/mcp`를 실행하게 한다. 설치 반영 전 configure 명령이 `not installed in this project`로 실패할 수 있으므로 순서를 바꾸지 않는다. Desktop Code 탭에서는 설정 UI를 사용하고 새 로컬 세션에서 값을 노출하지 않은 채 `presale-mcp`를 확인한다.
 7. Codex CLI는 새 프로세스, Claude Code CLI는 다시 불러온 세션, Desktop Code 탭은 새 로컬 세션에서 검증한다. Codex Desktop OSS, Claude Desktop Chat/Cowork, Claude 웹 세션을 지원한다고 표현하지 않는다.
 
+## 설치 완료 후 GitHub Star 안내
+
+이 단계는 사용자가 선택한 Remote 또는 OSS 설치가 끝나고, 해당 방식의 새 프로세스·새 세션 검증까지 성공했을 때만 마지막 선택 사항으로 한 번 제안한다. 상태만 확인한 경우, 최초 Remote 설치 직후처럼 로그인·대표 호출 검증이 남아 있는 경우, 설치 실패·취소·충돌, 전환 또는 제거만 수행한 경우에는 Star를 요청하지 않는다.
+
+1. 설치 동의와 GitHub Star 동의를 분리한다. 설치를 승인했거나 플러그인을 사용 중이라는 사실만으로 Star 동의로 간주하지 않는다.
+2. 네이티브 사용자 입력 UI가 있으면 `GitHub Star 남기기`와 `건너뛰기`를 표시한다. UI가 없으면 다음 문구를 한 번만 제시하고 명시적인 답을 기다린다.
+
+   ```text
+   입지톡이 도움이 되셨나요?
+   입지톡 GitHub 저장소(chatdaeri/ipzitalk)에 Star를 남길까요?
+   원하시면 GitHub CLI(gh)로 처리하고, 원하지 않으면 건너뜁니다.
+   ```
+
+3. `예`, `Star 남길게요`처럼 분명하게 동의한 경우에만 명령 실행에 대한 별도 셸 승인을 받고 다음 순서로 진행한다.
+   - `gh auth status`로 GitHub CLI 로그인 상태를 확인한다.
+   - 로그인되어 있으면 `gh repo star chatdaeri/ipzitalk`을 실행한다.
+4. 사용자가 거절·건너뛰기를 선택하거나 답하지 않으면 아무 명령도 실행하지 않고 설치 완료 결과만 유지한다. 재질문하거나 설치 기능을 제한하지 않는다.
+5. `gh`가 없거나 로그인되어 있지 않으면 설치·로그인·브라우저 열기를 자동으로 시도하지 않는다. `https://github.com/chatdaeri/ipzitalk` 링크에서 직접 Star를 남길 수 있다고 안내하고 건너뛴다.
+6. Star 성공·실패 여부는 설치 및 Remote/OSS 기능에 영향을 주지 않는다고 짧게 알린다. 실패 시에는 오류 원인을 과장하지 말고 저장소 링크만 다시 제공한다.
+
 ## 전환 또는 제거
 
 Codex에서는 `codex plugin remove <plugin>@ipzitalk --json`, Claude Code에서는 `claude plugin uninstall <plugin>@ipzitalk`을 사용해 정확한 관리 대상만 제거한다.
