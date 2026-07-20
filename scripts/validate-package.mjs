@@ -130,7 +130,7 @@ const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.availability === 'private-release', 'merged private Skill lock must be marked private-release');
 assert(sourceLock.plugins.launcher.version === '0.1.6', 'same-terminal OAuth launcher package must be version 0.1.6');
-assert(sourceLock.plugins.remote.version === '0.1.16', 'localized Remote package must be version 0.1.16');
+assert(sourceLock.plugins.remote.version === '0.1.17', 'coverage-aware Remote package must be version 0.1.17');
 assert(sourceLock.plugins.local.version === '0.1.2', 'localized Local package must be version 0.1.2');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 27, 'Remote release must contain exactly 27 skills');
@@ -165,7 +165,7 @@ assert(lockedSkillVersions['ipzitalk-location-report'] === '1.3.5', 'location-re
 assert(lockedSkillVersions['ipzitalk-presale-report'] === '1.1.4', 'presale-report evidence-guard version mismatch');
 assert(lockedSkillVersions['ipzitalk-read-notice-compare'] === '1.2.5', 'read-notice-compare evidence-guard version mismatch');
 assert(lockedSkillVersions['ipzitalk-read-notice-report'] === '1.2.5', 'read-notice-report evidence-guard version mismatch');
-assert(lockedSkillVersions['ipzitalk-recent-market-trend'] === '1.2.6', 'recent-market-trend report-contract version mismatch');
+assert(lockedSkillVersions['ipzitalk-recent-market-trend'] === '1.2.7', 'recent-market-trend coverage-contract version mismatch');
 assert(remote.version === sourceLock.plugins.remote.version, 'Codex Remote version mismatch');
 const lockedSkillArtifacts = [...(sourceLock.sources.skills.artifacts ?? [])].sort();
 assert(JSON.stringify(lockedSkillArtifacts) === JSON.stringify([
@@ -218,6 +218,9 @@ const recentMarketTrend = await readFile(resolve(root, 'plugins/ipzitalk-remote/
 assert(recentMarketTrend.includes('검증된 사항은 런타임 fallback 또는 실행값 대체에 사용하지 않는다'), 'missing runtime fixture fallback prohibition');
 assert(recentMarketTrend.includes('auditIncomplete:true`이면 정상 완료를 주장하지 않는다'), 'missing incomplete-audit failure contract');
 assert(recentMarketTrend.includes('실거래 추이 분석'), 'missing reported-trade trend cross-reference');
+assert(recentMarketTrend.includes('PARTIAL_COVERAGE'), 'missing partial trade coverage handling');
+assert(recentMarketTrend.includes('coverage.complete=false'), 'missing incomplete coverage guard');
+assert(recentMarketTrend.includes('provisional_months'), 'missing provisional month guard');
 const recentMarketTemplate = await readFile(resolve(root, 'plugins/ipzitalk-remote/skills/ipzitalk-recent-market-trend/templates/result.html'), 'utf8');
 assert(recentMarketTemplate.includes('th.n,td.n'), 'missing aligned numeric detail columns');
 assert(recentMarketTemplate.includes(`i > 0 ? ' class="n"' : ''`), 'missing numeric detail header class');
