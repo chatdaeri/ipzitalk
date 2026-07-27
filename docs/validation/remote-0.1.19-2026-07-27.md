@@ -1,16 +1,16 @@
-# Remote 0.1.18 K-apt 코드 거래 조회 검증
+# Remote 0.1.19 exact-address 거래 조회 검증
 
 검증일: 2026-07-27
 
 ## 변경 범위
 
-- `ipzitalk-complex-overview-all` 1.1.6 동기화
-- `ipzitalk-price-trend` 1.2.6 동기화
+- `ipzitalk-complex-overview-all` 1.1.7 동기화
+- `ipzitalk-price-trend` 1.2.7 동기화
 - 매매·전월세 조회를 `kapt_code` 기간 조회로 전환
 - 분양권은 `kapt_code` 미지원으로 확정 단지명 조회 유지
 - `MAPPING_REVIEW_REQUIRED` 이름 단독 fallback 금지, exact 법정동·전체 지번·K-apt 공식명 제한 조회 허용
 - `PARTIAL_COVERAGE`·truncation을 완전한 기간 집계와 구분
-- Remote 플러그인 0.1.18 및 Skill 소스 커밋 `ba1ca23c62244211afa0a2e95bd6b95dbef7f581` 잠금
+- Remote 플러그인 0.1.19 및 Skill 소스 커밋 `4691a061c664ac1e34980d0cbbb8270a0891d9db` 잠금
 
 ## 검증 결과
 
@@ -50,4 +50,4 @@ Plugin Creator의 `validate_plugin.py`는 로컬에 PyYAML이 없어 실행하�
 
 - Skill PR #22 검토·머지
 - Remote 플러그인 PR 검토·머지
-- 머지 후 설치본 0.1.18을 새 대화에서 로드해 출처·버전 확인
+- 머지 후 설치본 0.1.19를 새 대화에서 로드해 출처·버전 확인

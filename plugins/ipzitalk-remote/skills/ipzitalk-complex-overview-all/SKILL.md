@@ -8,7 +8,7 @@ description: >
   범위를 밝히지 않은 "OO아파트 어때" 는 이 스킬이 아니라 단지 개요 요약(ipzitalk-complex-overview)으로 보낸다.
   기본 14크레딧이며 매핑 검토 단지의 exact-address fallback은 최대 16크레딧이다.
   개요 요약(3크레딧)보다 비싸므로 애매하면 싼 쪽을 쓰고, 부족하면 이 스킬을 권한다.
-version: 1.1.6
+version: 1.1.7
 license: proprietary
 ---
 
