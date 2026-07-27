@@ -1,6 +1,6 @@
 {
   "name": "ipzitalk-remote",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "호스팅 입지톡 Remote MCP와 27개 Skill을 사용합니다.",
   "author": {
     "name": "SynergyLabs",

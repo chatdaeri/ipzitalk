@@ -6,14 +6,14 @@ description: >
   "이 아파트 한눈에 보기", "종합해서 알려줘", "이 아파트 전반적으로 정리해줘" 등의 표현이 있으면
   이 스킬을 사용한다. 단일 항목만 물으면(시세만/학군만) 해당 단일 스킬을 쓴다.
   범위를 밝히지 않은 "OO아파트 어때" 는 이 스킬이 아니라 단지 개요 요약(ipzitalk-complex-overview)으로 보낸다.
-  23크레딧이라 개요 요약(3크레딧)의 8배다. 애매하면 싼 쪽을 쓰고, 부족하면 이 스킬을 권한다.
-version: 1.1.5
+  14크레딧이라 개요 요약(3크레딧)보다 비싸다. 애매하면 싼 쪽을 쓰고, 부족하면 이 스킬을 권한다.
+version: 1.1.6
 license: proprietary
 ---
 
 # 이 아파트 한눈에 보기
 
-아파트 하나를 입력받아 개요·시세·입지·입주예정·인근단지를 **23크레딧 · 1페이지**로 만든다.
+아파트 하나를 입력받아 개요·시세·입지·입주예정·인근단지를 **14크레딧 · 1페이지**로 만든다.
 ※ 참고용 자료이며 시세 감정이 아니다. 실거래 신고 기준이라 계약일과 시차가 있고 층·향·수리 상태는 미반영.
 
 ## 설계 원칙 🚨
@@ -40,13 +40,14 @@ license: proprietary
 |---|---|---|
 | `get_complex_info(detail=true)` | 개요·`unit_mix`·주차·주소 | 1 |
 | `get_geocode` | 좌표 (K-apt가 준 도로명 주소로) | 1 |
-| `get_complex_trades(trade_type='all')` | 매매+전월세+분양권 12개월 | 12 |
+| `get_complex_trades(kapt_code, range)` ×2 | 매매·전월세 12개월 | 2 |
+| `get_complex_trades(complex_query, range)` | 분양권 12개월 | 1 |
 | `search_by_nearby_category` | 초·중·고·지하철·마트 5종 일괄 | 1 |
 | `search_by_nearby_keyword` ×4 | 공원 · 도서관 · 백화점 · 종합병원 | 4 |
 | `search_by_nearby_keyword` + `enrich_complex_info` | 인근 단지 + 실거래 | 2 |
 | `search_announcement_info` | 입주 예정 | 1 |
 | `get_map_embed_url` | 지도 | 1 |
-| | | **23** |
+| | | **14** |
 
 ## 워크플로우
 
@@ -61,11 +62,17 @@ get_geocode(address = 위에서 받은 address_road)        → lat · lng
 
 ### 2. 실거래 12개월
 ```
-get_complex_trades(complex_query, year_month, trade_type='all', limit=100) × 12
+get_complex_trades(kapt_code, from_ym, to_ym, trade_type='sale', limit=1000)
+get_complex_trades(kapt_code, from_ym, to_ym, trade_type='rent', limit=1000)
+get_complex_trades(complex_query=확정 단지, from_ym, to_ym, trade_type='resale', limit=1000)
 ```
-- ✅ **`trade_type='all'`은 1콜 = 1크레딧.** 내부에서 매매·전월세·분양권 3개 원천을 쳐도 과금은 1이다.
+- 매매·전월세는 `get_complex_info`에서 확보한 `kapt_code`를 사용한다. 단지명을 다시 해소하지 않는다.
+- `kapt_code` 경로가 지원하지 않는 분양권만 확정된 단지의 `complex_query`를 사용한다.
+- `MAPPING_REVIEW_REQUIRED`이면 매매·전월세를 이름 경로로 우회하지 않는다. 해당 거래 블록을 `확인되지 않음`으로 두고 나머지 리포트만 계속한다.
+- `metadata.truncated=true` 또는 `has_more=true`인 거래유형은 완전한 집계로 렌더하지 않는다.
+- `metadata.coverage.complete=false` 또는 `reason_code='PARTIAL_COVERAGE'`이면 `missing_months`를 거래 0건으로 바꾸지 않는다. 확인된 월만 표시하고 전체 기간 변화율은 내지 않는다.
 - **조회 창은 최신 확정월로 끝나는 12개월이다.** 최근 2개월은 신고 등록 지연 때문에 **호출·차트에서 제외**한다. 오늘이 2026-07이면 최신 확정월은 2026.05이고 조회 집합은 **2025.06~2026.05 정확히 12개**다. `2025.08~2026.07`처럼 집계 중 2개월을 포함한 12개월 창으로 바꾸지 않는다.
-- 호출 전에 오름차순 `year_month` 12개 집합을 확정해 `audit.json`에 기록한다. 각 월은 정확히 1회만 호출하며 **`year_month` 중복은 0건인지 검증**한다. 이미 호출한 월을 보정·감사 목적으로 재호출하지 않는다.
+- 호출 전에 `from_ym`·`to_ym`과 오름차순 12개월 집합을 확정해 `audit.json`에 기록한다. 세 거래유형은 각각 정확히 1회만 호출하며 보정·감사 목적으로 재호출하지 않는다.
 - **중복 제거**: 같은 `(전용, 층, 계약일, 금액)`은 1건으로.
   실측: 반포 84.93㎡ 12층 2026-05-16 166,950이 **2행**(한 행만 계약구분 필드 존재).
 - 🚨 **거래가 0건인 달에도 `[PARTIAL] 시세 생성 금지`가 붙는다.** 중단하지 말고 결측월로 넘긴다.
@@ -137,7 +144,7 @@ search_by_nearby_category(radius_m=2000,
   실측 2곳 모두 0건. 반포엔 1.5km 내 공원이 32개 있는데도 0건이다.
 - 🚨 **`grid=true` 없이 `query="백화점"`을 부르면 입점 매장이 45건 캡을 다 먹는다.**
   실측: 반포 4km → 45건 전부 입점 매장, **본체 0건**. `grid`로 2km를 부르면 신세계백화점 강남점(888m)이 나온다.
-- 🚨 **병원 검색을 세 키워드로 나누지 않는다.** 공원·도서관·백화점·병원으로 POI keyword는 정확히 4회이며, 기본 전체 MCP 호출 예산은 23회다.
+- 🚨 **병원 검색을 세 키워드로 나누지 않는다.** 공원·도서관·백화점·병원으로 POI keyword는 정확히 4회이며, 기본 전체 MCP 호출 예산은 14회다.
 - 🚨 **`0건`이라고 쓰기 전에 잘림 여부를 본다.** 잘렸으면 "없음"이 아니라 **"확인되지 않음"**.
 
 ### 6. 인근 단지
@@ -157,8 +164,8 @@ enrich_complex_info(complexes, include_trades=true)
 ### 8. 결과·호출 감사 파일 🚨
 - MCP 호출을 시작하기 전에 출력 디렉터리 `out/ipzitalk-complex-overview-all/`을 고정한다.
 - 완성 데이터는 HTML 안에서만 보관하지 말고 **`out/ipzitalk-complex-overview-all/result.json`**에 먼저 저장한다.
-- 각 MCP 호출 직후 **`out/ipzitalk-complex-overview-all/audit.json`**에 `skillBaseDirectory`, `baseToolName`, 입력 요약, `year_month`(해당 시), `resultCount`, `truncated`, `provenance`, `reason`을 누적한다. 파일 도구·실행 환경은 `shellUsed`, `webUsed`, `generatedFiles`로 별도 기록한다.
-- 기본 호출 합계는 23회다. `get_complex_trades`는 12행·서로 다른 `year_month` 12개여야 하며 전체 행 수가 23이 아니면 완료 처리하지 않는다.
+- 각 MCP 호출 직후 **`out/ipzitalk-complex-overview-all/audit.json`**에 `skillBaseDirectory`, `baseToolName`, 입력 요약, `from_ym`·`to_ym`·`trade_type`·`kapt_code`·`mappingStatus`(해당 시), `resultCount`, `truncated`, `provenance`, `reason`을 누적한다. 파일 도구·실행 환경은 `shellUsed`, `webUsed`, `generatedFiles`로 별도 기록한다.
+- 기본 호출 합계는 14회다. `get_complex_trades`는 같은 `from_ym`·`to_ym`으로 sale·rent·resale 각 1행, 합계 3행이어야 하며 전체 행 수가 14가 아니면 완료 처리하지 않는다.
 - 지도 audit에는 실제 호출 횟수 1회와 marker의 `name`·`type`을 남겨 반경 눈금 가짜 마커가 0개인지 검증한다.
 - **최종 응답은 `audit.json`에서** 도구별 호출 횟수, Remote provenance, Skill base directory, shell/web 사용 여부, 생성 파일을 계산해 보고하며 수기로 재구성하지 않는다. 감사 누락을 채우기 위한 MCP 재호출은 금지한다.
 
@@ -273,6 +280,8 @@ K-apt 기본·상세 어디에도 필드가 없다. 연면적은 있으나 **대
 |---|---|
 | 단지 해소 실패 / `NOT_FOUND` | 재입력 요청. 리포트 생성 금지 |
 | 후보 다수 / `AMBIGUOUS` | 후보 나열 후 선택 |
+| 매매·전월세 `MAPPING_REVIEW_REQUIRED` | 이름 경로 우회 금지. 거래 블록은 `확인되지 않음`, 나머지는 계속 |
+| `PARTIAL_COVERAGE` | 미확인 월은 결측 처리. 전체 기간 변화율 금지 |
 | 단일 월 거래 0건 | **결측월로 넘어간다. 중단 금지** |
 | 전 기간 거래 0건 | 해소 실패로 보고 중단 |
 | `unit_mix`에 84타입 없음 | 84 재조회 금지 → 우세 타입군 자동 선택 |
@@ -311,7 +320,7 @@ K-apt 기본·상세 어디에도 필드가 없다. 연면적은 있으나 **대
 ## 이름 충돌 주의 ⚠️
 기존 `ipzitalk-complex-overview`(K-apt 단일 단지 요약)와 **다른 스킬**이다.
 - `ipzitalk-complex-overview` = 세대수·연차·주차 정도의 **한 장 요약**. 실거래·POI 없음.
-- `ipzitalk-complex-overview-all` = **실거래 + 입지 + 입주예정 + 인근단지**까지. 23크레딧.
+- `ipzitalk-complex-overview-all` = **실거래 + 입지 + 입주예정 + 인근단지**까지. 14크레딧.
 - "간단히 정리"·"단지 개요" → `ipzitalk-complex-overview` / "전반적으로"·"한눈에" → 이 스킬.
 
 ## 분석 목적 맞춤 요약

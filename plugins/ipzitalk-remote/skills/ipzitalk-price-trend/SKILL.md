@@ -5,7 +5,7 @@ description: >
   중위 거래가·표본 수 추이를 차트와 표로 만든다. "시세추이", "이 단지 시세 흐름",
   "OO아파트 최근 시세", "평당가 추이", "실거래가 추이", "요즘 얼마에 팔려" 등의 표현이 있으면
   이 스킬을 사용한다. 지역 전체 비교는 최근 시장동향 스킬로 분리한다.
-version: 1.2.5
+version: 1.2.6
 license: proprietary
 ---
 
@@ -21,18 +21,25 @@ license: proprietary
 |---|---|---|---|
 | `complex_query` | ✅ | - | 단지명 |
 | `exclusive_area_sqm` | ✕ | **자동** | 우세 전용타입군을 자동 선택. **84를 상수로 박지 말 것** |
-| `months` | ✕ | **12** | 조회 개월 수. **N개월 = N크레딧** |
+| `months` | ✕ | **12** | 조회 개월 수(1~12). 실거래 범위 조회는 **1크레딧** |
 
 - 🚨 **지역(`region_code`) 단독 입력은 이 스킬 용도가 아니다.** 전용타입을 통일할 수 없어
   구성 편향으로 값이 널뛴다. → 최근 시장동향 스킬로 보낸다.
 
 ## 워크플로우
-1. **단지 교차검증** — `get_complex_info(complex_query)` 로 지번 주소·세대수·면적 구성을 먼저 확인한다.
+1. **단지 교차검증** — `get_complex_info(complex_query)` 로 `kapt_code`·지번 주소·세대수·면적 구성을 먼저 확인한다.
    다지번 대단지는 실거래 매칭에서 일부가 누락될 수 있다.
-2. **전용타입군 결정** (아래 규칙)
-3. **월별 조회** — `get_complex_trades(complex_query, year_month, trade_type='sale')` × N개월. 월 1콜.
-4. **집계** — 타입군에 속한 거래만 골라 월별 중위 평당가·중위 거래가·건수 산출.
-5. **렌더** — 고정 템플릿 `templates/result.html` 의 `ipzi-data` 비실행 JSON 블록 만 채운다.
+2. **조회 창 확정** — 최신 확정월로 끝나는 1~12개월을 `from_ym`·`to_ym`으로 정한다.
+3. **범위 조회** — `get_complex_trades(kapt_code, from_ym, to_ym, trade_type='sale', limit=1000)` 정확히 1회.
+   `complex_query`로 다시 해소하지 않는다.
+4. **전용타입군 결정** — 조회된 거래에서 아래 밴드 규칙을 적용한다.
+5. **집계** — 타입군에 속한 거래만 골라 월별 중위 평당가·중위 거래가·건수 산출.
+6. **렌더** — 고정 템플릿 `templates/result.html` 의 `ipzi-data` 비실행 JSON 블록 만 채운다.
+
+- `metadata.mapping_status='verified'`를 확인한다.
+- `MAPPING_REVIEW_REQUIRED`이면 `complex_query` 경로로 우회하지 말고 중단한다.
+- `metadata.truncated=true` 또는 `has_more=true`이면 완전한 추이로 렌더하지 않는다.
+- `metadata.coverage.complete=false` 또는 `reason_code='PARTIAL_COVERAGE'`이면 `missing_months`를 거래 0건으로 바꾸지 않는다. 확인된 월만 표시하고 전체 기간 변화율은 내지 않는다.
 
 ## 기준월
 최근 1~2개월은 신고 지연으로 과소집계된다. **최신 확정월은 조회 시점의 2개월 전**이다.
@@ -90,6 +97,8 @@ license: proprietary
 ## 엣지 · 실패 처리
 | 상황 | 처리 |
 |---|---|
+| `MAPPING_REVIEW_REQUIRED` | 중단. 이름 조회로 우회하지 않고 매핑 검토 필요를 알림 |
+| `PARTIAL_COVERAGE` | 미확인 월은 결측 처리. 전체 기간 변화율 금지 |
 | 단지 해소 실패(전 기간 0건) | 중단. 실거래 추이 생성 금지 |
 | 특정 월만 0건 | 그 달만 결측. 선 끊고 회색 밴드 |
 | 우세 밴드의 최신월 0건 | 다음 밴드 검토. 그래도 없으면 판정 유보 |
@@ -237,7 +246,7 @@ license: proprietary
   `series` 에서 계산한다. 템플릿의 렌더 JS 가 그렇게 되어 있다.
 
 ## 검증된 사항 (운영 MCP 실호출)
-- `get_complex_trades` 월 1콜 × 12개월 정상. `get_complex_info` 로 면적 구성 교차검증 정상.
+- `get_complex_info`에서 확보한 `kapt_code`로 `get_complex_trades` 12개월 범위 1콜 정상.
 - 한 단지는 12개월 중 **3개월이 거래 0건**이었다. 결측 처리 없이는 시계열이 성립하지 않는다.
 - 혼합 평당가와 타입 고정 평당가의 차이: 한 단지 **18%**, 다른 단지 **0.6%**.
 - 정수부 매칭이 같은 타입군을 세 그룹으로 쪼개 최대 그룹의 최신월이 0건이 되는 사례를 확인했다.
