@@ -18,7 +18,7 @@
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": "0bbd319be1562835387ae351497deea1d9ae5baf",
+      "commit": "ba1ca23c62244211afa0a2e95bd6b95dbef7f581",
       "availability": "private-release",
       "versions": {
         "ipzitalk-announcement-search": "1.0.0",

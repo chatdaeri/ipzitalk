@@ -21,23 +21,34 @@ license: proprietary
 |---|---|---|---|
 | `complex_query` | ✅ | - | 단지명 |
 | `exclusive_area_sqm` | ✕ | **자동** | 우세 전용타입군을 자동 선택. **84를 상수로 박지 말 것** |
-| `months` | ✕ | **12** | 조회 개월 수(1~12). 실거래 범위 조회는 **1크레딧** |
+| `months` | ✕ | **12** | 조회 개월 수(1~12). verified는 1크레딧, review exact-address fallback은 최대 2크레딧 |
 
 - 🚨 **지역(`region_code`) 단독 입력은 이 스킬 용도가 아니다.** 전용타입을 통일할 수 없어
   구성 편향으로 값이 널뛴다. → 최근 시장동향 스킬로 보낸다.
 
 ## 워크플로우
-1. **단지 교차검증** — `get_complex_info(complex_query)` 로 `kapt_code`·지번 주소·세대수·면적 구성을 먼저 확인한다.
+1. **단지 교차검증** — `get_complex_info(complex_query)` 로 `kapt_code`·공식 단지명·`bjd_code`·지번 주소·세대수·면적 구성을 먼저 확인한다.
    다지번 대단지는 실거래 매칭에서 일부가 누락될 수 있다.
 2. **조회 창 확정** — 최신 확정월로 끝나는 1~12개월을 `from_ym`·`to_ym`으로 정한다.
 3. **범위 조회** — `get_complex_trades(kapt_code, from_ym, to_ym, trade_type='sale', limit=1000)` 정확히 1회.
    `complex_query`로 다시 해소하지 않는다.
-4. **전용타입군 결정** — 조회된 거래에서 아래 밴드 규칙을 적용한다.
-5. **집계** — 타입군에 속한 거래만 골라 월별 중위 평당가·중위 거래가·건수 산출.
-6. **렌더** — 고정 템플릿 `templates/result.html` 의 `ipzi-data` 비실행 JSON 블록 만 채운다.
+4. **review exact-address fallback** — 3이 `MAPPING_REVIEW_REQUIRED`일 때만 아래 제한 경로를 최대 1회 사용한다.
+   ```
+   get_complex_trades(
+     region_code=bjd_code 앞 5자리,
+     complex_filter={umd: 지번주소의 법정동, jibun: 전체 지번, apt_name: K-apt 공식 단지명, jibun_match='exact'},
+     from_ym, to_ym, trade_type='sale', limit=1000
+   )
+   ```
+   `filter_applied`의 법정동·전체 지번·단지명이 요청값과 같을 때만 채택한다.
+5. **전용타입군 결정** — 조회된 거래에서 아래 밴드 규칙을 적용한다.
+6. **집계** — 타입군에 속한 거래만 골라 월별 중위 평당가·중위 거래가·건수 산출.
+7. **렌더** — 고정 템플릿 `templates/result.html` 의 `ipzi-data` 비실행 JSON 블록 만 채운다.
 
 - `metadata.mapping_status='verified'`를 확인한다.
-- `MAPPING_REVIEW_REQUIRED`이면 `complex_query` 경로로 우회하지 말고 중단한다.
+- `MAPPING_REVIEW_REQUIRED`이면 `complex_query`로 우회하지 않는다. 위 `complex_filter` exact-address 경로만 허용한다.
+- 지번 주소에서 법정동·전체 지번을 하나라도 확정할 수 없거나 fallback이 실패하면 중단한다.
+- 이름 단독 조회, `jibun_match='bonbun'`, K-apt 공식명 없는 필터, 주소 재검색은 금지한다.
 - `metadata.truncated=true` 또는 `has_more=true`이면 완전한 추이로 렌더하지 않는다.
 - `metadata.coverage.complete=false` 또는 `reason_code='PARTIAL_COVERAGE'`이면 `missing_months`를 거래 0건으로 바꾸지 않는다. 확인된 월만 표시하고 전체 기간 변화율은 내지 않는다.
 
@@ -97,7 +108,7 @@ license: proprietary
 ## 엣지 · 실패 처리
 | 상황 | 처리 |
 |---|---|
-| `MAPPING_REVIEW_REQUIRED` | 중단. 이름 조회로 우회하지 않고 매핑 검토 필요를 알림 |
+| `MAPPING_REVIEW_REQUIRED` | exact 법정동·전체 지번·K-apt 공식명으로 1회 제한 조회. 실패하면 중단 |
 | `PARTIAL_COVERAGE` | 미확인 월은 결측 처리. 전체 기간 변화율 금지 |
 | 단지 해소 실패(전 기간 0건) | 중단. 실거래 추이 생성 금지 |
 | 특정 월만 0건 | 그 달만 결측. 선 끊고 회색 밴드 |
