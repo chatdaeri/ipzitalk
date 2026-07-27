@@ -8,7 +8,7 @@
     },
     "remote": {
       "id": "ipzitalk-remote",
-      "version": "0.1.18"
+      "version": "0.1.19"
     },
     "local": {
       "id": "ipzitalk-local",
@@ -18,13 +18,13 @@
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": "0bbd319be1562835387ae351497deea1d9ae5baf",
+      "commit": "4691a061c664ac1e34980d0cbbb8270a0891d9db",
       "availability": "private-release",
       "versions": {
         "ipzitalk-announcement-search": "1.0.0",
         "ipzitalk-building-age-analysis": "1.0.3",
         "ipzitalk-complex-overview": "1.0.1",
-        "ipzitalk-complex-overview-all": "1.1.6",
+        "ipzitalk-complex-overview-all": "1.1.7",
         "ipzitalk-complex-spec-card": "1.0.1",
         "ipzitalk-education-environment": "1.0.3",
         "ipzitalk-elementary-proximity": "1.0.2",
@@ -40,7 +40,7 @@
         "ipzitalk-presale-compare-card": "1.0.2",
         "ipzitalk-presale-kit": "1.0.0",
         "ipzitalk-presale-report": "1.1.4",
-        "ipzitalk-price-trend": "1.2.6",
+        "ipzitalk-price-trend": "1.2.7",
         "ipzitalk-read-notice-compare": "1.2.5",
         "ipzitalk-read-notice-report": "1.2.5",
         "ipzitalk-recent-market-trend": "1.2.7",
