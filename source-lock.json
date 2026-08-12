@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-27",
+  "generatedAt": "2026-08-12",
   "plugins": {
     "launcher": {
       "id": "ipzitalk",
@@ -8,7 +8,7 @@
     },
     "remote": {
       "id": "ipzitalk-remote",
-      "version": "0.1.19"
+      "version": "0.1.20"
     },
     "local": {
       "id": "ipzitalk-local",
@@ -18,11 +18,11 @@
   "sources": {
     "skills": {
       "repository": "https://github.com/chatdaeri/ipzitalk-skill.git",
-      "commit": "4691a061c664ac1e34980d0cbbb8270a0891d9db",
+      "commit": "0932d0effeda0fd6fd406a00abe890181220586a",
       "availability": "private-release",
       "versions": {
         "ipzitalk-announcement-search": "1.0.0",
-        "ipzitalk-building-age-analysis": "1.0.3",
+        "ipzitalk-building-age-analysis": "1.0.4",
         "ipzitalk-complex-overview": "1.0.1",
         "ipzitalk-complex-overview-all": "1.1.7",
         "ipzitalk-complex-spec-card": "1.0.1",
@@ -36,7 +36,7 @@
         "ipzitalk-living-environment": "1.0.0",
         "ipzitalk-location-report": "1.3.5",
         "ipzitalk-park-proximity": "1.0.0",
-        "ipzitalk-parking-ranking": "1.0.4",
+        "ipzitalk-parking-ranking": "1.0.5",
         "ipzitalk-presale-compare-card": "1.0.2",
         "ipzitalk-presale-kit": "1.0.0",
         "ipzitalk-presale-report": "1.1.4",
@@ -46,7 +46,7 @@
         "ipzitalk-recent-market-trend": "1.2.7",
         "ipzitalk-retail-proximity": "1.0.5",
         "ipzitalk-subway-proximity": "1.0.1",
-        "ipzitalk-transit-complex-ranking": "1.0.3",
+        "ipzitalk-transit-complex-ranking": "1.0.4",
         "ipzitalk-transit-environment": "1.0.1"
       },
       "paths": {
@@ -173,7 +173,7 @@
     },
     "remoteMcp": {
       "repository": "https://github.com/chatdaeri/remote-mcp.git",
-      "commit": "8c5602b00d2086a30c9e7e4f1dd302b8da6669e9",
+      "commit": "b85b3fb72709e3acdaff4d90676e1d6a021177c1",
       "url": "https://ipzi-talk.synergylabs.kr/mcp"
     },
     "localMcp": {

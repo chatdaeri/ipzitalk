@@ -130,7 +130,7 @@ const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.availability === 'private-release', 'merged private Skill lock must be marked private-release');
 assert(sourceLock.plugins.launcher.version === '0.1.6', 'same-terminal OAuth launcher package must be version 0.1.6');
-assert(sourceLock.plugins.remote.version === '0.1.19', 'exact-address fallback Remote package must be version 0.1.19');
+assert(sourceLock.plugins.remote.version === '0.1.20', 'batch-routing Remote package must be version 0.1.20');
 assert(sourceLock.plugins.local.version === '0.1.2', 'localized Local package must be version 0.1.2');
 const lockedSkills = [...sourceLock.sources.skills.allowlist].sort();
 assert(lockedSkills.length === 27, 'Remote release must contain exactly 27 skills');
