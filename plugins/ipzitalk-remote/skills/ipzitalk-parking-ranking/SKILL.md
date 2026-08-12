@@ -3,8 +3,8 @@ name: ipzitalk-parking-ranking
 description: >
   기준 주소·단지명·지역 주변 반경의 K-apt 단지를 수집하고, 세대당 주차대수 기준으로 랭킹을 만든다.
   "주차 좋은 단지", "세대당 주차", "주차 랭킹", "이 지역 아파트 주차 비교"를 물을 때 사용한다.
-  enrich_complex_info의 parking_total과 get_complex_info(detail)의 derived.parking_per_unit을 함께 활용한다.
-version: 1.0.4
+  enrich_complex_info의 parking_total과 get_complex_info_batch(detail)의 주차 원값을 함께 활용한다.
+version: 1.0.5
 license: proprietary
 ---
 
@@ -28,17 +28,20 @@ license: proprietary
 | `resolve-site` 규약 | 기준점 좌표·코드 확보 |
 | `search_by_nearby_keyword(preset="apartment", grid=true)` | 후보 단지 수집 |
 | `enrich_complex_info` | K-apt 매칭 + parking_total/total_households 1차 확보 |
-| `get_complex_info(detail=true)` | 주차 지상/지하 및 derived.parking_per_unit 보강 |
+| `get_complex_info_batch(detail=true)` | 확정 코드의 주차 지상/지하 원값 일괄 보강 |
 | `get_map_embed_url` | 랭킹 지도 생성 |
 
 ## 워크플로우
 1. **기준점 해소** — 주소/단지명은 exact, 지역/코드는 area_center 경고.
 2. **후보 수집** — `search_by_nearby_keyword(..., preset="apartment", grid=true)`.
-3. **1차 enrich** — `enrich_complex_info`로 `parking_total`, `total_households`, `use_approval_date` 확보.
+3. **1차 enrich** — 외부 후보 배열을 `enrich_complex_info` 1회로 처리한다. `matched`만 랭킹 후보로 확정하고 `ambiguous`·`not_found`는 좌표·주소·사유만 표시하며 자동확정하지 않는다.
+   - `matched` 좌표는 그대로 재사용하고 추가 지오코딩하지 않는다. 좌표가 `null`인 확정 항목만 별도 지오코딩으로 해소한다.
+   - 주차 상세가 필요한 `matched` 코드만 모아 `get_complex_info_batch(detail=true)`로 보강한다.
+   - 배치당 최대 10건, 최대 2회다. 기준점 해소·후보 검색·enrich·지도 각 1회를 포함한 전체 호출 예산은 총 6회다.
 4. **세대당 주차 계산**
    - 🚨 `derived.parking_per_unit`을 **그대로 믿지 말 것.** 서버가 `(parking_ground ?? 0) + (parking_underground ?? 0)`로
      계산해서, **한쪽만 결측이면 그 값을 0으로 흡수**해 조용히 과소 산출한다.
-   - 따라서 `get_complex_info(detail=true)`의 **원값 `parking_ground`·`parking_underground`를 직접 확인**한다.
+   - 따라서 `get_complex_info_batch(detail=true)`의 **원값 `parking_ground`·`parking_underground`를 직접 확인**한다.
      - 둘 다 숫자 → 합계로 세대당 주차 계산 (`derived.parking_per_unit`과 일치해야 정상).
      - **하나라도 `null` → 판정 유보**(`자료없음`). 합산 금지.
    - enrich만 있을 때는 `parking_total / total_households` 계산.
@@ -133,7 +136,9 @@ license: proprietary
 - 반경 후보가 많으면 전수가 아니라 표본이다. 표본 수와 원천 후보 수를 함께 표기한다.
 - 카카오 검색은 쿼리당 45건 캡이 있다. 캡에 도달하면 "목록 불완전"으로 표기한다.
 
-## 🚨 `enrich_complex_info` 는 이름이 같은 단지도 떨어뜨린다 (실측 2026-07-10)
+## 과거 `enrich_complex_info` 실측 기록 (2026-07-10)
+
+아래 내용은 PR4 정확 지번 폴백 이전 현상을 설명하는 기록이다. 현재 실행에서는 이름·후보만 보고 복구하지 말고 `matched`만 확정한다.
 
 **"K-apt 미매칭 = 그 단지가 없다"가 아니다.** 좌표가 어긋나면 이름이 글자까지 같아도 제외된다.
 
@@ -159,17 +164,11 @@ K-apt 좌표   └─ 261m 떨어져 있음     ← 기본 radius_m=250 을 11m 
 - 🚨 **반대 방향 오류도 있다.** 거리가 0이면 이름이 아무리 달라도 `matched`(score 0.75)가 난다.
   → 후보 좌표는 반드시 **그 단지의 카카오 좌표**를 넣는다. 기준 단지 좌표를 돌려쓰면 엉뚱한 단지로 바뀐다.
 
-### 복구 절차 (코드 수정 없이 지금 가능)
+### 폐기된 복구 절차 — 실행 금지
 
 `not_found` 여도 `candidates[]` 는 **`kapt_code` 를 함께 준다.** 반경만 넓히면 이름 완전일치 후보가 그 안에 나타난다.
 
-```
-1. enrich_complex_info(complexes, radius_m=500)      ← 기본 250 으로는 후보에조차 안 뜬다
-2. status != "matched" 인 항목의 candidates[] 를 훑는다
-3. 정규화한 이름이 입력과 같으면(공백·'아파트' 꼬리 제거 후 일치) 그 kapt_code 를 채택
-4. get_complex_info(kapt_code, detail=true) 로 값을 직접 가져와 랭킹에 넣는다
-5. 화면에 "좌표 불일치로 자동 매칭 실패 → 이름 일치로 복구" 를 명시한다
-```
+`ambiguous`·`not_found`의 `candidates[]`에서 이름만 보고 `kapt_code`를 채택하거나 단건 조회로 자동 복구하지 않는다.
 
 실측: `위례2차아이파크아파트` 는 `radius_m=500` 에서 `candidates[0]` 으로 나오고(`A10027553`, 261m, score 0.635),
 `get_complex_info` 는 `parking_per_unit 1.76` 을 정상 반환한다.
@@ -178,6 +177,17 @@ K-apt 좌표   └─ 261m 떨어져 있음     ← 기본 radius_m=250 을 11m 
   `위례아이파크` 와 `위례2차아이파크` 는 다른 단지다. 애매하면 복구하지 말고 제외 사유를 적는다.
 - 근본 해결은 MCP 몫이다(점수에서 반경 정규화 제거 · 이름 완전일치 가산 · 사유 코드 정정) — 발견사항 30번.
   고쳐지면 이 복구 절차는 불필요해진다. 그때까지는 **스킬이 직접 메운다.**
+
+## 변경 이력
+| version | 날짜 | 변경 |
+|---|---|---|
+| 1.0.0 | 2026-07-09 | 패키지 배포본. `derived.parking_per_unit` 부분 결측 0 흡수 우회(원값 직접 검사·판정 유보), 결측 단지 랭킹 제외+사유 카드, 디자인 규칙 인라인, 지도 TTL·눈금마커·`.map` overflow 규칙 반영 |
+| 1.0.1 | 2026-07-10 | **`enrich_complex_info` 매칭 실패 사유를 구분 표기**하는 규칙 추가. 이름이 완전히 같은 단지도 좌표 261m 차이로 제외된다(위례2차아이파크 실측). `not_found` 를 'K-apt 미매칭'으로 뭉뚱그리지 않는다 · 반경 눈금 마커 제거 |
+| 1.0.2 | 2026-07-10 | 요약 카드에 **상위 3개 단지** 블록 추가(`rows` 에서 직접 파생 — 별도 필드 없음). 왼쪽 랭킹 대비 빈 공간 해소 |
+| 1.0.3 | 2026-07-10 | **표본 범위·제외 단지를 독립 카드로 분리.** 푸터 유의사항·출처와 `<br>` 로 붙어 있어 제외 사유가 묻혔다 · 섹션별 출처 표기 · `javascript:` 스킴 가드 |
+| 1.0.4 | 2026-07-15 | 공용 고정 템플릿 렌더러 사용을 의무화하고 `<기준대상>_주차랭킹.html` 동적 파일명·iframe 보안 속성 보존·새 HTML 작성 금지를 명시 |
+| 1.0.5 | 2026-08-12 | enrich `matched`만 랭킹 후보로 확정하고, 주차 원값이 필요한 코드만 최대 10건씩 `detail=true` 배치로 보강. 과거 이름 단독 복구 폐기 |
+
 
 ## MCP 도구 네임스페이스와 출처
 
