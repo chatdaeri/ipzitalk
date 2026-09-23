@@ -1,7 +1,7 @@
 {
   "name": "ipzitalk-remote",
-  "version": "0.1.20",
-  "description": "호스팅 입지톡 Remote MCP와 27개 Skill을 사용합니다.",
+  "version": "0.1.21",
+  "description": "호스팅 입지톡 Remote MCP와 3개 Skill을 사용합니다.",
   "author": {
     "name": "SynergyLabs",
     "url": "https://synergylabs.kr"
@@ -12,7 +12,7 @@
   "interface": {
     "displayName": "입지톡 Remote",
     "shortDescription": "OAuth 기반 호스팅 실행 방식",
-    "longDescription": "공식 OAuth 로그인으로 호스팅 입지톡 MCP와 27개 Remote Skill을 사용합니다. 입지톡 설정 플러그인을 통해 설치하세요.",
+    "longDescription": "공식 OAuth 로그인으로 호스팅 입지톡 MCP와 3개 Remote Skill을 사용합니다. 입지톡 설정 플러그인을 통해 설치하세요.",
     "developerName": "SynergyLabs",
     "category": "Productivity",
     "capabilities": ["Read"],
