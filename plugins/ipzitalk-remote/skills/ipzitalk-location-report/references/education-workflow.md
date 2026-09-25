@@ -1,7 +1,7 @@
 # 교육 환경 워크플로우 (공유 부품)
 
 > 이 파일이 정본이다. 스킬 폴더 밖 경로에 의존하지 않는다(standalone).
-> 이 보고서의 교육 축 전용 워크플로우다. center 좌표를 공유한다.
+> 원본 단독 스킬: `ipzitalk-education-environment` (초안 v0.3). center 전제(좌표 공유).
 > **최종 갱신 2026-07-09** — 반경 규칙 R1~R3 · `subcategory_filter` 후처리 gotcha · 광역/개수형 축 격리 반영.
 
 ## 반경 처리 (R1~R3)
@@ -20,8 +20,8 @@
 1. **초등학교**(근린) — `search_by_nearby_category(center, radius_m=max(radius_m,1250), categories=['school_elementary'])` → 최근접(초품아 밴드).
 2. **중학교 / 고등학교**(근린) — `search_by_nearby_category(center, radius_m=max(radius_m,1250), categories=['school'], subcategory_filter={category_name_contains:"중학교"})` (및 `"고등학교"`).
 3. **대학교**(광역, 고정 3,000m) — `search_by_nearby_category(center, radius_m=3000, categories=['school'], subcategory_filter={category_name_contains:"대학교"})` → 존재 여부·최근접.
-4. **학원**(개수형, 판정창 700m 고정) — `search_by_nearby_keyword(center, radius_m=700, query="학원", grid=true, category_filter={include_contains:["학원"]}, limit=50)`
-   → **700m 내 개수(밀집)** + 최근접. `pagination.has_more=true`이면 `next_offset`을 끝까지 따라 전량을 합산한다.
+4. **학원**(개수형, 판정창 700m 고정) — `search_by_nearby_keyword(center, radius_m=700, query="학원", grid=true, category_filter={include_contains:["학원"]})`
+   → **700m 내 개수(밀집)** + 최근접. `grid=true`가 45건 캡을 우회한다(`truncated:false` 확인).
 
 ## 🚨 45건 캡 + `subcategory_filter`는 후처리다 (실측)
 `search_by_nearby_category`는 45건 상한이고 **`grid` 옵션이 없다.** 더 나쁜 것은 **`subcategory_filter`가 서버 필터가 아니라 45건을 받은 뒤 거르는 후처리**라는 점이다.
@@ -32,7 +32,7 @@
 ```
 `categories:['school']` 원본이 45건에서 잘렸고, 3km 내 중·고·대학 일부는 응답에 **아예 오지 않았다**. 네 축 모두 `truncated:true`.
 
-- 다만 거리순 첫 결과로 최근접 판정은 가능하다. 카테고리별 전체 개수는 `pagination_by_category.source_cap_reached=true`이면 근사다.
+- 다만 `sort=distance`라 **최근접은 항상 정확** → **등급 판정은 안전, 목록·개수는 근사.**
 - **서울 학교 밀집지는 반경 2km부터 이미 캡에 걸린다.** cap 5km는 판정용이지 목록용이 아니다.
 
 ## 🚨 운영 중이 아닌 학교를 걸러낸다 (실측 2026-07-10)
@@ -71,11 +71,11 @@
 카테고리 검색은 **45건 캡이 서버가 아니라 후처리 필터**라, 밀집지역에서는 실제로 있는 시설이 0건으로 보일 수 있다.
 어떤 축이든 **0건이 나오면 그대로 "없음"이라 쓰지 말고 아래를 수행한다.**
 
-1. 해당 카테고리의 `pagination_by_category.source_cap_reached`를 본다. `true`면 원천 상한에 걸린 것이므로 **부재로 단정하지 않는다.**
+1. `metadata.truncated` 를 본다. `true` 면 캡에 걸린 것이므로 **부재로 단정하지 않는다.**
 2. 같은 축을 **키워드 검색으로 한 번 더** 조회한다(카테고리 필터 대신 `search_by_nearby_keyword`, 예: 대학 → `"대학교"`). 반경은 그 축의 판정창 그대로.
-3. 카테고리는 cap 미도달이고 keyword는 모든 offset 수집 후에도 0건이면 → **"반경 내 없음"** 으로 확정한다.
+3. 두 방식 모두 0건이고 `truncated:false` 면 → **"반경 내 없음"** 으로 확정한다.
 4. 한쪽이라도 캡에 걸렸거나 결과가 엇갈리면 → **"확인 불가(검색 한계)"** 로 적는다. `없음`과 `확인 불가`를 섞어 쓰지 않는다.
-5. 재확인에도 좌표·center는 재해소하지 않는다(일일 호출량 낭비).
+5. 재확인에도 좌표·center는 재해소하지 않는다(크레딧 낭비).
 
 ## 종합 등급
 - 초등 접근성 + 학원 밀집을 주 축, 중·고·대학 보조. ★★★/★★☆/★☆☆ + 한줄평(학군 특성 정직).

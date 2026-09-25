@@ -9,15 +9,15 @@
       "name": "ipzitalk",
       "source": "./plugins/ipzitalk",
       "description": "입지톡 Remote 또는 OSS 실행 방식을 한국어로 선택하고 설정합니다.",
-      "version": "0.1.7",
+      "version": "0.1.6",
       "category": "productivity",
       "tags": ["real-estate", "korea", "setup"]
     },
     {
       "name": "ipzitalk-remote",
       "source": "./plugins/ipzitalk-remote",
-      "description": "공식 OAuth 기반 호스팅 입지톡 MCP와 3개 Remote Skill입니다.",
-      "version": "0.1.21",
+      "description": "공식 OAuth 기반 호스팅 입지톡 MCP와 27개 Remote Skill입니다.",
+      "version": "0.1.20",
       "category": "productivity",
       "tags": ["real-estate", "korea", "mcp", "remote"]
     },

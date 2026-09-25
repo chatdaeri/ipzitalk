@@ -23,21 +23,13 @@ const sourcePaths = lock.sources.skills.paths ?? {};
 const excludedFiles = [...(lock.sources.skills.excludedFiles ?? [])].sort();
 const artifactAllowlist = [...(lock.sources.skills.artifacts ?? [])].sort();
 
-if (!expectedCommit || !allowlist.length) throw new Error('skills source lock is empty');
+if (!expectedCommit || !allowlist.length || !artifactAllowlist.length) throw new Error('skills source lock is empty');
 if (Object.keys(sourcePaths).sort().join('\n') !== allowlist.join('\n')) throw new Error('skills source paths do not match allowlist');
 
 const actualCommit = execFileSync('git', ['-C', source, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 if (actualCommit !== expectedCommit) {
   throw new Error(`source HEAD mismatch: expected ${expectedCommit}, got ${actualCommit}`);
 }
-
-const lockedPaths = [...Object.values(sourcePaths), ...artifactAllowlist];
-const sourceStatus = execFileSync(
-  'git',
-  ['-C', source, 'status', '--porcelain=v1', '--untracked-files=all', '--', ...lockedPaths],
-  { encoding: 'utf8' },
-).trim();
-if (sourceStatus) throw new Error(`locked Skill source is dirty:\n${sourceStatus}`);
 
 async function treeSnapshot(directory, excluded = new Set()) {
   const rows = [];
@@ -58,8 +50,6 @@ async function treeSnapshot(directory, excluded = new Set()) {
   return rows.sort().join('\n');
 }
 
-await rm(target, { recursive: true, force: true });
-await rm(resolve(pluginRoot, 'scripts'), { recursive: true, force: true });
 await mkdir(target, { recursive: true });
 
 for (const skill of allowlist) {

@@ -285,11 +285,7 @@ const templateDataShape = {
     var safe = safeHttpsUrl(value);
     if(!safe) return null;
     var url = new URL(safe);
-    if([
-      "https://ipji-talk.com",
-      "https://ipzi-talk.synergylabs.kr",
-      "https://presale-remote-mcp-loadtest.jinju-c67.workers.dev"
-    ].indexOf(url.origin) < 0) return null;
+    if(url.origin !== "https://ipzi-talk.synergylabs.kr") return null;
     if(url.username || url.password) return null;
     if(url.pathname !== "/map") return null;
     if(!url.searchParams.get("d")) return null;

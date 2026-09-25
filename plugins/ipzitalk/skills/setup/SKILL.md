@@ -25,7 +25,7 @@ description: 입지톡 Remote 또는 OSS 실행 방식의 설치 상태를 확�
 
 변경 전에 네이티브 사용자 입력 UI가 있으면 다음 3개 선택지를 한국어로 표시한다. 네이티브 UI가 없으면 같은 항목을 일반 텍스트로 제시하고 답을 기다린다.
 
-- `Remote(호스팅형·권장)` — 공식 OAuth 브라우저 로그인, 호스팅 데이터, 3개 Remote Skill
+- `Remote(호스팅형·권장)` — 공식 OAuth 브라우저 로그인, 호스팅 데이터, 27개 Remote Skill
 - `OSS(로컬 실행)` — 사용자 컴퓨터에서 MCP 실행, API 키 4개 필요, Skill 없음
 - `상태만 확인` — 설치 상태만 확인하고 변경하지 않음
 
@@ -33,7 +33,7 @@ description: 입지톡 Remote 또는 OSS 실행 방식의 설치 상태를 확�
 
 선택 전에 다음 차이를 설명한다.
 
-- Remote는 호스팅 입지톡 MCP, OAuth, 호스팅 데이터, 3개 Remote Skill을 사용한다.
+- Remote는 호스팅 입지톡 MCP, OAuth, 호스팅 데이터, 27개 Remote Skill을 사용한다.
 - OSS는 Node.js로 `presale-mcp`를 로컬 실행하며 사용자 API 키 4개가 필요하다. OSS는 MCP 전용으로 도구 10개를 제공하고 Remote Skill은 포함하지 않는다.
 - Codex CLI는 현재 프로세스 환경에 이미 있는 API 키 이름 4개만 `env_vars`로 전달한다. 실제 값을 채팅·명령 인자·manifest·설정 예시에 붙여 넣게 하지 않는다.
 - Finder나 Dock에서 실행한 Codex Desktop이 셸 환경변수를 상속한다고 가정할 수 없으므로 안전한 비밀 전달 경로가 검증될 때까지 Desktop OSS를 지원한다고 표현하지 않는다.

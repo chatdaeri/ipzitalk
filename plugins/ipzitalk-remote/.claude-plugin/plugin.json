@@ -1,7 +1,7 @@
 {
   "name": "ipzitalk-remote",
-  "version": "0.1.21",
-  "description": "공식 OAuth로 호스팅 입지톡 MCP와 3개 Remote Skill을 사용합니다.",
+  "version": "0.1.20",
+  "description": "공식 OAuth로 호스팅 입지톡 MCP와 27개 Remote Skill을 사용합니다.",
   "author": {
     "name": "SynergyLabs"
   },

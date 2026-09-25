@@ -2,12 +2,11 @@
 name: ipzitalk-location-report
 description: >
   주소 또는 단지명을 입력받아 교통·생활·교육 환경을 한 번에 분석해 세부 입지 보고서(통합 HTML 리포트 +
-  종합 지도)를 생성한다. 사용자가 보고서·리포트·HTML 작성을 명시적으로 요청할 때만 자동 활성화한다.
-  단순한 세부 입지·입지 분석·어때·알려줘·정리해줘 요청에는 사용하지 않는다. 사용자가 이 스킬을 직접 호출하거나 이름을 지목해 실행을 지시하면 예외로 실행한다.
-  단일 분야 질문이나 점수화 요청에는 자동 활성화하지 않는다.
+  종합 지도)를 생성한다. "세부 입지", "입지 분석", "입지 보고서", "이 사업지 입지 어때",
+  "입지 종합", "주변 환경 종합" 등의 표현이 있으면 이 스킬을 사용한다.
+  단일 분야만 물으면(교통만/학군만) 해당 단일 스킬을 쓴다. 점수화는 입지 평가 스킬로 분리한다.
+version: 1.3.5
 license: proprietary
-metadata:
-  version: "1.4.3"
 ---
 
 # 세부 입지 보고서 (조립 · L2)
@@ -16,25 +15,17 @@ metadata:
 
 주소/단지명 하나로 **교통 + 생활 + 교육**을 종합해 대표 보고용 리포트를 만든다.
 ※ 각 분야의 직선거리·개수 근사와 hedge를 **그대로 승계**한다. 정성 판단·우열 단정 금지.
-※ **점수를 매기지 않는다.** 거리·개수 근거와 정성 밴드만 제공한다.
-
-## 활성화 게이트 🚨
-
-- 자동 활성화는 대상 주소·단지와 함께 `보고서`·`리포트`·`HTML` 중 하나를 사용해 작성·생성·출력 의사를 명확히 밝힌 경우만 허용한다.
-- Claude Code의 `/ipzitalk-location-report`, Codex의 `$ipzitalk-location-report`, 클라이언트의 설치된 스킬 선택 기능으로 직접 호출하거나, 대화에서 이 스킬 이름을 지목해 실행을 명시적으로 지시한 경우(예: `ipzitalk-location-report 스킬로 잠실 리센츠 해줘`)는 위 표현이 없어도 실행한다. 일반 텍스트에서 스킬 이름을 언급하거나 스킬에 대해 질문한 것만으로는 직접 호출로 보지 않는다.
-- 단순 질문·요약·분석·비교·추천, 카드·대시보드·브리핑 요청, 부정문·가정문·용어 언급은 자동 활성화 근거가 아니다.
-- 게이트를 통과하지 못하면 이 스킬의 MCP 호출·일일 사용량 집계·파일 생성을 시작하지 않는다.
+※ **점수를 매기지 않는다.** 종합 점수화는 `location-score`(입지 평가) 담당.
 
 ## 전제: 입지톡 MCP (🚨 없으면 실행하지 않는다)
-이 스킬의 모든 데이터 조회는 **입지톡(ipzitalk) Remote MCP 서버**(`https://ipji-talk.com/mcp`)의 도구로만 한다.
-이 스킬은 `get_geocode`·`get_address`·`get_complex_info_by_query`·`search_by_nearby_category`·`search_by_nearby_keyword`·`get_map_embed_url`만 사용한다. 아래 문서의 접두사 없는 이름은 전부 이 서버의 기본 도구명이다.
+이 스킬의 모든 데이터 조회는 **입지톡(ipzitalk) Remote MCP 서버**(`https://ipzi-talk.synergylabs.kr/mcp`)의 도구로만 한다.
+아래 문서에서 `get_address`·`search_by_nearby_category`·`search_by_nearby_keyword`·`get_map_embed_url` 처럼 접두사 없이 적힌 이름은 **전부 이 서버의 도구**를 가리킨다.
 
 - 문서의 접두사 없는 이름은 **기본 도구명(base tool name)** 이다. 먼저 연결된 도구 목록에서 같은 기본 도구명을 찾고, **`ipzitalk-remote` 플러그인의 `ipzitalk` 서버 provenance**가 확인되는 도구만 우선 사용한다. Codex에서는 실제 호출 이벤트의 `server: ipzitalk`과 기본 도구명을 기준으로 확인한다.
 - `presale-mcp` 또는 다른 로컬 MCP provenance의 동명 도구는 Remote Skill의 대체 수단으로 사용하지 않는다. provenance를 확인할 수 없거나 같은 기본 도구명이 여러 서버에 있어 모호하면 임의 선택하지 말고 중단하여 필요한 Remote 도구명을 안내한다.
 - 클라이언트가 provenance를 구조적으로 제공하지 않을 때만 다음 명시적 fallback을 순서대로 확인한다: `mcp__plugin_ipzitalk-remote_ipzitalk__<도구명>`, `mcp__ipzitalk_mcp__<도구명>`, `mcp__ipzitalk__<도구명>`, `mcp__claude_ai_ipzitalk__<도구명>`. fallback으로도 Remote 출처가 유일하지 않으면 중단한다.
 - 🚨 **이름이 비슷한 다른 MCP 서버의 도구로 대체하지 않는다**(예: 다른 부동산/지도 커넥터의 유사 도구). 출처가 달라지면 값의 근거가 무너진다.
 - 🚨 **입지톡 MCP가 연결돼 있지 않으면 즉시 중단**하고 연결을 요청한다. 웹 검색·모델 지식·추정값으로 대체해서 보고서를 만들지 않는다. 값 창작 금지가 이 스킬의 1원칙이다.
-- 모든 성공·오류 호출은 계정별 한국시간 기준 하루 500회에 포함되며 크레딧은 차감하지 않는다. `DAILY_TOOL_LIMIT_EXCEEDED`가 반환되면 재시도하지 않고 `내일 다시 사용 가능합니다.`라고 안내한다.
 
 ## 입력
 | 파라미터 | 필수 | 기본 | 설명 |
@@ -42,10 +33,10 @@ metadata:
 | `address` 또는 `complex_query` | ✅(택1) | - | 주소 또는 단지명 |
 | `radius_m` | ✕ | 1500 | **근린 축 검색·사용자 표시·통합 지도 원의 공통 반경.** 최대 5,000m. 광역 축(철도·터미널·대학)에는 미적용 |
 
-> 후보 다수면 자동 확정 말고 선택받는다. ⚠️ 3개 분야 종합 = 검색 다수 → 일일 호출량·시간 소요 큼.
+> 후보 다수면 자동 확정 말고 선택받는다. ⚠️ 3개 분야 종합 = 검색 다수 → 크레딧·시간 소요 큼.
 
 ## 조립 방식 (방법1 · 복사본)
-외부 스킬을 호출하지 않고 **이 스킬 폴더 안 `references/`를 읽어** 각 단계를 이 실행 안에서 수행한다.
+스킬 간 호출은 불가하다. 하위 스킬을 부르지 않고, **스킬 폴더 안 `references/`의 복사본을 읽어** 각 단계를 이 실행 안에서 수행한다.
 
 ```
 references/transit-workflow.md      교통 환경
@@ -56,9 +47,8 @@ references/education-workflow.md    교육 환경
 
 ## 워크플로우
 1. **논리적 center 해소 1회** — 입력 유형별로 아래 하나의 체인만 실행해 표준번들(좌표·region_code·bjd)을 확정한다. 후보 다수 → 선택.
-   - 단지명(`complex_query`)은 `get_complex_info_by_query`를 먼저 1회 호출한다. 상세정보는 center 확정에 필요하지 않으므로 다른 단지정보 도구를 호출하지 않는다. 좌표가 없으면 그 응답의 **공식 도로명 또는 지번 주소로 `get_geocode`를 한 번만** 호출한다. 단지 해소가 성공한 뒤 `get_address`를 호출하거나 모델하우스 검색을 반복하는 것은 금지한다.
-   - `PRESALE_ROUTING_REQUIRED`이면 K-apt 기본정보가 확인된 것으로 취급하지 않는다. 응답의 `metadata.presale_routing_hint`에 좌표가 있으면 그 좌표만 center로 사용하고, 주소만 있으면 해당 주소로 `get_geocode`를 한 번 호출한다. 힌트가 불완전하면 재입력을 요청한다. 이 입지 보고서에서는 분양공고를 추가 조회하지 않는다.
-   - 주소 입력은 `get_geocode`를 1회 사용한다. 좌표가 확인되면 보강용 `get_geocode`는 호출하지 않고 없는 보조 필드는 `null`로 둔다.
+   - 단지명(`complex_query`)은 `get_complex_info(detail=true)`를 먼저 1회 호출한다. 좌표가 없으면 그 응답의 **공식 도로명 또는 지번 주소로 `get_geocode`를 한 번만** 호출한다. 단지 해소가 성공한 뒤 `get_address`를 호출하거나 모델하우스 검색을 반복하는 것은 금지한다.
+   - 주소 입력은 `resolve-site` 규약의 주소 resolver를 1회 사용한다. 좌표를 반환하면 보강용 `get_geocode`를 호출하지 않고 없는 보조 필드는 `null`로 둔다.
    - **3분야가 확정된 center를 공유하며 이후 재해소하지 않는다.** 허용된 단지 체인은 MCP 2콜이어도 논리적 center 확정은 1회다.
 2. **교통 환경** — `references/transit-workflow.md`를 읽어 검색·밴드·등급 단계를 center로 실행.
 3. **생활 환경** — `references/living-workflow.md`를 읽어 실행.
@@ -67,12 +57,11 @@ references/education-workflow.md    교육 환경
 6. **조립·출력** — 채팅 요약 + `result.json` 및 호출 ledger `out/ipzitalk-location-report/audit.json` 저장 → **출력 형식(html/pptx/docx) 1개 필수 선택** 후 렌더. 아래 **출력 포맷** 참조. 모든 정본 산출물과 과정 문서는 `out/ipzitalk-location-report/` 안에만 저장하고 작업 루트에 중복 파일을 만들지 않는다.
 
 ### 호출 ledger·검색 사실 계약 🚨
-- 검색·지도 고정분은 교통 3회 + 생활 7회 + 교육 5회 + 지도 1회인 **16회**다. 여기에 실제 center 해소 호출 수, 전량 개수가 판정에 필요한 keyword 추가 페이지, reference의 0건 fallback을 더한다. 주소 resolver가 1콜이면 기본 17회, 단지 공식주소 geocode 체인이 2콜이면 기본 18회다. 모든 호출은 성공·오류와 관계없이 일일 500회 한도에 포함된다.
-- 카테고리 완료성은 `pagination_by_category.source_cap_reached`, keyword 완료성은 `pagination.has_more`로 판단한다. 최근접·대표 목록은 첫 페이지에서 끝내고, 학원 700m 개수처럼 전체 건수가 등급에 직접 쓰이는 축만 `next_offset`을 끝까지 따른다.
-- 각 MCP 호출 직후 **최초 반환을 바로 `out/ipzitalk-location-report/audit.json`에** `skillBaseDirectory`, `axis`, `baseToolName`, `query` 또는 `category`, `radius_m`, `resultCount`, `truncated`, `provenance`, `pageSequence`, `paginationType`, `returnedCount`, `totalCount`, `hasMore`, `nextTokenUsed`와 함께 한 행씩 누적한다. 최상위에는 `dailyToolLimit:500`, `skillCallCount`, `pageCallCount`, `quotaError`를 둔다. 조건부 재호출은 `reason`도 기록하고, 파일 도구·실행 환경은 `shellUsed`, `webUsed`, `generatedFiles`로 별도 기록한다. 서버가 현재 누적량을 반환하지 않으므로 당일 계정 전체 사용량은 추정하지 않는다.
+- 검색·지도 고정분은 교통 3회 + 생활 7회 + 교육 5회 + 지도 1회인 **16회**다. 여기에 실제 center 해소 호출 수를 더한다. 주소 resolver가 1콜이면 기본 경로는 총 17회, 단지 공식주소 geocode 체인이 2콜이면 총 18회다. reference의 0건 fallback만 그 밖의 조건부 추가 호출이며 `reason` allowlist로 구분한다.
+- 각 MCP 호출 직후 **최초 반환을 바로 `out/ipzitalk-location-report/audit.json`에** `skillBaseDirectory`, `axis`, `baseToolName`, `query` 또는 `category`, `radius_m`, `resultCount`, `truncated`, `provenance`와 함께 한 행씩 누적한다. 조건부 재호출은 `reason`도 기록하고, 파일 도구·실행 환경은 `shellUsed`, `webUsed`, `generatedFiles`로 별도 기록한다.
 - 최종 도구별 횟수와 총합은 `audit.json` 행에서 자동 집계한다. 중간 자연어 메모를 더해 수기로 합계를 만들지 않는다.
 - **감사 누락 복구·보완을 위한 MCP 재호출은 금지**한다. 병렬 출력 표시 누락이나 ledger 기록 실패가 생기면 기존 최초 반환으로 복구하고, 불가능하면 `auditIncomplete:true`로 남긴 뒤 재조회하지 않는다.
-- `audit.json`의 총 호출 수를 `16 + center 해소 호출 수 + keyword 추가 페이지 수 + 허용된 0건 fallback 수`와 비교한다. center 체인은 `complex_info_by_query`·`official_address_geocode`처럼 각 단계와 사유를 기록하고, 그 밖의 초과 행에 allowlist `reason`이 없으면 완료 처리하지 않는다.
+- `audit.json`의 총 호출 수를 `16 + center 해소 호출 수 + 허용된 0건 fallback 수`와 비교한다. center 체인은 `complex_info`·`official_address_geocode`처럼 각 단계와 사유를 기록하고, 그 밖의 초과 행에 allowlist `reason`이 없으면 완료 처리하지 않는다.
 - `radius_m`은 근린 검색·통합 지도 원·지도 캡션에서 같은 의미와 값을 사용한다. 광역 축은 `radius_m: null`로 ledger에 구분한다.
 - 구청은 검색하지 않는다. 검색 신뢰도 한계로 평가 제외라고만 쓰며, 호출하지 않은 구청을 `0건`으로 표현하지 않는다.
 - 최근접 시설은 운영상태 제외 전 후보, 제외 후 후보, 최종 선택 사유를 `audit.json`의 `selection`에 남긴다. 고정 fixture는 값 자체가 아니라 center·검색 인자·필터·정렬의 재현성을 검증한다.
@@ -158,7 +147,7 @@ references/education-workflow.md    교육 환경
 ### HTML 산출물 계약 🚨
 - `result.json`·`audit.json`은 모든 렌더러가 공유하는 내부 계약용 고정 이름으로 유지한다. 사용자 전달 HTML·PPTX·DOCX만 같은 `<대상>_입지보고서` basename을 쓴다.
 - `<대상>`은 resolver가 확정한 공식 단지명이다. 주소 입력에서 공식 단지명이 없으면 정규화 주소를 사용하며, 둘 다 없으면 이름을 지어내지 말고 `ipzitalk-location-report`로 폴백한다.
-- HTML은 `out/ipzitalk-location-report/<대상>_입지보고서.html`에 저장한다. 셸 사용이 허용된 환경에서는 스킬에 포함된 `scripts/html_artifact_contract.mjs` 검증기를 `--file-name "<대상>_입지보고서"`와 함께 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 `result.json`, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
+- HTML은 `out/ipzitalk-location-report/<대상>_입지보고서.html`에 저장한다. 셸 사용이 허용된 환경에서는 스킬 기준 `../../scripts/html_artifact_contract.mjs` 검증기를 `--file-name "<대상>_입지보고서"`와 함께 사용한다. `--skill-dir`에는 이 스킬의 base directory, `--data`에는 `result.json`, `--output-root`에는 작업공간의 `out` 디렉터리를 전달한다.
 - `shell-free` 또는 셸 금지 환경에서는 File Read/Write로 `templates/result.html`을 직접 읽고 `ipzi-data` JSON 블록만 교체한다. 교체 전후의 fixed template region(고정 영역: 데이터 블록 앞 prefix와 뒤 suffix)이 원본과 같은지 비교한다.
 - 사용자가 완료 뒤 다른 형식을 추가 요청하면 같은 basename으로 렌더하고 MCP는 재호출하지 않는다. `audit.json.generatedFiles`에는 실제 최종 파일명과 경로를 추가하고 과정 문서도 갱신한다.
 - 검증기가 통과하기 전에는 완료로 주장하지 않는다. File Read/Write나 고정 영역 비교를 수행할 수 없거나 금지된 도구를 사용했다면 완료 처리하지 말고 제약과 실제 사용 도구를 보고한다.
@@ -168,6 +157,7 @@ PPTX·DOCX에는 iframe을 넣을 수 없으므로 **지도 이미지 파일**�
 
 - 지도 이미지를 이미 로컬에 갖고 있으면 3번째 인자로 넘긴다: `build_pptx.py result.json out.pptx map.png`
 - Chrome이 없거나 캡처가 실패하면 **지도 없이 렌더하고 경고만 남긴다.** 리포트는 멈추지 않는다.
+- `get_static_map` 도구는 이미지를 대화창에만 반환하고 파일로 저장되지 않는다. **산출물 렌더링에 쓰지 않는다.**
 - 지도 링크는 발급 후 7일 만료다. 만료 뒤에는 캡처도 빈 화면이 되므로 재발급이 필요하다.
 
 - HTML 리포트 구성: 상단 pill(트리플 역세권 등) → 종합 지도 히어로 → 종합 요약 + 축 카드 3개 → 교통/생활/교육 3섹션(밴드 + 근거 표) → 수기 편집 영역 → 출처·hedge·베타고지 푸터.
@@ -179,20 +169,19 @@ PPTX·DOCX에는 iframe을 넣을 수 없으므로 **지도 이미지 파일**�
 
 ## 필수 단서 · 금지 표현
 - 필수: **하위 3분야의 hedge를 전부 승계**한다 — 직선거리 기준 · 배정/학군 미확인(타 자치구 배정주의 + 학구도 링크) · 학원 개수는 계열 무관 총계 · 45건 캡으로 목록 불완전 가능 · 구청 0건은 검색 한계이지 부재 아님 · 출처·조회일.
-- 금지: **점수·총점 산출** · "입지 우수 확정" 등 우열 단정 · 개통예정 호재 자동 반영(수기 편집 영역).
+- 금지: **점수·총점 산출**(입지 평가 스킬의 몫) · "입지 우수 확정" 등 우열 단정 · 개통예정 호재 자동 반영(수기 편집 영역).
 
 ## 엣지 · 실패 처리
 | 상황 | 처리 |
 |---|---|
-| 지오코딩 실패 / 일반 `NOT_FOUND` | 재입력 요청 |
-| `PRESALE_ROUTING_REQUIRED` | 검증된 위치 힌트만 center로 사용하고 K-apt 기본정보 확정 표현 금지. 힌트 부족 시 재입력 요청 |
+| 지오코딩 실패 / `NOT_FOUND` | 재입력 요청 |
 | 후보 다수 / `AMBIGUOUS` | 후보(지역 포함) 나열 후 선택 |
 | 특정 분야 전 축 0건 | 해당 섹션 "없음/원거리" 명시. 나머지 분야는 정상 렌더 |
-| 카테고리 `source_cap_reached=true` 또는 전량 필요 keyword 페이지 미완료 | "목록 불완전" 경고 표기. 최근접만 쓴 축은 전수 표현 금지 |
+| `metadata.truncated` = true | "목록 불완전" 경고 표기(등급은 유지 — 최근접은 정확) |
 | 지하철 0건 | 교통 등급을 철도·터미널로 대체 판정(transit-workflow 참조) |
 
 ## 검증된 사항 (방배롯데캐슬아르떼 · 서울 서초구 방배동 424-28 · 조회 2026-07-09)
-A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규 POI 호출 0건, 지도 1콜.
+A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규 POI 호출 0건, 지도 1콜(1크레딧).
 
 | 축 | 등급 | 근거 |
 |---|---|---|
@@ -212,8 +201,11 @@ A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규
 | 블록 | 출처 표기 |
 |---|---|
 | 단지 개요·세대수·준공·주차·연차 | `공동주택관리정보시스템(K-apt)` |
+| 매매·전세·평당가·거래량 | `국토교통부 실거래가` |
 | 학교·교통·생활·상권 등 장소 | `카카오맵` |
+| 분양공고·분양가·주택형·입주월 | `청약홈` |
 | 지도 (장소 마커) | `네이버 지도 · 카카오맵` |
+| 지도 (분양공고 마커) | `네이버 지도 · 청약홈` |
 
 - 🚨 **출처 문자열은 `ipzi-data`로 받지 않고 템플릿 마크업에 직접 박는다.**
   어느 블록이 어디서 왔는지는 실행마다 달라지지 않는다. 데이터로 받으면 채우는 걸 잊거나 틀리게 쓸 여지만 생긴다.
@@ -250,24 +242,13 @@ A그룹 단독 스킬 3종의 검증값을 **재사용**해 조립했다. 신규
 - `evidence`에는 이번 실행에서 확보한 필드·수치·비교 결과만 쓴다. 예시·검증값·모델 지식으로 빈 값을 채우지 않는다.
 - 새 데이터나 없는 수치를 창작하지 않는다.
 - `cautions`는 실제로 확인된 데이터 누락·표본 한계·시점 차이·방법상 제약만 쓴다. 본문 경고를 약화하거나 새 위험을 지어내지 않는다.
-- `nextActions`는 실제 발견사항·누락·사용자 목적에서 이어지는 검토 행동만 자연어로 제안한다. 보관된 스킬이나 지원하지 않는 가격·거래 분석을 권하지 않는다.
+- `nextActions`는 실제 발견사항·누락·사용자 목적에서 이어지는 검토 행동만 제안한다. URL이나 원시 Skill ID 대신 한글 Skill 이름과 자연어 질의 예시를 쓰며, 거래 후속 분석은 `실거래 추이` 또는 `최근 실거래가 추이`로 표현한다. `실거래가·시세 추이`처럼 서로 다른 범위를 섞지 않는다.
 - 템플릿은 배열 상한을 잘라내고 빈 단계는 숨긴다. `goal:null`이면 `goal-box` 전체를 숨긴다.
 
 
-## 지도 URL 보존 규칙
-
-`get_map_embed_url`이 반환한 URL 전체를 `mapUrl` 또는 `map.url`에 그대로 저장한다. scheme·host·path·query·지도 ID를 다른 환경 값으로 바꾸지 않는다.
-
 ## 변경 이력
-- **1.4.3 (2026-09-23)** Claude·Codex 직접 호출 표기, 대화 내 스킬 지목 실행 지시의 직접 호출 인정, 표준 metadata, 자체 포함 HTML 렌더러 계약을 반영.
-- **1.4.2 (2026-09-23)** PR #175의 K-apt 전용 단지정보 경계와 예정 단지 위치 힌트 처리를 반영.
-- **1.4.1 (2026-09-23)** PR #175의 무크레딧·한국시간 일일 500회 호출 정책과 대표 도메인을 반영.
-- **1.4.0 (2026-09-23)** 활성 3종·8개 도구 체계에 맞춰 보관 스킬 연결과 지원하지 않는 도구·출처 문구 제거.
-- **1.3.8 (2026-09-18)** 지도 URL 원문 보존과 운영·기존·QA exact origin 허용 계약 반영.
 | 버전 | 날짜 | 내용 |
 |---|---|---|
-| 1.3.7 | 2026-09-17 | 보고서·리포트·HTML의 명시적 생성 요청 또는 직접 스킬 지정에만 실행하는 활성화 게이트 추가 |
-| 1.3.6 | 2026-09-17 | center 해소를 P1 정식 도구로 이전하고 category 완료성·keyword 선택적 pagination·무료 호출 수·예상 비용 감사 계약 반영 |
 | 1.3.5 | 2026-07-15 | 단지 공식주소 기반 2콜 center 해소 체인과 동적 호출 예산을 허용하고 불필요한 주소 재검색·산출물 분산·시세 혼용 문구를 금지 |
 | 1.3.4 | 2026-07-15 | 교통·생활·교육·광역 축의 숫자 헤더와 거리 셀 정렬을 통일하고 HTML/PPTX/DOCX를 대상 기반 `<대상>_입지보고서` 이름으로 동적화 |
 | 1.3.3 | 2026-07-15 | 팝업 지원 환경의 4개 목적 프리셋+직접 입력과 텍스트 대체 질문을 함께 지원하는 하이브리드 목적 입력 계약 추가 |

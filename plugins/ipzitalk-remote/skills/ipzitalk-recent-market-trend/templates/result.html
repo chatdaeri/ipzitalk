@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>최근 시장동향</title>
+<style>
+  :root{
+    --bg:#e9ebf0; --card:#ffffff; --ink:#14181e; --sub:#5c6673; --sub2:#8a94a2;
+    --line:#e7eaef; --line2:#f1f3f7; --chip:#f3f5f9; --zebra:#fafbfc;
+    --g:#12a150; --g-s:#e7f6ec; --y:#e0a107; --y-s:#fbf3dd; --o:#e56f1f; --o-s:#fbeee2;
+    --r:#e5484d; --r-s:#fbeaeb; --x:#9aa4b2; --x-s:#eef1f5;
+    --up:#e5484d; --up-s:#fbeaeb; --down:#2f6bff; --down-s:#e8f0ff;
+    --brand:#2f6bff; --brand-s:#e8f0ff;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 14px 36px -16px rgba(16,24,40,.22);
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0c0f14; --card:#161b22; --ink:#e8ecf2; --sub:#9aa4b2; --sub2:#6b7684;
+      --line:#2a313d; --line2:#1b212a; --chip:#1e242e; --zebra:#181d25;
+      --g:#38cf7a; --g-s:#0f2a1d; --y:#e8b53f; --y-s:#2b2410; --o:#f0813e; --o-s:#2c1d12;
+      --r:#f05a5f; --r-s:#301619; --x:#8b95a3; --x-s:#212832;
+      --up:#f05a5f; --up-s:#301619; --down:#5b8bff; --down-s:#17233d; --brand:#5b8bff; --brand-s:#17233d;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 20px 46px -18px rgba(0,0,0,.75); }
+  }
+  :root[data-theme="light"]{ --bg:#e9ebf0; --card:#fff; --ink:#14181e; --sub:#5c6673; --line:#e7eaef; --zebra:#fafbfc; --g:#12a150; --y:#e0a107; --o:#e56f1f; --r:#e5484d; --x:#9aa4b2; --up:#e5484d; --down:#2f6bff; --brand:#2f6bff; }
+  :root[data-theme="dark"]{ --bg:#0c0f14; --card:#161b22; --ink:#e8ecf2; --sub:#9aa4b2; --line:#2a313d; --zebra:#181d25; --g:#38cf7a; --y:#e8b53f; --o:#f0813e; --r:#f05a5f; --x:#8b95a3; --up:#f05a5f; --down:#5b8bff; --brand:#5b8bff; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;padding:20px 14px;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+  .ic{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none}
+  .topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:24px 24px 20px;border-bottom:1px solid var(--line)}
+  .ttl{display:flex;flex-direction:column;font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .ttl .row{display:flex;align-items:center;gap:10px}
+  .eyebrow{font:700 12px/1 var(--mono);color:var(--brand);letter-spacing:.04em;margin-bottom:10px}
+  .ttl .sub{font-size:14px;color:var(--sub);font-weight:500;letter-spacing:0;margin-top:6px}
+  .pill{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:13px;background:var(--bg)}
+  .panel{padding:20px 22px 26px}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px}
+  .rc{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--bg)}
+  .rc .name{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap}
+  .rc .row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:12.5px}
+  .rc .row .k{color:var(--sub)}
+  .rc .row .v{font-family:var(--mono);font-weight:700;font-variant-numeric:tabular-nums}
+  .rc .row .v.na{color:var(--sub2)}
+  .delta{font-family:var(--mono);font-weight:800;font-size:12px;padding:1px 6px;border-radius:6px;margin-left:6px}
+  .delta.up{color:var(--up);background:var(--up-s)}
+  .delta.down{color:var(--down);background:var(--down-s)}
+  .delta.flat{color:var(--sub);background:var(--chip)}
+  .delta.na{color:var(--sub2);background:var(--chip)}
+  .flag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--o-s);color:var(--o)}
+
+  .chartbox{border:1px solid var(--line);border-radius:14px;padding:14px 12px 6px;margin-bottom:8px;overflow-x:auto}
+  /* 직계 자식만. `.chartbox svg` 로 두면 <h2> 안의 <svg class="ic"> 아이콘까지 잡혀
+     min-width:600px 가 걸린다(.ic 보다 특이도가 높다). */
+  .chartbox > svg{display:block;min-width:600px;width:100%;height:auto}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--sub);padding:4px 4px 2px}
+  .legend i{display:inline-block;width:14px;height:10px;border-radius:2px;vertical-align:middle;margin-right:6px}
+  .cap{font-size:11.5px;color:var(--sub);margin:6px 0 20px}
+  .src{font-size:10.5px;color:var(--sub2);margin:6px 0 0;text-align:right;letter-spacing:-.01em}
+  .empty{font-size:12.5px;color:var(--sub2);padding:20px 10px;border:1.5px dashed var(--line);border-radius:12px;text-align:center;margin-bottom:20px}
+
+  .callout{border:1px solid var(--line);border-left:3px solid var(--o);border-radius:12px;padding:13px 16px;margin:0 0 20px;background:var(--o-s)}
+  .callout h3{margin:0 0 6px;font-size:12.5px;color:var(--o);display:flex;align-items:center;gap:7px}
+  .callout p{margin:0;font-size:12.5px;color:var(--ink);line-height:1.65}
+
+  h2{font-size:15px;margin:22px 0 8px;display:flex;align-items:center;gap:8px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{font-size:11.5px;color:var(--sub);font-weight:600}
+  th.n,td.n{font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap;text-align:right}
+  td.na{color:var(--sub2)}
+  tbody tr:nth-child(even){background:var(--zebra)}
+  .foot{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--sub);line-height:1.75}
+  .foot b{color:var(--ink)}
+  .foot .row{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+
+  /* 목적 맞춤 요약 — 내러티브 레일(자기완결). goal 이 null 이면 통째 숨김. 빈 섹션은 렌더가 단계째 뺀다. */
+  .goal{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin:18px 22px 22px;padding:20px 22px 10px}
+  .goal .gh{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
+  .goal .gh>svg{width:18px;height:18px;flex:0 0 auto;color:var(--brand)}
+  .goal .purpose{display:inline-flex;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:12px;margin:11px 0 4px}
+  .goal .purpose .k{color:var(--sub2);font-weight:700}
+  .goal .purpose .v{color:var(--ink);font-weight:600}
+  .goal .rail{position:relative;padding:16px 0 8px}
+  .goal .rail .line{position:absolute;left:17px;top:30px;bottom:38px;width:2px;background:var(--line)}
+  .goal .step{position:relative;display:flex;gap:16px;padding-bottom:22px}
+  .goal .step:last-child{padding-bottom:8px}
+  .goal .node{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 4px var(--card)}
+  .goal .node svg{width:18px;height:18px}
+  .goal .node.solid{background:var(--brand);color:#fff}
+  .goal .node.chip{background:var(--chip);border:1px solid var(--line);color:var(--sub)}
+  .goal .node.tint-o{background:var(--o-s);border:1px solid var(--line);color:var(--o)}
+  .goal .node.solid-g{background:var(--g);color:#fff}
+  .goal .gbody{flex:1 1 0;min-width:0;padding-top:2px}
+  .goal .gbody .h{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .goal .gbody .h .lbl{font-size:13px;font-weight:800}
+  .goal .gbody .h .hint{font-size:10.5px;font-weight:700;color:var(--sub2)}
+  .goal .lbl.c{color:var(--brand)} .goal .lbl.e{color:var(--sub)} .goal .lbl.w{color:var(--o)} .goal .lbl.a{color:var(--g)}
+  .goal .items{display:flex;flex-direction:column;gap:9px}
+  .goal .it-concl{font-size:13px;line-height:1.6;color:var(--ink);border-left:2px solid var(--brand-s);padding-left:12px}
+  .goal .it-bullet{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
+  .goal .it-bullet .dot{width:5px;height:5px;border-radius:50%;background:var(--sub2);flex:0 0 auto;margin-top:7px}
+  .goal .it-warn{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
+  .goal .it-warn svg{width:13px;height:13px;color:var(--o);flex:0 0 auto;margin-top:4px}
+  .goal .it-action{display:flex;gap:9px;align-items:flex-start;background:var(--g-s);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12.5px;line-height:1.55;color:var(--ink)}
+  .goal .it-action svg{width:14px;height:14px;color:var(--g);flex:0 0 auto;margin-top:3px}
+</style>
+</head>
+<body>
+<!--
+  아이콘 스프라이트 — 인라인이어야 한다. <use href="#i-…"> 는 같은 문서 안의 <symbol> 만 찾는다.
+  산출물은 사용자가 혼자 여는 단일 HTML이라 옆에 sprite.svg 를 둬도, CDN 도 따라가지 않는다.
+
+  [주의] 심볼을 임의로 지우지 말 것. 마크업이 직접 참조하지 않고 ipzi-data 렌더 JS의
+  아이콘 문자열로만 참조되는 심볼이 있어, "안 쓰는 심볼"로 보고 지우면 아이콘이 조용히 사라진다.
+  아래 ICONS 배열과 이 블록은 항상 같이 고친다.
+-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-market2" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 16v-3M12 16v-6M16 16v-4"></path></g></symbol>
+<symbol id="i-volume" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h17"></path><path d="M6 20v-8M11 20V6M16 20v-6M21 20V9" stroke-width="1.9"></path></g></symbol>
+<symbol id="i-won" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l3 8 3-8 2.5 8L16 8"></path><path d="M18.5 8v8"></path><path d="M3 12h18"></path></g></symbol>
+<symbol id="i-db" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"></ellipse><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"></path><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"></path></g></symbol>
+<symbol id="i-sample" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="8" r="2.2"></circle><circle cx="14" cy="6" r="2.2"></circle><circle cx="10" cy="15" r="2.2"></circle><circle cx="17" cy="14" r="2.2"></circle></g></symbol>
+<symbol id="i-calendar2" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"></rect><path d="M3.5 10h17"></path><path d="M8 3v3.5"></path><path d="M16 3v3.5"></path></g></symbol>
+<symbol id="i-source" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h9l5 5V19a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19z"></path><path d="M14 4.5V10h5"></path></g></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.6"></path></g></symbol>
+<symbol id="i-truncated" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h9"></path><path d="M17 15.5l2 1.5-2 1.5"></path></g></symbol>
+</svg>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="ttl">
+      <span class="eyebrow" id="h-brand">IPZI TALK</span>
+      <span class="row">
+        <svg class="ic" style="color:var(--brand)"><use href="#i-market2"/></svg>
+        <span id="h-title">–</span>
+      </span>
+      <span class="sub" id="h-sub"></span>
+    </div>
+    <span class="pill" id="h-collected" style="display:none">
+      <svg class="ic" style="color:var(--sub)"><use href="#i-calendar2"/></svg> <span id="h-collected-text"></span>
+    </span>
+  </div>
+
+  <!-- 목적 맞춤 요약 (내러티브 레일) — 자기완결 아이콘 스프라이트 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-target" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="4"></circle><circle cx="12" cy="12" r=".7" fill="currentColor" stroke="none"></circle></g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"></path></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4m0 4h.01"></path></symbol>
+  <symbol id="i-evidence" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"></path></symbol>
+  </svg>
+  <div class="goal" id="goal-box" style="display:none">
+    <div class="gh"><svg><use href="#i-target"/></svg> <span>목적 맞춤 요약</span></div>
+    <div class="purpose" id="goal-purpose" style="display:none"><span class="k">분석 목적</span> <span class="v" id="goal-purpose-v"></span></div>
+    <div class="rail" id="goal-rail"></div>
+  </div>
+  <div class="panel">
+    <div class="cards" id="cards"></div>
+    <p class="src">국토교통부 실거래가</p>
+
+    <div id="chart-wrap"></div>
+    <p class="cap" id="chart-cap" style="display:none">월별 매매 거래 건수 · 요약값은 <b>전체 거래</b> 기준으로 계산되므로 목록 개수 제한과 무관하게 정확하다</p>
+    <p class="src">국토교통부 실거래가</p>
+
+
+    <div id="detail-box" style="display:none">
+      <h2><svg class="ic" style="color:var(--sub)"><use href="#i-won"/></svg> 상세</h2>
+      <table><thead id="detail-head"></thead><tbody id="detail-body"></tbody></table>
+      <p class="cap">금액 단위 만원 · 평당가는 전용면적 기준 · 표본은 각 시군구 해당 월 매매 전량</p>
+      <p class="src">국토교통부 실거래가</p>
+    </div>
+
+    <div class="foot">
+      <div class="row" id="foot-sources" style="display:none">
+        <svg class="ic"><use href="#i-source"/></svg> <span id="foot-sources-text"></span>
+      </div>
+      <div class="row"><svg class="ic"><use href="#i-db"/></svg> <b>원천</b> 국토교통부 실거래가</div>
+      <div class="row"><svg class="ic"><use href="#i-truncated"/></svg> <b>목록 제한</b> 개별 거래 목록은 일부만 받아오지만 <b>중위값·거래량은 전체 거래 기준</b>이라 정확하다. 단지별 분해는 불가능하다.</div>
+      <div id="foot-hedges"></div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="ipzi-data">{}</script>
+<script>
+/* ────────────────────────────────────────────────────────────────
+   이 템플릿은 고정이다. 마크업·CSS·렌더 JS는 실행마다 바뀌지 않는다.
+   수정하는 곳은 위 ipzi-data JSON 블록 하나뿐이다.
+
+   규칙 (SKILL.md 승계)
+   - 등급(★)을 매기지 않는다. 변동률과 표본만 싣는다. 지역 우열 단정 금지.
+   - 상승은 --up(빨강) · 하락은 --down(파랑) — 국내 관행. 0은 --x(중립).
+   - deltaPct 가 null 이면 "정보없음". 절대 0으로 채우지 않는다.
+   - 중위 평당가와 중위 거래가가 반대 방향이면 "구성 변화 가능성" 꼬리표를 붙인다.
+   - regions 가 비면 차트를 그리지 않고 "데이터 없음" 안내만 낸다.
+   ──────────────────────────────────────────────────────────────── */
+const templateDataShape = {
+  goal: null, // 목적 맞춤 요약(내러티브 레일) — null=숨김. {purpose, conclusions[3~5], evidence[1~3], cautions[0~2], nextActions[1~3]}. 빈 섹션은 단계째 숨김.
+  brand: "IPZI TALK",
+  title: "",                 // "최근 시장동향"
+  subtitle: "",              // "매매 실거래 · 기준월 vs 비교월"
+  baseMonth: "",             // "YYYY.MM"  — 기준월(최신 확정월). 없으면 ""
+  compareMonth: "",          // "YYYY.MM"  — 비교월(직전월). 없으면 ""
+
+  regions: [],               // [{
+                             //   name:"",
+                             //   volume:     {base:null, compare:null, deltaPct:null},   // 거래량(건)
+                             //   pyeongPrice:{base:null, compare:null, deltaPct:null},   // 중위 평당가(만원)
+                             //   price:      {base:null, compare:null, deltaPct:null},   // 중위 거래가(만원)
+                             //   sample:     {base:null, compare:null}                   // 표본(거래량)
+                             // }]
+                             // deltaPct: null = 정보없음(0 아님). base/compare 는 원시 수치.
+
+  table: { columns: [], rows: [] },  // 상세 표. 첫 열은 지역 문자열, 이후 열은 {n:"우측정렬 숫자"} 또는 null(정보없음)
+
+  hedges: [],                // ["구성 미보정 참고 신호이며 시세 감정이 아니다", "최근 2개월은 신고 지연으로 제외했다"]
+  sources: [],               // ["국토교통부 실거래가"]
+  collectedAt: ""            // "YYYY-MM-DD"
+};
+
+(function(){
+  var D = JSON.parse(document.getElementById("ipzi-data").textContent);
+  var NA = "정보없음";
+  /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
+     일반 링크는 https만 허용하고, 지도 iframe은 Ipzi Talk 정식 /map?d=<id> URL만 허용한다. */
+  function safeHttpsUrl(value){
+    try {
+      var url = new URL(String(value == null ? "" : value));
+      if(url.protocol !== "https:") return null;
+      return url.href;
+    } catch (_) { return null; }
+  }
+
+  function esc(v){
+    return String(v).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  /* 스프라이트에 실재하는 심볼만 허용한다. 없는 id 를 <use> 로 가리키면 브라우저는
+     에러 없이 빈 자리를 그린다 — 오타가 조용히 통과하지 않도록 여기서 막는다.
+     심볼을 추가/삭제하면 위 <svg> 블록과 이 배열을 함께 고칠 것. */
+  var ICONS = ["i-market2","i-volume","i-won","i-db","i-sample",
+               "i-calendar2","i-source","i-info","i-truncated"];
+  function icon(id, tone){
+    if(!id) return "";
+    if(ICONS.indexOf(id) === -1){
+      console.warn('[result.html] 스프라이트에 없는 아이콘 id: "' + id + '" — 아이콘을 생략합니다.');
+      return "";
+    }
+    var color = tone ? ' style="color:var(--' + esc(tone) + ')"' : "";
+    return '<svg class="ic"' + color + '><use href="#' + esc(id) + '"/></svg>';
+  }
+  /* 천단위 콤마. null/빈값은 그대로 넘겨 상위에서 "정보없음" 처리. */
+  function fmt(v){
+    if(v === null || v === undefined || v === "") return null;
+    var num = Number(v);
+    if(!isFinite(num)) return esc(v);
+    return num.toLocaleString("en-US");
+  }
+  /* 결측은 0이 아니라 "정보없음"이다. */
+  function cell(v){
+    if(v === null || v === undefined || v === "") return '<td class="na">' + NA + '</td>';
+    if(typeof v === "object" && v.n !== undefined) return '<td class="n">' + esc(v.n) + '</td>';
+    return "<td>" + esc(v) + "</td>";
+  }
+  /* 변동률 배지. null = 정보없음(0 아님) · 양수 상승(--up) · 음수 하락(--down) · 0 중립(--x). */
+  function deltaBadge(d){
+    if(d === null || d === undefined) return '<span class="delta na">' + NA + '</span>';
+    var n = Number(d);
+    var cls = n > 0 ? "up" : (n < 0 ? "down" : "flat");
+    var sign = n > 0 ? "+" : "";
+    return '<span class="delta ' + cls + '">' + esc(sign + n + "%") + '</span>';
+  }
+  function metricRow(label, metric, suffix){
+    metric = metric || {};
+    var v = fmt(metric.base);
+    var val = (v === null)
+      ? '<span class="v na">' + NA + '</span>'
+      : '<span class="v">' + esc(v + (suffix || "")) + ' ' + deltaBadge(metric.deltaPct) + '</span>';
+    return '<div class="row"><span class="k">' + esc(label) + '</span>' + val + '</div>';
+  }
+  /* 평당가·거래가 변동률이 서로 반대 방향이면 구성 변화 신호 */
+  function isComposition(r){
+    var a = r.pyeongPrice ? r.pyeongPrice.deltaPct : null;
+    var b = r.price ? r.price.deltaPct : null;
+    if(a === null || a === undefined || b === null || b === undefined) return false;
+    return (a > 0 && b < 0) || (a < 0 && b > 0);
+  }
+  function show(id){ document.getElementById(id).style.display = ""; }
+
+  /* 헤더 */
+  document.getElementById("h-brand").textContent = D.brand || "IPZI TALK";
+  document.getElementById("h-title").textContent = D.title || "–";
+  var sub = D.subtitle || "";
+  if(D.baseMonth && D.compareMonth){
+    sub = (sub ? sub + " · " : "") + D.baseMonth + " vs " + D.compareMonth + " (확정월 기준)";
+  }
+  document.getElementById("h-sub").textContent = sub;
+  if(D.collectedAt){
+    show("h-collected");
+    document.getElementById("h-collected-text").textContent = "조회 " + D.collectedAt;
+  }
+
+  var regions = D.regions || [];
+
+  /* 지역 카드 */
+  document.getElementById("cards").innerHTML = regions.map(function(r){
+    var comp = isComposition(r) ? ' <span class="flag">구성 변화 가능성</span>' : "";
+    return '<div class="rc">'
+      + '<div class="name">' + esc(r.name || "–") + comp + '</div>'
+      + metricRow("거래량", r.volume, "건")
+      + metricRow("중위 평당가", r.pyeongPrice, "")
+      + metricRow("중위 거래가", r.price, "")
+      + '</div>';
+  }).join("");
+
+  /* 거래량 막대 차트 — regions 에서 그린다. 숫자 표본이 없으면 안내만. */
+  function niceCeil(m){
+    if(m <= 0) return 1;
+    var pow = Math.pow(10, Math.floor(Math.log(m) / Math.LN10));
+    var f = m / pow;
+    var nf = f <= 1 ? 1 : f <= 1.5 ? 1.5 : f <= 2 ? 2 : f <= 3 ? 3 : f <= 5 ? 5 : f <= 7 ? 7 : 10;
+    return nf * pow;
+  }
+  function buildChart(regs){
+    var vals = [];
+    regs.forEach(function(r){
+      var v = r.volume || {};
+      if(v.base != null) vals.push(Number(v.base));
+      if(v.compare != null) vals.push(Number(v.compare));
+    });
+    if(!vals.length) return null;
+    var max = Math.max.apply(null, vals);
+    var top = niceCeil(max);
+    /* viewBox 는 600 고정(축·라벨 글자 크기를 지역 수와 무관하게 유지).
+       지역이 1~2개일 때 막대만 두꺼워지게 상한을 올린다. 예전 상한 34px 은 화면을 텅 비게 만들었다. */
+    var n = regs.length;
+    var left = 52, right = 590, y0 = 170, yTop = 20;
+    var plotW = right - left, groupW = plotW / n;
+    var barW = Math.max(10, Math.min(140, groupW * 0.30)), gap = Math.max(6, barW * 0.16);
+    function sy(v){ return y0 - (v / top) * (y0 - yTop); }
+
+    var grid = "", axis = "";
+    for(var g = 0; g <= 4; g++){
+      var frac = g / 4, yy = y0 - frac * (y0 - yTop);
+      grid += '<line x1="' + left + '" y1="' + yy.toFixed(1) + '" x2="' + right + '" y2="' + yy.toFixed(1) + '"/>';
+      axis += '<text x="46" y="' + (yy + 4).toFixed(1) + '">' + Math.round(top * frac) + '</text>';
+    }
+    var bars = "", vlab = "", nlab = "";
+    regs.forEach(function(r, i){
+      var v = r.volume || {};
+      var center = left + groupW * (i + 0.5);
+      var startX = center - (barW * 2 + gap) / 2;
+      var cx0 = startX, bx0 = startX + barW + gap;
+      if(v.compare != null){
+        var ch = y0 - sy(Number(v.compare));
+        bars += '<rect x="' + cx0.toFixed(1) + '" y="' + sy(Number(v.compare)).toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + ch.toFixed(1) + '" rx="3" fill="var(--x)"/>';
+        vlab += '<text x="' + (cx0 + barW / 2).toFixed(1) + '" y="' + (sy(Number(v.compare)) - 5).toFixed(1) + '">' + esc(fmt(v.compare)) + '</text>';
+      }
+      if(v.base != null){
+        var bh = y0 - sy(Number(v.base));
+        bars += '<rect x="' + bx0.toFixed(1) + '" y="' + sy(Number(v.base)).toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + bh.toFixed(1) + '" rx="3" fill="var(--brand)"/>';
+        vlab += '<text x="' + (bx0 + barW / 2).toFixed(1) + '" y="' + (sy(Number(v.base)) - 5).toFixed(1) + '">' + esc(fmt(v.base)) + '</text>';
+      }
+      nlab += '<text x="' + center.toFixed(1) + '" y="190">' + esc(r.name || "") + '</text>';
+    });
+
+    var svg = '<svg viewBox="0 0 600 210" role="img" aria-label="시군구별 거래량 비교">'
+      + '<g stroke="var(--line)" stroke-width="1">' + grid + '</g>'
+      + '<g fill="var(--sub2)" font-size="10" font-family="ui-monospace,monospace" text-anchor="end">' + axis + '</g>'
+      + bars
+      + '<g fill="var(--sub)" font-size="11" text-anchor="middle">' + nlab + '</g>'
+      + '<g fill="var(--ink)" font-size="10" font-family="ui-monospace,monospace" text-anchor="middle">' + vlab + '</g>'
+      + '</svg>';
+    var legend = '<div class="legend">'
+      + '<span><i style="background:var(--x)"></i>' + esc(D.compareMonth || "비교월") + '</span>'
+      + '<span><i style="background:var(--brand)"></i>' + esc(D.baseMonth || "기준월") + '</span>'
+      + '</div>';
+    return '<div class="chartbox"><h2 style="margin:2px 0 10px"><svg class="ic" style="color:var(--sub)"><use href="#i-volume"/></svg> 거래량 전월 대비</h2>' + svg + legend + '</div>';
+  }
+
+  var chartHtml = regions.length ? buildChart(regions) : null;
+  if(chartHtml){
+    document.getElementById("chart-wrap").innerHTML = chartHtml;
+    show("chart-cap");
+  } else {
+    document.getElementById("chart-wrap").innerHTML =
+      '<div class="empty">표시할 지역 거래량 데이터가 없습니다.</div>';
+  }
+
+  /* 구성 변화 신호는 (1) KPI 카드의 `구성 변화 가능성` 칩과 (2) 푸터 hedge 로만 낸다.
+     예전엔 같은 문장을 콜아웃으로 한 번 더 띄웠다 — 화면에서 세 번 반복돼 걷어냈다.
+     [주의] isComposition() 이 참인 지역이 있으면 ipzi-data.hedges에 그 사실을 반드시 한 줄 넣을 것. */
+
+  /* 상세 표 */
+  var tbl = D.table || {};
+  if((tbl.rows || []).length){
+    show("detail-box");
+    document.getElementById("detail-head").innerHTML = "<tr>"
+      + (tbl.columns || []).map(function(c, i){
+        return '<th' + (i > 0 ? ' class="n"' : '') + '>' + esc(c) + '</th>';
+      }).join("") + "</tr>";
+    document.getElementById("detail-body").innerHTML = tbl.rows.map(function(row){
+      return "<tr>" + row.map(cell).join("") + "</tr>";
+    }).join("");
+  }
+
+  /* 푸터 */
+  if((D.sources || []).length){
+    show("foot-sources");
+    document.getElementById("foot-sources-text").innerHTML = "<b>출처</b> " + esc(D.sources.join(" · "));
+  }
+  document.getElementById("foot-hedges").innerHTML = (D.hedges || []).map(function(x){
+    return "<div>· " + esc(x) + "</div>";
+  }).join("");
+})();
+
+/* 목적 맞춤 요약 — 내러티브 레일. 자기완결(자체 esc). ipzi-data JSON 의 goal 만 읽는다.
+   각 섹션은 배열 길이만큼 렌더, 빈 섹션은 레일 단계(노드)째 숨김. 상한 결론5·근거3·주의2·행동3. */
+(()=>{
+  var g = (function(){ try { return JSON.parse(document.getElementById("ipzi-data").textContent) || {}; } catch(e){ return {}; } })().goal;
+  if (!(g && (g.purpose || (g.conclusions || []).length))) return;
+  function esc(v){ return String(v).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function useIcon(id){ return '<svg><use href="#' + esc(id) + '"/></svg>'; }
+  function item(kind, text){
+    var t = esc(text);
+    if (kind === "concl")  return '<div class="it-concl">' + t + "</div>";
+    if (kind === "bullet") return '<div class="it-bullet"><span class="dot"></span><span>' + t + "</span></div>";
+    if (kind === "warn")   return '<div class="it-warn">' + useIcon("i-warn") + "<span>" + t + "</span></div>";
+    return '<div class="it-action">' + useIcon("i-arrow") + "<span>" + t + "</span></div>";
+  }
+  var box = document.getElementById("goal-box"); if (!box) return;
+  box.style.display = "";
+  if (g.purpose){
+    var p = document.getElementById("goal-purpose"); if (p) p.style.display = "";
+    var pv = document.getElementById("goal-purpose-v"); if (pv) pv.textContent = g.purpose;
+  }
+  var CATS = [
+    { arr:g.conclusions, cap:5, cls:"c", lbl:"맞춤 결론",      hint:"핵심 답",     node:"solid",   icon:"i-check",    kind:"concl"  },
+    { arr:g.evidence,    cap:3, cls:"e", lbl:"근거",          hint:"뒷받침 수치", node:"chip",    icon:"i-evidence", kind:"bullet" },
+    { arr:g.cautions,    cap:2, cls:"w", lbl:"주의사항",       hint:"확인 필요",   node:"tint-o",  icon:"i-warn",     kind:"warn"   },
+    { arr:g.nextActions, cap:3, cls:"a", lbl:"다음 행동 제안", hint:"바로 할 일",  node:"solid-g", icon:"i-arrow",    kind:"action" }
+  ];
+  var steps = CATS.map(function(c){
+    var items = (c.arr || []).filter(function(x){ return x != null && x !== ""; }).slice(0, c.cap);
+    if (!items.length) return "";
+    return '<div class="step"><span class="node ' + c.node + '">' + useIcon(c.icon) + "</span>"
+      + '<div class="gbody"><div class="h"><span class="lbl ' + c.cls + '">' + esc(c.lbl) + "</span>"
+      + '<span class="hint">' + esc(c.hint) + "</span></div>"
+      + '<div class="items">' + items.map(function(x){ return item(c.kind, x); }).join("") + "</div></div></div>";
+  }).join("");
+  var rail = document.getElementById("goal-rail"); if (rail) rail.innerHTML = '<div class="line"></div>' + steps;
+})();
+</script>
+</body>
+</html>
