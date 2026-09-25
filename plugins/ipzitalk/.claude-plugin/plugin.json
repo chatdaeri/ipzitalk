@@ -1,6 +1,6 @@
 {
   "name": "ipzitalk",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "입지톡 Remote 또는 OSS 실행 방식을 선택하고 상태 확인·전환·제거를 안내합니다.",
   "author": {
     "name": "SynergyLabs"

@@ -5,7 +5,7 @@
 **[입지톡 공식 URL](https://ipzi-talk.synergylabs.kr)에서 자세한 소개를 보실 수 있어요**
 
 ![Author](https://img.shields.io/badge/author-Synergy%20Labs-0b1f3a)
-![Skills](https://img.shields.io/badge/skills-27-brightgreen)
+![Skills](https://img.shields.io/badge/skills-3-brightgreen)
 ![MCP](https://img.shields.io/badge/MCP-Remote%20%2B%20OSS-6b4bff)
 ![Platform](https://img.shields.io/badge/platform-Claude%20Code%20%C2%B7%20Codex-6b4bff)
 
@@ -28,13 +28,13 @@
 
 ---
 
-## 무엇이 들어있나요 — MCP 1개 + 스킬 27종
+## 무엇이 들어있나요 — MCP 1개 + 스킬 3종
 
 입지톡은 두 가지가 한 세트로 움직입니다.
 
-- **MCP 서버** — 청약홈 분양공고, K-apt 단지 정보, 국토부 실거래가, 카카오/네이버 지도 같은
+- **MCP 서버** — 청약홈 분양공고, K-apt 단지 정보, 카카오/네이버 지도 같은
   **부동산 원천 데이터**를 실시간으로 조회하는 도구입니다.
-- **스킬 27종** — "지역을 넣으면 → 분양현황 리포트 완성", "아파트명만 넣으면 → 입지분석 완료" 같은 **완성된 자동화 플로우**입니다. 당신은 스킬 이름과 목적만 말하면 됩니다.
+- **스킬 3종** — 지역 분양공고, 아파트 종합정보, 세부 입지를 HTML 등의 보고서로 만드는 **완성된 자동화 플로우**입니다.
 
 > **추가 설명:**
 >
@@ -50,10 +50,10 @@ Ipzi Talk 입지톡은 **Claude Code** 안에서 동작합니다. "명령줄에�
 
 | 실행 모드         | 무엇                                                                   | 준비물                  |
 | ------------------- | ------------------------------------------------------------------------ | ------------------------- |
-| **Remote (권장)** | 입지톡 서버에 접속. 데이터·API 키 걱정 없이 27종 스킬 전체 사용.      | 카카오 회원가입         |
+| **Remote (권장)** | 입지톡 서버에 접속. 데이터·API 키 걱정 없이 3종 스킬 사용.         | 카카오 회원가입         |
 | **OSS (로컬)**    | `presale-mcp`를 내 컴퓨터에서 직접 실행. MCP 도구 10종만, 스킬은 없음. | Node.js 18+, API 키 4개 |
 
-> 빠르게 설치해서 써보고 싶다면, **Remote**를 추천드립니다. 스킬 27종도 함께 제공해드립니다. OSS는 내 컴퓨터에 직접 설치하는 버전이라 설치가 조금 까다롭습니다.
+> 빠르게 설치해서 써보고 싶다면, **Remote**를 추천드립니다. 보고서 스킬 3종도 함께 제공해드립니다. OSS는 내 컴퓨터에 직접 설치하는 버전이라 설치가 조금 까다롭습니다.
 
 ### Claude Code에서 설치
 
@@ -89,7 +89,7 @@ Claude Code CLI 채팅창에 순서대로 입력하세요:
 
 AI가 입지톡 MCP로 데이터를 조회해 바로 대답해줍니다:
 
-입지톡 MCP에 포함된 11개 도구:
+입지톡 Remote MCP의 공개 도구 10개:
 
 
 | 도구                        | 기능                                                         | 예시 프롬프트                      |
@@ -99,124 +99,42 @@ AI가 입지톡 MCP로 데이터를 조회해 바로 대답해줍니다:
 | `get_region_code`           | 주소·지역명 → 법정동코드·시군구코드·청약홈 지역코드      | "구리시 지역코드 알려줘"           |
 | `search_by_nearby_category` | 좌표 주변 카테고리 시설(학교·지하철·마트 등) 검색          | "이 좌표 주변 지하철역 찾아줘"     |
 | `search_by_nearby_keyword`  | 좌표 주변 키워드 검색(아파트·오피스텔·도서관 등)           | "이 주변 아파트 단지 검색해줘"     |
-| `search_announcement_info`  | 청약홈 분양공고 + 주택형·분양가를 한 번에 조회              | "동탄 최근 분양공고 찾아줘"        |
-| `enrich_complex_info`       | 아파트 후보에 K-apt 단지 정보(세대수·연식·주차 등) 보강    | "이 단지들 세대수·연식 채워줘"    |
-| `get_complex_info`          | K-apt 단지 기본/상세(주차·승강기·교통 등) 조회             | "반포자이 단지 정보 알려줘"        |
-| `get_complex_trades`        | 국토부 실거래가(매매·전월세·분양권) 조회                   | "이 단지 최근 실거래가 보여줘"     |
-| `get_static_map`            | 네이버 정적 지도 이미지(마커·중심·반경) 생성               | "이 위치 지도 이미지로 보여줘"     |
+| `find_complexes_near_point` | 좌표 주변 K-apt 단지를 거리순으로 조회                      | "이 좌표 주변 아파트 찾아줘"       |
+| `get_complex_info_by_query` | 단지명·주소로 K-apt 단지 기본·상세정보 조회                 | "반포자이 단지 정보 알려줘"        |
+| `get_complex_info_batch`    | 여러 K-apt 단지 기본·상세정보 일괄 조회                     | "이 단지들을 한 번에 비교해줘"     |
+| `search_presale_notices_by_filter` | 지역·기간·공고명으로 청약홈 모집공고 조회           | "의왕시 최근 6개월 공고 찾아줘"    |
 | `get_map_embed_url`         | 마커·반경을 담은 공유용 인터랙티브 지도 URL 생성            | "이 단지들 지도 링크 만들어줘"     |
 
-## 스킬 27종 카탈로그
+## 스킬 3종 카탈로그
 
-Remote 버전으로 설치하셨다면 27개의 자동화 기능(스킬)도 추가로 지원됩니다.
+Remote 버전은 보고서 생성 요청에 사용하는 핵심 스킬 3종을 제공합니다.
 
-전부 '목표 맞춤화'기능이 탑재가 되어 있어서 내 목적에 맞는 결론부터 바로 볼 수 있어요.
-
-> 실행은 Claude `/스킬이름 [입력]`, 또는 그냥 자연어로 하면 됩니다.
-> 평소엔 "이 아파트 역세권이야?", "여기 학군 어때?"처럼 **목적만** 말해도 알아서 골라줘요.
-
----
-
-## ⭐ 메인 스킬 6종
+> 자동 실행은 사용자가 `보고서`·`리포트`·`HTML` 생성을 명시적으로 요청한 경우에만 허용됩니다.
+> Claude Code에서는 `/스킬이름`, Codex에서는 `$스킬이름`으로 직접 지정할 수도 있습니다.
 
 ### 1. 세부 입지 보고서 — `ipzitalk-location-report`
 
 <img src="./assets/screenshots/location-report.gif" alt="세부 입지 보고서 예시" width="900">
 
-- **언제:** 특정 주소·아파트의 입지를 종합적으로 분석하고 싶을 때
-- **예시 프롬프트:** `방배롯데캐슬아르떼 세부입지 분석해줘` · `서초구 방배동 424-28 입지보고서 만들어줘`
-- **결과물:** 교통·생활·교육을 한 번에 종합한 입지분석 보고서. `html` / `pptx` / `docx` 형식 선택 가능.
+- **입력:** 주소 또는 아파트명
+- **내용:** 교통·생활·교육 환경, 거리 근거, 종합 지도
+- **결과물:** HTML / PPTX / DOCX 중 사용자가 선택한 1개
 
 ### 2. 이 아파트 한눈에 보기 — `ipzitalk-complex-overview-all`
 
 <img src="./assets/screenshots/complex-overview-all.gif" alt="이 아파트 한눈에 보기 예시" width="900">
 
-- **언제:** 한 아파트의 단지 개요·실거래·주변 입지·경쟁단지까지 한 번에 보고 싶을 때
-- **예시 프롬프트:** `부산 영도 오션시티푸르지오 한눈에 보여줘` · `이 아파트 전반적으로 알려줘`
-- **결과물:** 단지 개요·최근 12개월 실거래·주변 입지·입주 예정 단지·인근 단지가 담긴 종합 HTML 보고서.
+- **입력:** 아파트명 또는 소재 주소
+- **내용:** K-apt 기본정보, 교통·생활·교육, 인근 아파트 5곳, 지역 최근 분양공고, 지도
+- **제외:** 실거래가, 매매·전세 시세, 평당가, 분양가
+- **결과물:** HTML
 
-### 3. 분양 리포트 — `ipzitalk-presale-report`
+### 3. 지역 분양공고 — `ipzitalk-presale-notices`
 
-<img src="./assets/screenshots/presale-report.gif" alt="분양 리포트 예시" width="900">
-
-- **언제:** 특정 지역의 신규 분양공고·물량을 지도와 함께 훑고 싶을 때
-- **예시 프롬프트:** `구리시 분양 현황 알려줘` · `구리시 요즘 분양 뭐 있어`
-- **결과물:** 최근 6개월 신규 공고 + 등록 전체 물량을 KPI·지도·입주 타임라인·공급유형·전용면적·연도별 물량으로 정리한 HTML 보고서.
-
-### 4. 청약홈 공고 상세 분석 — `ipzitalk-read-notice-report`
-
-<img src="./assets/screenshots/read-notice-report.gif" alt="청약홈 공고 상세 분석 예시" width="900">
-
-- **언제:** 특정 단지 모집공고 PDF를 깊게 뜯어보고 싶을 때
-- **예시 프롬프트:** `안양 에버포레 공고 상세 분석해줘` · `이 공고 자금 타임라인과 제한사항 정리해줘`
-- **결과물:** 공식 공고문 기준 1분 브리핑·청약 일정·자금 조달 타임라인·제한사항이 담긴 `result.html` + 근거 `backdata.xlsx`. 원문에 없는 값은 추정하지 않고 `공고문 원문 확인 필요`로 표기.
-
-### 5. 청약홈 공고 비교 — `ipzitalk-read-notice-compare`
-
-<img src="./assets/screenshots/read-notice-compare.gif" alt="청약홈 공고 비교 예시" width="900">
-
-- **언제:** 2~4개 단지 모집공고 PDF를 나란히 비교하고 싶을 때
-- **예시 프롬프트:** `안양 에버포레와 평촌 자이 공고 비교해줘` · `두 청약 일정이 겹치는지 비교해줘`
-- **결과물:** 공고 2~4건의 일정 겹침·계약금/중도금/잔금·전매제한/거주의무/재당첨제한을 나란히 보여주는 `result.html` + `backdata.xlsx`.
-
-### 6. 최근 시장동향 — `ipzitalk-recent-market-trend`
-
-- **언제:** 여러 시·군·구의 최근 거래량·중위 평당가·중위 거래가를 전월과 비교하고 싶을 때
-- **예시 프롬프트:** `노원구·도봉구·강북구 최근 시장동향 비교해줘` · `요즘 어느 구의 거래가 늘었어?`
-- **결과물:** 지역별 거래량·중위 평당가·중위 거래가의 전월 대비 변화를 정리한 HTML 보고서. (최근 1~2개월은 신고 지연으로 제외, 참고 신호로만 활용)
-
----
-
-## 서브 스킬 21종
-
-메인 스킬의 한 분야만 빠르게 보거나 특정 조건으로 좁혀볼 때 쓰는 보조 스킬이에요.
-
-**🔎 청약 공고 찾기 (5종)**
-
-- `ipzitalk-find-region` — 이 지역의 청약 공고 찾기
-- `ipzitalk-find-nearby` — 이 주소 반경 3km 내 청약 공고 찾기
-- `ipzitalk-find-commute` — 회사 반경 5km 내 청약 공고 찾기
-- `ipzitalk-find-fit` — 내 소득·현금 기준 청약 공고 선별하기
-- `ipzitalk-announcement-search` — 청약 공고 원하는 조건으로 찾기
-
-**📍 입지 (분야별, 8종)**
-
-- `ipzitalk-subway-proximity` — 역세권 분석하기
-- `ipzitalk-transit-environment` — 지하철+KTX+터미널 교통 종합 분석하기
-- `ipzitalk-education-environment` — 학교·학원 교육 환경 분석하기
-- `ipzitalk-elementary-proximity` — 초품아 판별하기
-- `ipzitalk-living-environment` — 상권·공원·공공기관 분석하기
-- `ipzitalk-hospital-proximity` — 병세권 판별하기
-- `ipzitalk-retail-proximity` — 쇼세권 판별하기
-- `ipzitalk-park-proximity` — 숲세권 판별하기
-
-**🏢 단지 정보 (K-apt, 5종)**
-
-- `ipzitalk-complex-overview` — 특정 아파트 단지 정보 한 장 요약
-- `ipzitalk-complex-spec-card` — 단지 스펙 상세·비교표 만들기
-- `ipzitalk-parking-ranking` — 세대당 주차 순위 확인하기
-- `ipzitalk-transit-complex-ranking` — 역까지 거리 순위 확인하기
-- `ipzitalk-building-age-analysis` — 노후도 분포 확인하기
-
-**💰 분양·실거래 (2종)**
-
-- `ipzitalk-presale-compare-card` — 분양단지 카드·비교하기
-- `ipzitalk-price-trend` — 단지 월별 실거래·평당가 추이 확인하기
-
-**🧰 워크플로우 (1종)**
-
-- `ipzitalk-presale-kit` — 직접 부르는 스킬이 아니라 위 스킬들이 공통으로 지키는 규약 모음
-
-### 이름이 비슷해서 헷갈리는 스킬들
-
-
-| 헷갈리는 스킬                                         | 어떻게 다른가요                                                                         |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `read-notice-compare` vs `presale-compare-card`       | 전자는**공고문 PDF 원문**(일정·자금·제한) 비교, 후자는 **DB 등록 가격·세대수** 비교  |
-| `read-notice-report` vs `presale-report`              | 전자는 공고**1개를 깊게**, 후자는 지역 기준 **최근 신규 + 등록 전량** 훑기              |
-| `location-report` vs 단일 입지 스킬                   | 전자는 교통+생활+교육**종합**, 후자는 그중 **한 분야만**                                |
-| `complex-overview` vs `-spec-card` vs `-overview-all` | **개요 한 장** → **스펙 상세/비교** → **실거래·입지까지 전부**. 뒤로 갈수록 무거워요 |
-| `price-trend` vs `recent-market-trend`                | 전자는**단지 하나**의 월별 추이, 후자는 **시군구 여러 곳**의 전월 대비                  |
+- **입력:** 지역명 또는 주소와 조회 기간(기본 최근 6개월)
+- **내용:** 공고명, 주택구분, 공급위치, 공고일, 총공급세대, 입주월, 공식 공고 링크
+- **제외:** 분양가 및 가격 비교
+- **결과물:** HTML
 
 ---
 
@@ -226,7 +144,7 @@ Remote 버전으로 설치하셨다면 27개의 자동화 기능(스킬)도 추�
 A. 네, **전혀 필요 없어요.** Claude Code 또는 Codex만 설치하면 전부 한국어 대화로 끝납니다.
 
 **Q. Remote랑 OSS 중 뭘 골라야 하나요?**
-A. 스킬 27종을 전부 쓰고 싶으면 **Remote**. 데이터를 내 컴퓨터에서 직접 통제하고 싶은
+A. 보고서 스킬 3종을 쓰고 싶으면 **Remote**. 데이터를 내 컴퓨터에서 직접 통제하고 싶은
 개발자라면 **OSS**(MCP 도구 10종, 스킬 없음). 둘을 동시에 켜지는 마세요.
 
 **Q. OSS를 쓰려면 무슨 키가 필요한가요?**
@@ -252,7 +170,7 @@ ipzitalk/
 ├── .claude-plugin/            ← 마켓플레이스 명함 (3개 플러그인 등록)
 ├── plugins/
 │   ├── ipzitalk/              ← ★ 런처: Remote/OSS를 고르는 setup 스킬
-│   ├── ipzitalk-remote/       ← ★ 호스팅 MCP + 스킬 27종
+│   ├── ipzitalk-remote/       ← ★ 호스팅 MCP + 스킬 3종
 │   └── ipzitalk-local/        ← OSS presale-mcp (MCP 도구 10종, 스킬 없음)
 ├── docs/                      ← 플랫폼별 설치·전환·제거 가이드
 ├── scripts/                   ← 패키지 검증 스크립트
@@ -264,7 +182,7 @@ ipzitalk/
 - **`ipzitalk` (런처)** — 설치하면 가장 먼저 실행하는 `setup` 스킬. Remote와 OSS 중
   하나를 고르게 하고, 상태를 점검하고, 전환·제거까지 안내합니다.
 - **`ipzitalk-remote`** — 호스팅 MCP(`https://ipzi-talk.synergylabs.kr/mcp`)와
-  스킬 27종이 담긴 본체. 대부분의 사용자가 실제로 쓰는 부분이에요.
+  스킬 3종이 담긴 본체. 대부분의 사용자가 실제로 쓰는 부분이에요.
 - **`ipzitalk-local`** — 오픈소스 `presale-mcp`를 내 컴퓨터에서 실행하는 MCP-only 모드.
 
 세 플러그인이 한 마켓플레이스로 묶여 있고, 런처가 그중 하나만 활성화하도록 관리합니다.
