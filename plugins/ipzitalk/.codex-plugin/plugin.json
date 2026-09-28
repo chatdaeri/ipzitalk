@@ -1,12 +1,12 @@
 {
   "name": "ipzitalk",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "description": "입지톡 Remote 또는 OSS 실행 방식을 선택하고 설정합니다.",
   "author": {
     "name": "SynergyLabs",
     "url": "https://synergylabs.kr"
   },
-  "homepage": "https://ipzi-talk.synergylabs.kr",
+  "homepage": "https://ipji-talk.com",
   "repository": "https://github.com/chatdaeri/ipzitalk",
   "keywords": ["real-estate", "presale", "korea", "setup"],
   "skills": "./skills/",

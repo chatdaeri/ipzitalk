@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Ipzi Talk · 지역 분양공고</title>
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#171b22;--sub:#667080;--line:#e3e7ed;--chip:#f5f7fa;--brand:#2f6bff;--brand-s:#e8f0ff;--shadow:0 12px 34px -20px rgba(20,30,45,.3);--mono:"SF Mono",ui-monospace,Menlo,monospace}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#171c23;--ink:#edf1f6;--sub:#9ba5b2;--line:#29313b;--chip:#1f252d;--brand-s:#182747;--shadow:0 14px 34px rgba(0,0,0,.45)}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;padding:24px 14px}.wrap{max-width:1120px;margin:auto}.card{background:var(--card);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}.pad{padding:20px}.hero{margin-bottom:14px}.eyebrow{color:var(--brand);font:800 12px/1 var(--mono);letter-spacing:.05em}.hero h1{font-size:28px;letter-spacing:-.04em;margin:10px 0 5px}.muted{color:var(--sub);font-size:13px}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}.metric{background:var(--chip);border:1px solid var(--line);border-radius:12px;padding:13px}.metric b{display:block;font:800 20px/1.2 var(--mono)}.metric span{color:var(--sub);font-size:11px}.section{margin-top:14px}.section h2{font-size:17px;margin:0 0 12px}.tbl{overflow-x:auto}table{width:100%;min-width:820px;border-collapse:collapse}th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}th{color:var(--sub);background:var(--chip);font-size:12px}a{color:var(--brand);font-weight:750;text-decoration:none}.empty{padding:18px;background:var(--chip);border-radius:12px;color:var(--sub)}.note{margin-top:12px;color:var(--sub);font-size:12px}@media(max-width:700px){.metrics{grid-template-columns:1fr}.hero h1{font-size:23px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="card hero"><div class="pad">
+    <div class="eyebrow">IPZI TALK</div>
+    <h1 id="title">지역 분양공고</h1>
+    <div class="muted" id="desc"></div>
+    <div class="metrics" id="metrics"></div>
+  </div></section>
+  <section class="card section"><div class="pad">
+    <h2>최근 모집공고</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>공고명</th><th>주택구분</th><th>공급위치</th><th>공고일</th><th>입주월</th><th>총공급</th><th>원문</th></tr></thead>
+      <tbody id="notices"></tbody>
+    </table></div>
+    <div class="empty" id="empty" style="display:none">조회 기간에 확인된 모집공고가 없습니다.</div>
+  </div></section>
+  <section class="note" id="notes"></section>
+</main>
+
+<script type="application/json" id="ipzi-data">{}</script>
+<script>
+const templateDataShape={
+  title:"",desc:"",
+  scope:{regionName:"",applyhomeCode:"",applyAddress:"",dateFrom:"",dateTo:""},
+  summary:{noticeCount:0,confirmedSupplyTotal:0,missingSupplyCount:0},
+  notices:[],pagination:{pagesFetched:0,totalCount:0,complete:true},notes:[],
+  sourceNote:"데이터 출처: 청약홈 APT 모집공고"
+};
+const parsedTemplateData=JSON.parse(document.getElementById("ipzi-data").textContent);
+const templateData=Object.keys(parsedTemplateData).length?parsedTemplateData:templateDataShape;
+(function(){
+  var D=templateData||{},S=D.summary||{},P=D.pagination||{},NA="확인되지 않음";
+  function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+  function safeHttpsUrl(value){try{var url=new URL(String(value==null?"":value));return url.protocol==="https:"?url.href:null;}catch(_){return null;}}
+  function value(v){return v===null||v===undefined||v===""?NA:String(v);}
+  document.getElementById("title").textContent=D.title||"지역 분양공고";
+  document.getElementById("desc").textContent=D.desc||"";
+  document.getElementById("metrics").innerHTML=[
+    {label:"공고",value:S.noticeCount==null?0:S.noticeCount},
+    {label:"확인된 공급세대",value:S.confirmedSupplyTotal==null?NA:S.confirmedSupplyTotal},
+    {label:"조회 페이지",value:P.pagesFetched==null?0:P.pagesFetched}
+  ].map(function(m){return '<div class="metric"><b>'+esc(m.value)+'</b><span>'+esc(m.label)+'</span></div>';}).join("");
+  var rows=(D.notices||[]).map(function(n){
+    var link=safeHttpsUrl(n.detailUrl);
+    return "<tr><td><b>"+esc(value(n.name))+"</b></td><td>"+esc(value(n.houseTypeName))+"</td><td>"+esc(value(n.address))+"</td><td>"+esc(value(n.announcementDate))+"</td><td>"+esc(value(n.moveInMonth))+"</td><td>"+esc(value(n.totalSupply))+"</td><td>"+(link?'<a target="_blank" rel="noopener noreferrer" href="'+esc(link)+'">공고문</a>':NA)+"</td></tr>";
+  }).join("");
+  document.getElementById("notices").innerHTML=rows;
+  if(!rows)document.getElementById("empty").style.display="";
+  var notes=(D.notes||[]).slice();
+  if(S.missingSupplyCount)notes.push("총공급세대 미확인 공고 "+S.missingSupplyCount+"건");
+  if(P.complete===false)notes.push("일부 페이지를 가져오지 못한 부분 결과입니다.");
+  if(D.sourceNote)notes.push(D.sourceNote);
+  document.getElementById("notes").innerHTML=notes.map(function(n){return "<div>"+esc(n)+"</div>";}).join("");
+})();
+</script>
+</body>
+</html>
