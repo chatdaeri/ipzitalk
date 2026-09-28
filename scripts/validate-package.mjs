@@ -138,7 +138,7 @@ const sourceLock = await readJson('source-lock.json');
 assert(/^[0-9a-f]{40}$/.test(sourceLock.sources.skills.commit), 'skill commit must be a full SHA');
 assert(sourceLock.sources.skills.commit === '3c46030e15deea985cbbbe94d02ddba2d45b1dd9', 'Skill PR 25 merge SHA mismatch');
 assert(sourceLock.sources.skills.availability === 'private-release', 'private Skill lock must be marked private-release');
-assert(sourceLock.sources.remoteMcp.commit === 'd442c25d9a3c9b86e1fd307d44df733bed08a875', 'Remote MCP release target SHA mismatch');
+assert(sourceLock.sources.remoteMcp.commit === 'bc7a7b164e06b7209602c84fb18e0ade98d6a665', 'Remote MCP release target SHA mismatch');
 assert(sourceLock.sources.remoteMcp.url === remoteMcp.mcpServers.ipzitalk.url, 'locked Remote MCP URL mismatch');
 assert(sourceLock.plugins.launcher.version === '0.1.8', 'Claude launcher package must be version 0.1.8');
 assert(sourceLock.plugins.remote.version === '0.1.22', 'three-Skill Remote package must be version 0.1.22');

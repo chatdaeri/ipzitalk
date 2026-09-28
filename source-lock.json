@@ -50,7 +50,7 @@
     },
     "remoteMcp": {
       "repository": "https://github.com/chatdaeri/remote-mcp.git",
-      "commit": "d442c25d9a3c9b86e1fd307d44df733bed08a875",
+      "commit": "bc7a7b164e06b7209602c84fb18e0ade98d6a665",
       "url": "https://ipji-talk.com/mcp"
     },
     "localMcp": {
