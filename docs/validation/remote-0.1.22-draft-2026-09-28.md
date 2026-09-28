@@ -91,11 +91,26 @@ Quick Start PNG -> 실제 HTML 참조 경로 3개 모두 HTTP 200 image/png
 
 Cloudflare 배포 이력에는 Git SHA가 포함되지 않으므로 PR #179 SHA와 Version ID의 연결은 사용자의 배포 확인과 병합·배포 시각을 근거로 기록했다.
 
+일회용 Claude 설정 경로 `/private/tmp/ipzitalk-claude-e2e-20260928`에서 PR #18 브랜치의 로컬 marketplace를 설치해 확인했다.
+
+```text
+launcher       -> ipzitalk 0.1.8, enabled
+Remote         -> ipzitalk-remote 0.1.22, enabled
+MCP URL        -> https://ipji-talk.com/mcp
+OAuth          -> 공식 로그인 완료, 새 프로세스에서 Connected
+공개 도구      -> 10종
+Remote Skill   -> 3종
+```
+
+신규 도메인의 인증된 `tools/list`에서 공개 도구 10종이 확인됐다. 격리 설정에는 Claude 모델 계정 로그인이 없어 같은 설정의 모델 기반 대표 `tools/call`은 실행할 수 없었다. 대신 QA 서버를 제외하고 기존 호환 운영 도메인만 노출한 strict MCP 설정에서 `get_region_code`를 호출해 시군구 코드 응답을 확인했다. 신규·기존 도메인은 같은 운영 Worker를 사용한다.
+
+Codex CLI는 별도 설정 루트를 제공하지 않고 프로필도 기본 사용자 설정 위에 겹치는 방식이어서, 기존 Codex 플러그인 상태를 변경하지 않는 격리 런타임 설치는 실행하지 않았다. Codex manifest와 MCP URL은 `validate-package.mjs`로 검증했다.
+
 테스트 실행 뒤 `__pycache__`가 생긴 별도 Skill worktree를 동기화 소스로 전달했을 때는 `locked Skill source is dirty`로 중단됐다. 최종 동기화는 비추적 파일이 없는 새 worktree에서 수행했다.
 
 ## 미실행·남은 게이트
 
 - `plugin-creator`의 `validate_plugin.py`는 현재 Python 환경에 PyYAML이 없어 `ModuleNotFoundError: yaml`로 실행하지 못했다. 새 의존성은 설치하지 않았다.
-- 인증된 `/setup`, OAuth 로그인, 공개 도구 10종 노출과 대표 호출 E2E는 아직 확인하지 않았다.
-- Draft 플러그인을 marketplace에 재설치하거나 cachebuster를 추가하지 않았다.
-- 위 E2E와 일회용 개발 설치가 통과한 뒤에만 Draft를 해제한다. 플러그인 병합·공개는 별도 승인 전까지 하지 않는다.
+- 인증된 웹 `/setup` 화면은 브라우저 세션을 자동화하지 않아 직접 확인하지 않았다. 비로그인 `/setup`의 `/login` 이동과 운영 랜딩의 스킬 3종 안내는 확인했다.
+- 개발용 cachebuster는 추가하거나 커밋하지 않았다.
+- 운영 배포·Claude 격리 설치·OAuth·도구 10종·스킬 3종·대표 운영 호출 검증에서 차단 결함이 발견되지 않아 Draft를 Ready for review로 전환한다. 플러그인 병합·공개는 별도 승인 전까지 하지 않는다.
