@@ -2,672 +2,132 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>이 아파트 한눈에 보기</title>
+<title>Ipzi Talk · 아파트 한눈에 보기</title>
 <style>
-  :root{
-    --bg:#e9ebf0; --card:#ffffff; --ink:#14181e; --sub:#5c6673; --sub2:#8a94a2;
-    --line:#e7eaef; --line2:#f1f3f7; --chip:#f3f5f9; --zebra:#fafbfc;
-    --g:#12a150; --g-s:#e7f6ec; --y:#e0a107; --y-s:#fbf3dd; --o:#e56f1f; --o-s:#fbeee2;
-    --r:#e5484d; --r-s:#fbeaeb; --x:#9aa4b2; --x-s:#eef1f5;
-    --up:#e5484d; --down:#2f6bff; --brand:#2f6bff; --brand-s:#e8f0ff;
-    --shadow:0 1px 2px rgba(16,24,40,.05), 0 14px 36px -16px rgba(16,24,40,.22);
-    --mono:"SF Mono",ui-monospace,Menlo,monospace;
-  }
-  @media (prefers-color-scheme:dark){
-    :root{ --bg:#0c0f14; --card:#161b22; --ink:#e8ecf2; --sub:#9aa4b2; --sub2:#6b7684;
-      --line:#2a313d; --line2:#1b212a; --chip:#1e242e; --zebra:#181d25;
-      --g:#38cf7a; --g-s:#0f2a1d; --y:#e8b53f; --y-s:#2b2410; --o:#f0813e; --o-s:#2c1d12;
-      --r:#f05a5f; --r-s:#301619; --x:#8b95a3; --x-s:#212832;
-      --up:#f05a5f; --down:#5b8bff; --brand:#5b8bff; --brand-s:#17233d;
-      --shadow:0 1px 2px rgba(0,0,0,.5), 0 20px 46px -18px rgba(0,0,0,.75); }
-  }
-  :root[data-theme="light"]{ --bg:#e9ebf0; --card:#fff; --ink:#14181e; --sub:#5c6673; --line:#e7eaef; --zebra:#fafbfc; --g:#12a150; --y:#e0a107; --o:#e56f1f; --r:#e5484d; --x:#9aa4b2; --up:#e5484d; --down:#2f6bff; --brand:#2f6bff; }
-  :root[data-theme="dark"]{ --bg:#0c0f14; --card:#161b22; --ink:#e8ecf2; --sub:#9aa4b2; --line:#2a313d; --zebra:#181d25; --g:#38cf7a; --y:#e8b53f; --o:#f0813e; --r:#f05a5f; --x:#8b95a3; --up:#f05a5f; --down:#5b8bff; --brand:#5b8bff; }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;padding:20px 14px;
-    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;}
-  .wrap{max-width:1020px;margin:0 auto;background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
-  .ic{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none}
-  .topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:24px 24px 20px;border-bottom:1px solid var(--line)}
-  .ttl{display:flex;flex-direction:column;font-size:26px;font-weight:800;letter-spacing:-.02em}
-  .ttl .row{display:flex;align-items:center;gap:10px}
-  .eyebrow{font:700 12px/1 var(--mono);color:var(--brand);letter-spacing:.04em;margin-bottom:10px}
-  .ttl .sub{font-size:14px;color:var(--sub);font-weight:500;letter-spacing:0;margin-top:6px}
-  .pill{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:13px;background:var(--bg);white-space:nowrap}
-  .panel{padding:20px 22px 26px}
-
-  h2{font-size:15px;margin:26px 0 10px;display:flex;align-items:center;gap:8px}
-  h2:first-child{margin-top:0}
-  h2 small{font-weight:500;color:var(--sub);font-size:11.5px;margin-left:auto}
-
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-  .kpi{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-  .kpi .l{font-size:11.5px;color:var(--sub);margin-bottom:4px}
-  .kpi .n{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;font-family:var(--mono)}
-  .kpi .d{font-size:11.5px;color:var(--sub);margin-top:2px}
-  .kpi .n.na{color:var(--x);font-size:15px}
-
-  .map{border:1px solid var(--line);border-radius:14px;overflow-x:auto;overflow-y:hidden;height:360px;margin-bottom:6px}
-  .map iframe{display:block;width:100%;min-width:720px;height:100%;border:0}
-
-  .chartbox{border:1px solid var(--line);border-radius:14px;padding:14px 12px 8px;background:var(--card);overflow-x:auto}
-  .chartbox svg{display:block;min-width:720px;width:100%;height:auto}
-  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--sub);padding:6px 4px 2px}
-  .legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
-  .cap{font-size:11.5px;color:var(--sub);margin:6px 0 0;line-height:1.7}
-  .src{font-size:10.5px;color:var(--sub2);margin:6px 0 0;text-align:right;letter-spacing:-.01em}
-  .src::before{content:"자료 ";opacity:.75}
-  a{color:var(--brand);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:1px}
-  a:hover{opacity:.75}
-
-  .duo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-  .mini{border:1px solid var(--line);border-radius:14px;padding:12px 12px 8px;background:var(--card)}
-  .mini h4{margin:0 0 2px;font-size:12.5px;display:flex;align-items:center;gap:6px}
-  .mini .big{font-family:var(--mono);font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
-  .mini .big.na{font-size:15px;color:var(--x)}
-  .mini .sub{font-size:11.5px;color:var(--sub);margin-bottom:6px}
-  /* 차트 svg만 폭 100%. 자손 선택자로 두면 .ic 아이콘까지 카드 폭으로 부푼다 */
-  .mini > svg{display:block;width:100%;height:auto}
-  .mini svg.ic{width:1.05em;height:1.05em}
-
-  .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .sch{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--card);text-align:center}
-  .sch .lv{font-size:11.5px;color:var(--sub);margin-bottom:8px;font-weight:700}
-  .sch .nm{font-size:13px;font-weight:700;margin-bottom:2px}
-  .sch .dm{font-family:var(--mono);font-size:20px;font-weight:800}
-  .sch .dm.na{font-size:14px;color:var(--x)}
-  .sch .wk{font-size:11px;color:var(--sub);margin-top:2px}
-  .gauge{height:6px;border-radius:3px;background:var(--x-s);margin:10px 0 6px;overflow:hidden}
-  .gauge i{display:block;height:100%;border-radius:3px;background:var(--g)}
-
-  .poi{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}
-  .pcard{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg)}
-  .pcard .h{font-size:11.5px;color:var(--sub);display:flex;align-items:center;gap:6px;margin-bottom:6px}
-  .pcard ul{margin:0;padding:0;list-style:none;font-size:12.5px}
-  .pcard li{display:flex;justify-content:space-between;gap:8px;padding:2px 0}
-  .pcard li b{font-weight:600}
-  .pcard li span{font-family:var(--mono);color:var(--sub);white-space:nowrap}
-  .pcard li.none{color:var(--x)}
-
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-  th{font-size:11.5px;color:var(--sub);font-weight:600}
-  /* 숫자 열은 헤더도 함께 우측 정렬해야 값과 축이 맞는다 */
-  th.n{text-align:right;white-space:nowrap}
-  td.n{font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap;text-align:right}
-  td.na{color:var(--x)}
-  tbody tr:nth-child(even){background:var(--zebra)}
-  tr.none td{color:var(--x)}
-  tr.site{background:var(--brand-s) !important;font-weight:700}
-  .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;margin-left:6px;border:1px solid var(--line);color:var(--sub);white-space:nowrap}
-  .tag.hold{background:var(--x-s);color:var(--x);border-color:transparent}
-  .tag.warn{background:var(--o-s);color:var(--o);border-color:transparent}
-  .tag.site{background:var(--brand-s);color:var(--brand);border-color:transparent}
-  .empty{border:1px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--x);font-size:12.5px}
-  .foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--sub);line-height:1.75}
-  .foot b{color:var(--ink)}
-  .foot .row{display:flex;align-items:center;gap:7px;margin-bottom:3px}
-  @media(max-width:720px){ .duo,.trio{grid-template-columns:1fr} }
-
-  /* 목적 맞춤 요약 — 내러티브 레일(자기완결). goal 이 null 이면 통째 숨김. 빈 섹션은 렌더가 단계째 뺀다. */
-  .goal{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin:18px 22px 22px;padding:20px 22px 10px}
-  .goal .gh{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
-  .goal .gh>svg{width:18px;height:18px;flex:0 0 auto;color:var(--brand)}
-  .goal .purpose{display:inline-flex;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:12px;margin:11px 0 4px}
-  .goal .purpose .k{color:var(--sub2);font-weight:700}
-  .goal .purpose .v{color:var(--ink);font-weight:600}
-  .goal .rail{position:relative;padding:16px 0 8px}
-  .goal .rail .line{position:absolute;left:17px;top:30px;bottom:38px;width:2px;background:var(--line)}
-  .goal .step{position:relative;display:flex;gap:16px;padding-bottom:22px}
-  .goal .step:last-child{padding-bottom:8px}
-  .goal .node{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 4px var(--card)}
-  .goal .node svg{width:18px;height:18px}
-  .goal .node.solid{background:var(--brand);color:#fff}
-  .goal .node.chip{background:var(--chip);border:1px solid var(--line);color:var(--sub)}
-  .goal .node.tint-o{background:var(--o-s);border:1px solid var(--line);color:var(--o)}
-  .goal .node.solid-g{background:var(--g);color:#fff}
-  .goal .gbody{flex:1 1 0;min-width:0;padding-top:2px}
-  .goal .gbody .h{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-  .goal .gbody .h .lbl{font-size:13px;font-weight:800}
-  .goal .gbody .h .hint{font-size:10.5px;font-weight:700;color:var(--sub2)}
-  .goal .lbl.c{color:var(--brand)} .goal .lbl.e{color:var(--sub)} .goal .lbl.w{color:var(--o)} .goal .lbl.a{color:var(--g)}
-  .goal .items{display:flex;flex-direction:column;gap:9px}
-  .goal .it-concl{font-size:13px;line-height:1.6;color:var(--ink);border-left:2px solid var(--brand-s);padding-left:12px}
-  .goal .it-bullet{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
-  .goal .it-bullet .dot{width:5px;height:5px;border-radius:50%;background:var(--sub2);flex:0 0 auto;margin-top:7px}
-  .goal .it-warn{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub)}
-  .goal .it-warn svg{width:13px;height:13px;color:var(--o);flex:0 0 auto;margin-top:4px}
-  .goal .it-action{display:flex;gap:9px;align-items:flex-start;background:var(--g-s);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12.5px;line-height:1.55;color:var(--ink)}
-  .goal .it-action svg{width:14px;height:14px;color:var(--g);flex:0 0 auto;margin-top:3px}
+:root{--bg:#eef1f5;--card:#fff;--ink:#171b22;--sub:#667080;--line:#e3e7ed;--chip:#f5f7fa;--brand:#2f6bff;--brand-s:#e8f0ff;--warn:#b85c00;--warn-s:#fff0df;--shadow:0 12px 34px -20px rgba(20,30,45,.3);--mono:"SF Mono",ui-monospace,Menlo,monospace}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#171c23;--ink:#edf1f6;--sub:#9ba5b2;--line:#29313b;--chip:#1f252d;--brand-s:#182747;--warn:#f2a65a;--warn-s:#352315;--shadow:0 14px 34px rgba(0,0,0,.45)}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5;padding:24px 14px}.wrap{max-width:1160px;margin:auto}.card{background:var(--card);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow);overflow:hidden}.pad{padding:20px}.hero{margin-bottom:14px}.eyebrow{color:var(--brand);font:800 12px/1 var(--mono);letter-spacing:.05em}.hero h1{font-size:28px;letter-spacing:-.04em;margin:10px 0 5px}.muted{color:var(--sub);font-size:13px}.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}.metric{background:var(--chip);border:1px solid var(--line);border-radius:12px;padding:13px}.metric b{display:block;font:800 20px/1.2 var(--mono)}.metric span{color:var(--sub);font-size:11px}.section{margin-top:14px}.section h2{font-size:17px;margin:0 0 12px}.rows{display:grid;gap:8px}.row{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.row:last-child{border:0}.row .k{color:var(--sub)}.item{background:var(--chip);border:1px solid var(--line);border-radius:12px;padding:13px}.item h3{font-size:14px;margin:0 0 5px}.item p{margin:2px 0;color:var(--sub);font-size:12px}.pill{display:inline-block;background:var(--brand-s);color:var(--brand);border-radius:999px;padding:5px 9px;font:800 11px/1 var(--mono)}.map{height:410px;overflow-x:auto;overflow-y:hidden;background:var(--chip)}.map iframe{display:block;width:100%;min-width:720px;height:100%;border:0}.empty{color:var(--sub);font-size:13px;padding:16px;background:var(--chip);border-radius:12px}.link{color:var(--brand);font-weight:750;text-decoration:none}.note{margin-top:14px;color:var(--sub);font-size:12px}.warn{background:var(--warn-s);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:12px;font-weight:700}@media(max-width:820px){.g2,.g3,.metrics{grid-template-columns:1fr 1fr}.row{grid-template-columns:110px 1fr}}@media(max-width:520px){.g2,.g3,.metrics{grid-template-columns:1fr}.hero h1{font-size:23px}}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-<symbol id="i-complex" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6l7-3 7 3v15"></path><path d="M8.5 10h1.5M13.5 10H15M8.5 14h1.5M13.5 14H15"></path><path d="M2.5 21h19"></path></g></symbol>
-<symbol id="i-trend" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"></path><path d="M4 15l4-4 3 3 6-7"></path><path d="M17 7h3v3"></path></g></symbol>
-<symbol id="i-won" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l3 8 3-8 2.5 8L16 8"></path><path d="M18.5 8v8"></path><path d="M3 12h18"></path></g></symbol>
-<symbol id="i-map" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"></path><path d="M9 4v13M15 6.5v13"></path></g></symbol>
-<symbol id="i-subway" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="3.5" width="13" height="13" rx="3"></rect><path d="M5.5 11h13"></path><circle cx="9" cy="14" r=".9" fill="currentColor" stroke="none"></circle><circle cx="15" cy="14" r=".9" fill="currentColor" stroke="none"></circle><path d="M8 20.5l2-3M16 20.5l-2-3"></path></g></symbol>
-<symbol id="i-school" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 2.5 8.5 12 13l9.5-4.5L12 4z"></path><path d="M6 10.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-5.5"></path></g></symbol>
-<symbol id="i-shop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16l-1 12H5L4 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></g></symbol>
-<symbol id="i-park" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-5"></path><path d="M12 15c-3.5 0-6-2.4-6-5.4C6 6 8.7 3.5 12 3.5S18 6 18 9.6c0 3-2.5 5.4-6 5.4z"></path></g></symbol>
-<symbol id="i-hospital" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2.5"></rect><path d="M12 9v7M8.5 12.5h7"></path></g></symbol>
-<symbol id="i-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2 2 0 0 1 6 3.5h13v15H6a2 2 0 0 0-2 2z"></path><path d="M4 5.5v15"></path></g></symbol>
-<symbol id="i-new" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V9l8-5 8 5v12"></path><path d="M9 21v-6h6v6"></path></g></symbol>
-<symbol id="i-sample" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="8" r="2.2"></circle><circle cx="14" cy="6" r="2.2"></circle><circle cx="10" cy="15" r="2.2"></circle><circle cx="17" cy="14" r="2.2"></circle></g></symbol>
-<symbol id="i-db" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"></ellipse><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"></path><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"></path></g></symbol>
-<symbol id="i-calendar2" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"></rect><path d="M3.5 10h17"></path><path d="M8 3v3.5"></path><path d="M16 3v3.5"></path></g></symbol>
-<symbol id="i-source" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h9l5 5V19a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19z"></path><path d="M14 4.5V10h5"></path></g></symbol>
-<symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5.5"></path><path d="M12 7.6v.6"></path></g></symbol>
-<symbol id="sig-hold" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#9aa4b2"></circle><path d="M9.6 10a2.5 2.5 0 0 1 4.6 1.4c0 1.6-2 1.7-2 3.1" stroke="#fff" stroke-width="1.9" fill="none"></path><circle cx="12" cy="16.6" r="1" fill="#fff"></circle></symbol>
-</svg>
+<main class="wrap">
+  <section class="card hero"><div class="pad">
+    <div class="eyebrow">IPZI TALK</div>
+    <h1 id="title">아파트 한눈에 보기</h1>
+    <div class="muted" id="subtitle"></div>
+    <div class="metrics" id="metrics"></div>
+  </div></section>
 
-<div class="wrap">
-  <div class="topbar">
-    <div class="ttl">
-      <span class="eyebrow" id="brand"></span>
-      <span class="row"><svg class="ic" style="color:var(--brand)"><use href="#i-complex"/></svg> <span id="title"></span></span>
-      <span class="sub" id="subtitle"></span>
-    </div>
-    <span class="pill" id="pill"></span>
-  </div>
-  <!-- 목적 맞춤 요약 (내러티브 레일) — 자기완결 아이콘 스프라이트 -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-target" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="4"></circle><circle cx="12" cy="12" r=".7" fill="currentColor" stroke="none"></circle></g></symbol>
-  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></symbol>
-  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"></path></symbol>
-  <symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4m0 4h.01"></path></symbol>
-  <symbol id="i-evidence" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"></path></symbol>
-  </svg>
-  <div class="goal" id="goal-box" style="display:none">
-    <div class="gh"><svg><use href="#i-target"/></svg> <span>목적 맞춤 요약</span></div>
-    <div class="purpose" id="goal-purpose" style="display:none"><span class="k">분석 목적</span> <span class="v" id="goal-purpose-v"></span></div>
-    <div class="rail" id="goal-rail"></div>
-  </div>
-  <div class="panel" id="panel"></div>
-</div>
+  <section class="card section" id="goal-box" style="display:none"><div class="pad">
+    <h2>목적 맞춤 요약</h2>
+    <div class="muted" id="goal-purpose"></div>
+    <div class="rows" id="goal-conclusions"></div>
+  </div></section>
+
+  <section class="grid g2">
+    <article class="card"><div class="pad"><h2>단지 기본정보</h2><div class="rows" id="basic"></div></div></article>
+    <article class="card"><div class="pad"><h2>입지 요약</h2><div class="grid g3" id="poi"></div></div></article>
+  </section>
+
+  <section class="card section"><div class="pad">
+    <h2>인근 아파트</h2>
+    <div class="grid g3" id="nearby"></div>
+  </div></section>
+
+  <section class="card section"><div class="pad">
+    <h2>지역 최근 분양공고</h2>
+    <div class="grid g3" id="presales"></div>
+  </div></section>
+
+  <section class="card section" id="map-card" style="display:none">
+    <div class="map"><iframe id="map-iframe" src="about:blank" title="주변 지도" loading="lazy" sandbox="allow-scripts allow-same-origin" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    <div class="pad muted" id="map-caption"></div>
+  </section>
+
+  <section class="note" id="notes"></section>
+</main>
 
 <script type="application/json" id="ipzi-data">{}</script>
 <script>
-/* ────────────────────────────────────────────────────────────────
-   이 템플릿은 고정이다. 마크업·CSS·렌더 JS는 실행마다 바뀌지 않는다.
-   수정하는 곳은 위 ipzi-data JSON 블록 하나뿐이다.
-
-   규칙 (SKILL.md 승계)
-   - null 은 "확인되지 않음"이다. 절대 0 으로 채우지 않는다.
-   - 거래 없는 달은 보간하지 않는다. 선을 끊고 회색 밴드 + "거래없음" 라벨을 그린다.
-   - 표본이 얇으면 값은 싣되 추세를 단정하지 않는다. (pill 에 "거래가 적어 흐름은 참고용")
-   - 내부 사정(원천·매칭·계산 방식)은 화면에 쓰지 않는다. 오독 방지·불완전 고지만 한 줄로.
-   - 도구·API 이름을 화면에 쓰지 않는다. 출처는 기관명만.
-   - 상승 --up(빨강) / 하락 --down(파랑) — 국내 관행.
-   ──────────────────────────────────────────────────────────────── */
 const templateDataShape = {
-  goal: null, // 목적 맞춤 요약(내러티브 레일) — null=숨김. {purpose, conclusions[3~5], evidence[1~3], cautions[0~2], nextActions[1~3]}. 빈 섹션은 단계째 숨김.
-  brand: "IPZI TALK",
-  title: "",                 // "이 아파트 한눈에 보기"
-  subtitle: "",              // "단지명 · 주소 · 조회일 YYYY-MM-DD" 일반 텍스트
-  pill: "",                  // "거래가 적어 흐름은 참고용"  — 표본 충분하면 ""
-
-  overview: {                // 개요 KPI 4칸
-    kpis: [],                // [{l:"총 세대수", n:"829", d:"11개동 · 최고 34층"}]
-                             //  값이 없으면 {l:"용적률 · 건폐율", n:null, d:"공식 자료에 없는 항목입니다"}
-                             //  n:null → "확인되지 않음"(회색). 0 으로 채우지 말 것.
-    note: "",                // "평형 구성 — 60㎡ 미만 144세대 …" 일반 텍스트
-    src: ""                  // "공동주택관리정보시스템(K-apt)"
-  },
-
-  map: { url: "", caption: "", src: "" },   // url 이 비면 지도 섹션을 그리지 않는다
-                             // caption 에 유효기간을 반드시 적는다(발급 후 7일 만료)
-
-  sale: {                    // 매매 차트 (12개월)
-    small: "",               // "전용 NN㎡ 기준 · YYYY.MM~YYYY.MM"
-    months: [],              // ["25.08","09",…,"07"]  x축 라벨 12개
-    axis: { min: null, max: null, ticks: [] },   // 평당가(만원). ticks 는 큰 값 → 작은 값
-    main: [],                // 12칸. null = 그달 거래 0건 → 선을 끊고 회색 밴드
-    mixed: [],               // 12칸. 모든 평형 섞은 값(대조선). null 허용
-    sampleN: [],             // 12칸. 주계열 표본 수(정수)
-    detachedIdx: [],         // 앞뒤가 멀어 선으로 잇지 않을 점의 인덱스. 속 빈 원으로 그린다
-    confirmedUntil: null,    // 확정 구간의 마지막 인덱스. 그 오른쪽은 "아직 집계 중인 기간"
-    labels: { main: "", mixed: "" },
-    showAvg: true,           // 기간 평균선(수평 점선). 값은 렌더 JS가 관측월만으로 직접 계산한다.
-                             // [주의] 데이터로 받지 않는다 — 결측월을 0 으로 채운 평균이 섞여드는 걸 막는다.
-    avgLabels: { main: "", mixed: "" },   // "84㎡ 평균" · "혼합 평균". 비면 "평균"
-    caption: "", src: ""
-  },
-
-  jeonse: {                  // 전세 (신규 계약만)
-    title: "", big: null, bigUnit: "억", sub: "",
-    months: [], values: [],  // months.length === values.length. null 허용(선 끊김)
-    axis: { min: null, max: null, ticks: [] },
-    xLabels: [],             // [{i:0,t:"25.08"}, …] 표시할 x축 라벨만
-    caption: ""
-  },
-
-  ratio: {                   // 매매가 대비 전세가
-    title: "", pct: null,    // null = 확인되지 않음
-    band: "g",               // "g" 여유 | "y" 보통 | "o" 주의 | "r" 위험
-                             // [주의] warnPct 를 넘겼는데 "g" 로 두면 위험을 초록으로 칠하게 된다.
-    sub: "", warnPct: 70,    // 주의선
-    caption: ""
-  },
-  duoSrc: "",                // 위 두 카드의 출처
-
-  recentTrades: { columns: [], rows: [], caption: "", src: "" },
-                             // columns: [{t:"계약일"},{t:"전용",n:true},…]
-                             // rows 셀: 문자열 | {n:"우측정렬"} | {text:"일반 텍스트"} | null
-
-  schools: {
-    gauges: [],              // [{lv:"초등학교", nm:"서울서원초등학교", dm:"208m", pct:21, wk:"걸어서 약 3분 · 1km 안 6곳"}]
-                             //  dm:null → "확인되지 않음"
-    columns: [], rows: [],
-    caption: "",             // 배정 학교 링크를 포함한다
-    src: ""
-  },
-
-  poi: { cards: [], caption: "", src: "" },
-                             // cards: [{icon:"i-subway", h:"지하철 (1km 안 6개역)",
-                             //          items:[{n:"사평역 9호선", d:"308m"}, {n:"…", d:"—", none:true}]}]
-
-  presales: { columns: [], rows: [], caption: "", src: "" },
-  nearby:   { columns: [], rows: [], caption: "", src: "" },
-
-  footer: {
-    sources: "",             // "국토교통부 실거래가(취소된 거래 제외) · …"
-    basis: "",               // "2025년 8월 ~ 2026년 7월 계약분 · 조회일 …"
-    counts: "",              // "1년간 매매 11건 · 전월세 52건 …"
-    notice: ""               // "꼭 읽어주세요" 일반 텍스트
-  }
+  title: "",
+  subtitle: "",
+  goal: null,
+  metrics: [],
+  basic: [],
+  poi: [],
+  nearby: [],
+  nearbyStatus: "",
+  presales: [],
+  presaleStatus: "",
+  map: { url: null, caption: "", ttlNote: "" },
+  notes: [],
+  sources: [],
+  collectedAt: ""
 };
+const parsedTemplateData = JSON.parse(document.getElementById("ipzi-data").textContent);
+const templateData = Object.keys(parsedTemplateData).length ? parsedTemplateData : templateDataShape;
 
 (function(){
-  var D = JSON.parse(document.getElementById("ipzi-data").textContent);
-  var NA = "확인되지 않음";
-  /* esc() 는 스킴을 막지 못한다. `javascript:alert(1)` 은 따옴표가 없어 그대로 href 에 들어간다.
-     일반 링크는 https만 허용하고, 지도 iframe은 Ipzi Talk 정식 /map?d=<id> URL만 허용한다. */
+  var D=templateData||{}, NA="확인되지 않음";
+  function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
   function safeHttpsUrl(value){
-    try {
-      var url = new URL(String(value == null ? "" : value));
-      if(url.protocol !== "https:") return null;
-      return url.href;
-    } catch (_) { return null; }
+    try{var url=new URL(String(value==null?"":value));if(url.protocol !== "https:")return null;return url.href;}catch(_){return null;}
   }
   function safeMapUrl(value){
-    var safe = safeHttpsUrl(value);
-    if(!safe) return null;
-    var url = new URL(safe);
-    if(url.origin !== "https://ipzi-talk.synergylabs.kr") return null;
-    if(url.username || url.password) return null;
-    if(url.pathname !== "/map") return null;
-    if(!url.searchParams.get("d")) return null;
-    if(url.searchParams.getAll("d").length !== 1) return null;
-    if(Array.from(url.searchParams.keys()).some(function(key){ return key !== "d"; })) return null;
-    if(url.hash) return null;
+    var safe=safeHttpsUrl(value);if(!safe)return null;
+    var url=new URL(safe);
+    if(["https://ipji-talk.com","https://ipzi-talk.synergylabs.kr","https://presale-remote-mcp-loadtest.jinju-c67.workers.dev"].indexOf(url.origin)<0)return null;
+    if(url.username||url.password)return null;
+    if(url.pathname !== "/map")return null;
+    if(!url.searchParams.get("d"))return null;
+    if(url.searchParams.getAll("d").length!==1||Array.from(url.searchParams.keys()).some(function(k){return k!=="d";})||url.hash)return null;
     return url.href;
   }
+  function set(id,v){document.getElementById(id).textContent=v==null?"":v;}
+  function empty(text){return '<div class="empty">'+esc(text||NA)+'</div>';}
 
-  function esc(v){
-    return String(v).replace(/[&<>"']/g, function(c){
-      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
-    });
-  }
-  /* 스프라이트에 실재하는 심볼만 허용한다. 없는 id 를 <use> 로 가리키면 브라우저는
-     에러 없이 빈 자리를 그린다 — 오타가 조용히 통과하지 않도록 여기서 막는다. */
-  var ICONS = ["i-complex","i-trend","i-won","i-map","i-subway","i-school","i-shop","i-park",
-               "i-hospital","i-book","i-new","i-sample","i-db","i-calendar2","i-source","i-info","sig-hold"];
-  function icon(id, tone){
-    if(!id) return "";
-    if(ICONS.indexOf(id) === -1){
-      console.warn('[result.html] 스프라이트에 없는 아이콘 id: "' + id + '" — 아이콘을 생략합니다.');
-      return "";
-    }
-    var color = tone ? ' style="color:var(--' + esc(tone) + ')"' : "";
-    return '<svg class="ic"' + color + '><use href="#' + esc(id) + '"/></svg>';
-  }
-  function isNil(v){ return v === null || v === undefined || v === ""; }
-  function h2(iconId, text, small){
-    return '<h2>' + icon(iconId, "sub") + " " + esc(text) +
-           (small ? '<small>' + esc(small) + "</small>" : "") + "</h2>";
-  }
-  function capOf(t){ return t ? '<p class="cap">' + esc(t) + "</p>" : ""; }
-  function srcOf(t){ return t ? '<p class="src">' + esc(t) + "</p>" : ""; }
-  function empty(msg){ return '<div class="empty">' + esc(msg || "표시할 자료가 없습니다") + "</div>"; }
-
-  /* ── 표 ─────────────────────────────────────────── */
-  function cell(c){
-    if(isNil(c)) return '<td class="na">' + NA + "</td>";
-    if(typeof c === "object"){
-      if(c.text !== undefined) return "<td" + (c.n ? ' class="n"' : "") + ">" + esc(c.text) + "</td>";
-      if(c.n   !== undefined) return '<td class="n">' + esc(c.n) + "</td>";
-    }
-    return "<td>" + esc(c) + "</td>";
-  }
-  function table(t){
-    if(!t || !t.columns || !t.columns.length || !t.rows || !t.rows.length) return "";
-    var head = t.columns.map(function(c){
-      return "<th" + (c.n ? ' class="n"' : "") + ">" + esc(c.t) + "</th>";
+  set("title",D.title||"아파트 한눈에 보기");
+  set("subtitle",D.subtitle||"");
+  if(D.goal){
+    document.getElementById("goal-box").style.display="";
+    set("goal-purpose",D.goal.purpose||"");
+    document.getElementById("goal-conclusions").innerHTML=(D.goal.conclusions||[]).map(function(c){
+      return '<div class="row"><div class="k">결론</div><div>'+esc(c)+'</div></div>';
     }).join("");
-    var body = t.rows.map(function(r){
-      var cls = r.cls ? ' class="' + esc(r.cls) + '"' : "";
-      return "<tr" + cls + ">" + (r.cells || []).map(cell).join("") + "</tr>";
-    }).join("");
-    return "<table><thead><tr>" + head + "</tr></thead><tbody>" + body + "</tbody></table>";
   }
+  document.getElementById("metrics").innerHTML=(D.metrics||[]).map(function(m){
+    return '<div class="metric"><b>'+esc(m.value==null?NA:m.value)+'</b><span>'+esc(m.label||"")+'</span></div>';
+  }).join("")||empty();
+  document.getElementById("basic").innerHTML=(D.basic||[]).map(function(r){
+    return '<div class="row"><div class="k">'+esc(r.label||"")+'</div><div>'+esc(r.value==null?NA:r.value)+'</div></div>';
+  }).join("")||empty();
+  document.getElementById("poi").innerHTML=(D.poi||[]).map(function(p){
+    return '<div class="item"><span class="pill">'+esc(p.axis||"입지")+'</span><h3>'+esc(p.name||NA)+'</h3><p>'+esc(p.distance||"")+'</p><p>'+esc(p.note||"")+'</p></div>';
+  }).join("")||empty();
+  document.getElementById("nearby").innerHTML=(D.nearby||[]).map(function(n){
+    var detail=[n.distance,n.totalUnits,n.approvalDate].filter(Boolean).map(esc).join(" · ");
+    return '<div class="item"><h3>'+esc(n.name||NA)+'</h3><p>'+detail+'</p><p>'+esc(n.address||"")+'</p></div>';
+  }).join("")||empty(D.nearbyStatus||"반경 내 확인된 인근 아파트가 없습니다.");
+  document.getElementById("presales").innerHTML=(D.presales||[]).map(function(p){
+    var detail=[p.announcementDate,p.moveInMonth,p.totalSupply].filter(Boolean).map(esc).join(" · ");
+    var link=safeHttpsUrl(p.detailUrl);
+    return '<div class="item"><h3>'+esc(p.name||NA)+'</h3><p>'+detail+'</p><p>'+esc(p.address||"")+'</p>'+(link?'<a class="link" target="_blank" rel="noopener" href="'+esc(link)+'">공고문 보기</a>':'')+'</div>';
+  }).join("")||empty(D.presaleStatus||"최근 6개월 해당 지역에서 확인된 모집공고가 없습니다.");
 
-  /* ── 좌표 변환 ───────────────────────────────────── */
-  function scaler(min, max, top, bot){
-    var span = (max - min) || 1;
-    return function(v){ return +(bot - (v - min) * (bot - top) / span).toFixed(1); };
+  var mapUrl=D.map&&safeMapUrl(D.map.url);
+  if(mapUrl){
+    document.getElementById("map-card").style.display="";
+    document.getElementById("map-iframe").src=mapUrl;
+    set("map-caption",[D.map.caption,D.map.ttlNote].filter(Boolean).join(" · "));
   }
-  function xs(n, x0, x1){
-    var out = [], step = n > 1 ? (x1 - x0) / (n - 1) : 0;
-    for(var i = 0; i < n; i++) out.push(+(x0 + step * i).toFixed(1));
-    return out;
-  }
-  /* 결측 구간에서 선을 끊는다. detached 인덱스는 아예 선에 넣지 않는다. */
-  function segments(vals, X, Y, detached){
-    var segs = [], cur = [];
-    for(var i = 0; i < vals.length; i++){
-      var skip = isNil(vals[i]) || (detached || []).indexOf(i) !== -1;
-      if(skip){ if(cur.length > 1) segs.push(cur); cur = []; continue; }
-      cur.push(X[i] + "," + Y(vals[i]));
-    }
-    if(cur.length > 1) segs.push(cur);
-    return segs;
-  }
-
-  /* ── 매매 차트 ──────────────────────────────────── */
-  function saleChart(s){
-    var n = (s.months || []).length;
-    if(!n || !s.axis || isNil(s.axis.min) || isNil(s.axis.max)) return empty("매매 거래 자료가 없습니다");
-    var X = xs(n, 52, 708), Y = scaler(s.axis.min, s.axis.max, 33.3, 226);
-    var half = n > 1 ? (X[1] - X[0]) / 2 : 0;
-    var out = ['<svg viewBox="0 0 720 264" role="img" aria-label="월별 중위 평당가 추이">'];
-
-    // 거래 없는 달 = 회색 밴드 + 라벨 (보간하지 않는다)
-    var bands = "", blabels = "";
-    for(var i = 0; i < n; i++){
-      if(!isNil(s.main[i])) continue;
-      var x0 = Math.max(52, X[i] - half), x1 = Math.min(708, X[i] + half);
-      bands += '<rect x="' + x0.toFixed(1) + '" y="14" width="' + (x1 - x0).toFixed(1) + '" height="212"/>';
-      blabels += '<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="222">거래없음</text>';
-    }
-    if(bands) out.push('<g fill="var(--x)" opacity=".10">' + bands + "</g>");
-    if(blabels) out.push('<g fill="var(--sub2)" font-size="8.5" text-anchor="middle" opacity=".85">' + blabels + "</g>");
-
-    // 격자 + y축
-    var grid = "", ylab = "";
-    (s.axis.ticks || []).forEach(function(v){
-      var y = Y(v);
-      grid += '<line x1="52" y1="' + y + '" x2="708" y2="' + y + '"/>';
-      ylab += '<text x="46" y="' + (y + 4).toFixed(1) + '">' + esc(Number(v).toLocaleString("en-US")) + "</text>";
-    });
-    out.push('<g stroke="var(--line)" stroke-width="1">' + grid + "</g>");
-    out.push('<g fill="var(--sub2)" font-size="10" font-family="ui-monospace,monospace" text-anchor="end">' + ylab + "</g>");
-
-    // 확정 / 집계 중 경계
-    if(!isNil(s.confirmedUntil) && s.confirmedUntil < n - 1){
-      var bx = ((X[s.confirmedUntil] + X[s.confirmedUntil + 1]) / 2).toFixed(1);
-      out.push('<line x1="' + bx + '" y1="14" x2="' + bx + '" y2="226" stroke="var(--o)" stroke-width="1" stroke-dasharray="3 3" opacity=".55"/>');
-      out.push('<text x="' + (Number(bx) + 3.5) + '" y="24" fill="var(--o)" font-size="8.5" opacity=".9">아직 집계 중인 기간</text>');
-    }
-    // 기간 평균선 — 관측된 달만으로 평균낸다. 결측월을 0 으로 채우면 없는 하락이 생긴다.
-    if(s.showAvg !== false){
-      var lines = [], labels = [], placed = [];
-      [["main","brand"],["mixed","x"]].forEach(function(pair){
-        var obs = (s[pair[0]] || []).filter(function(v){ return !isNil(v); });
-        if(!obs.length) return;
-        var avg = obs.reduce(function(a,b){ return a + Number(b); }, 0) / obs.length;
-        var y = Y(avg);
-        if(y < 33.3 || y > 226) return;                       // 축 밖이면 그리지 않는다
-        lines.push('<line x1="52" y1="' + y + '" x2="708" y2="' + y + '" stroke="var(--' + pair[1] + ')"/>');
-        var ty = y - 3.5;
-        // 라벨이 겹치면 아래로 밀어 둘 다 읽히게 한다
-        while(placed.some(function(p){ return Math.abs(p - ty) < 10; })) ty += 11;
-        placed.push(ty);
-        var lb = (s.avgLabels && s.avgLabels[pair[0]]) || "평균";
-        labels.push('<text x="705" y="' + ty.toFixed(1) + '" fill="var(--' + (pair[1] === "x" ? "sub2" : pair[1]) + ')">' +
-                    esc(lb + " " + Math.round(avg).toLocaleString("en-US")) + "</text>");
-      });
-      if(lines.length){
-        out.push('<g stroke-dasharray="2 3" stroke-width="1.2">' + lines.join("") + "</g>");
-        out.push('<g font-size="9" font-family="ui-monospace,monospace" text-anchor="end">' + labels.join("") + "</g>");
-      }
-    }
-    // 대조선(모든 평형 섞은 값)
-    segments(s.mixed || [], X, Y, []).forEach(function(p){
-      out.push('<polyline fill="none" stroke="var(--x)" stroke-width="1.8" stroke-dasharray="5 4" points="' + p.join(" ") + '"/>');
-    });
-    // 주계열
-    segments(s.main || [], X, Y, s.detachedIdx).forEach(function(p){
-      out.push('<polyline fill="none" stroke="var(--brand)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" points="' + p.join(" ") + '"/>');
-    });
-    // 점
-    var dots = "", hollow = "";
-    for(var j = 0; j < n; j++){
-      if(isNil(s.main[j])) continue;
-      if((s.detachedIdx || []).indexOf(j) !== -1)
-        hollow += '<circle cx="' + X[j] + '" cy="' + Y(s.main[j]) + '" r="4.4" fill="var(--card)" stroke="var(--brand)" stroke-width="2"/>';
-      else dots += '<circle cx="' + X[j] + '" cy="' + Y(s.main[j]) + '" r="3.2"/>';
-    }
-    if(dots) out.push('<g fill="var(--brand)">' + dots + "</g>");
-    out.push(hollow);
-
-    // x축 + 표본 N
-    var xl = "", nl = "";
-    for(var k = 0; k < n; k++){
-      xl += '<text x="' + X[k] + '" y="245">' + esc(s.months[k]) + "</text>";
-      nl += '<text x="' + X[k] + '" y="258">N' + esc(isNil(s.sampleN[k]) ? 0 : s.sampleN[k]) + "</text>";
-    }
-    out.push('<g fill="var(--sub)" font-size="10" text-anchor="middle">' + xl + "</g>");
-    out.push('<g fill="var(--sub2)" font-size="9" text-anchor="middle">' + nl + "</g>");
-    out.push("</svg>");
-
-    var lg = '<div class="legend">' +
-      '<span><i style="background:var(--brand)"></i>' + esc(s.labels.main || "") + "</span>" +
-      (s.labels.mixed ? '<span><i style="background:var(--x)"></i>' + esc(s.labels.mixed) + "</span>" : "") +
-      (s.showAvg !== false ? '<span><i style="background:var(--brand);opacity:.45"></i>가로 점선 = 1년 평균</span>' : "") +
-      (bands ? '<span><i style="background:var(--x);opacity:.25"></i>회색 구간 = 거래가 없던 달</span>' : "") +
-      "</div>";
-    return '<div class="chartbox">' + out.join("") + "</div>" + lg;
-  }
-
-  /* ── 전세 미니 차트 ─────────────────────────────── */
-  function jeonseChart(j){
-    var n = (j.values || []).length;
-    if(!n || isNil(j.axis.min) || isNil(j.axis.max)) return "";
-    var X = xs(n, 46, 300), Y = scaler(j.axis.min, j.axis.max, 14, 86);
-    var out = ['<svg viewBox="0 0 320 104" role="img" aria-label="전세 보증금 추이">'];
-    var grid = "", ylab = "";
-    (j.axis.ticks || []).forEach(function(t){
-      var y = Y(t.v);
-      grid += '<line x1="46" y1="' + y + '" x2="300" y2="' + y + '"/>';
-      ylab += '<text x="41" y="' + (y + 3).toFixed(1) + '">' + esc(t.t) + "</text>";
-    });
-    out.push('<g stroke="var(--line)" stroke-width="1">' + grid + "</g>");
-    out.push('<g fill="var(--sub2)" font-size="8" font-family="ui-monospace,monospace" text-anchor="end">' + ylab + "</g>");
-    segments(j.values, X, Y, []).forEach(function(p){
-      out.push('<polyline fill="none" stroke="var(--g)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="' + p.join(" ") + '"/>');
-    });
-    var dots = "";
-    for(var i = 0; i < n; i++) if(!isNil(j.values[i])) dots += '<circle cx="' + X[i] + '" cy="' + Y(j.values[i]) + '" r="2.8"/>';
-    out.push('<g fill="var(--g)">' + dots + "</g>");
-    var xl = "";
-    (j.xLabels || []).forEach(function(l){ xl += '<text x="' + X[l.i] + '" y="99">' + esc(l.t) + "</text>"; });
-    out.push('<g fill="var(--sub)" font-size="8" text-anchor="middle">' + xl + "</g></svg>");
-    return out.join("");
-  }
-
-  /* ── 전세가율 막대 ──────────────────────────────── */
-  /* 색은 band 가 정한다. 주의선을 넘겼는데 초록으로 칠하면 위험을 안전으로 보이게 한다. */
-  var BANDS = ["g","y","o","r"];
-  function bandColor(b){ return "var(--" + (BANDS.indexOf(b) === -1 ? "g" : b) + ")"; }
-  function ratioBar(r){
-    if(isNil(r.pct)) return "";
-    var w = Math.max(0, Math.min(100, Number(r.pct))) * 2.8;   // 280px = 100%
-    var warn = 20 + Math.max(0, Math.min(100, Number(r.warnPct || 70))) * 2.8;
-    var col = bandColor(r.band);
-    return '<svg viewBox="0 0 320 104" role="img" aria-label="매매가 대비 전세가">' +
-      '<rect x="20" y="30" width="280" height="18" rx="9" fill="var(--x-s)"/>' +
-      '<rect x="20" y="30" width="' + w.toFixed(1) + '" height="18" rx="9" fill="' + col + '"/>' +
-      '<g fill="var(--sub2)" font-size="8" text-anchor="middle">' +
-      '<text x="20" y="64">0%</text><text x="160" y="64">50%</text><text x="300" y="64">100%</text></g>' +
-      '<line x1="' + warn.toFixed(1) + '" y1="26" x2="' + warn.toFixed(1) + '" y2="52" stroke="var(--o)" stroke-width="1" stroke-dasharray="2 2"/>' +
-      '<text x="' + warn.toFixed(1) + '" y="80" fill="var(--o)" font-size="8" text-anchor="middle">' + esc(r.warnPct || 70) + '% 주의선</text>' +
-      '<text x="' + (20 + w).toFixed(1) + '" y="24" fill="' + col + '" font-size="9" text-anchor="middle" font-weight="700">' + esc(r.pct) + "%</text></svg>";
-  }
-
-  /* ── 렌더 ───────────────────────────────────────── */
-  document.getElementById("brand").textContent = D.brand || "";
-  document.getElementById("title").textContent = D.title || "";
-  document.getElementById("subtitle").textContent = D.subtitle || "";
-  var pill = document.getElementById("pill");
-  if(D.pill) pill.innerHTML = icon("sig-hold") + " " + esc(D.pill); else pill.style.display = "none";
-
-  var P = [];
-
-  // 개요
-  var ov = D.overview || {};
-  if((ov.kpis || []).length){
-    P.push(h2("i-complex", "개요"));
-    P.push('<div class="kpis">' + ov.kpis.map(function(k){
-      var v = isNil(k.n) ? '<div class="n na">' + NA + "</div>" : '<div class="n">' + esc(k.n) + "</div>";
-      return '<div class="kpi"><div class="l">' + esc(k.l) + "</div>" + v +
-             '<div class="d">' + esc(k.d || "") + "</div></div>";
-    }).join("") + "</div>");
-    P.push(capOf(ov.note), srcOf(ov.src));
-  }
-
-  // 지도
-  if(D.map && D.map.url){
-    P.push(h2("i-map", "위치"));
-    P.push('<div class="map"><iframe src="'+esc(safeMapUrl(D.map.url)||"about:blank")+'" title="주변 지도" loading="lazy" sandbox="allow-scripts allow-same-origin" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>');
-    P.push(capOf(D.map.caption), srcOf(D.map.src));
-  }
-
-  // 매매 + 전세/전세가율
-  var s = D.sale || {};
-  if((s.months || []).length){
-    P.push(h2("i-trend", "매매 시세", s.small));
-    P.push(saleChart(s));
-    P.push(capOf(s.caption), srcOf(s.src));
-  }
-  var j = D.jeonse || {}, r = D.ratio || {};
-  if((j.values || []).length || !isNil(r.pct)){
-    var big = isNil(j.big) ? '<div class="big na">' + NA + "</div>"
-      : '<div class="big">' + esc(j.big) + '<span style="font-size:12px;color:var(--sub);font-weight:500"> ' + esc(j.bigUnit || "") + "</span></div>";
-    var rbig = isNil(r.pct) ? '<div class="big na">' + NA + "</div>"
-      : '<div class="big" style="color:' + bandColor(r.band) + '">' + esc(r.pct) + '<span style="font-size:12px;color:var(--sub);font-weight:500"> %</span></div>';
-    P.push('<div class="duo">' +
-      '<div class="mini"><h4>' + icon("i-won","sub") + " " + esc(j.title || "") + "</h4>" + big +
-        '<div class="sub">' + esc(j.sub || "") + "</div>" + jeonseChart(j) + capOf(j.caption) + "</div>" +
-      '<div class="mini"><h4>' + icon("i-trend","sub") + " " + esc(r.title || "") + "</h4>" + rbig +
-        '<div class="sub">' + esc(r.sub || "") + "</div>" + ratioBar(r) + capOf(r.caption) + "</div></div>");
-    P.push(srcOf(D.duoSrc));
-  }
-
-  // 최근 매매 거래
-  var rt = D.recentTrades || {};
-  if((rt.rows || []).length){
-    P.push(h2("i-won", "최근 매매 거래", "중복 신고는 걸러냈습니다"));
-    P.push(table(rt), capOf(rt.caption), srcOf(rt.src));
-  }
-
-  // 학교
-  var sc = D.schools || {};
-  if((sc.gauges || []).length){
-    P.push(h2("i-school", "학교", "1km 안 · 지도상 직선거리"));
-    P.push('<div class="trio">' + sc.gauges.map(function(g){
-      var dm = isNil(g.dm) ? '<div class="dm na">' + NA + "</div>" : '<div class="dm">' + esc(g.dm) + "</div>";
-      var pct = isNil(g.pct) ? 0 : Math.max(0, Math.min(100, Number(g.pct)));
-      return '<div class="sch"><div class="lv">' + esc(g.lv) + "</div>" +
-             '<div class="nm">' + esc(g.nm || NA) + "</div>" + dm +
-             '<div class="gauge"><i style="width:' + pct + '%"></i></div>' +
-             '<div class="wk">' + esc(g.wk || "") + "</div></div>";
-    }).join("") + "</div>");
-    if((sc.rows || []).length) P.push('<div style="margin-top:12px">' + table(sc) + "</div>");
-    P.push(capOf(sc.caption), srcOf(sc.src));
-  }
-
-  // 교통 · 생활
-  var po = D.poi || {};
-  if((po.cards || []).length){
-    P.push(h2("i-subway", "교통 · 생활", "1km 안 · 지도상 직선거리"));
-    P.push('<div class="poi">' + po.cards.map(function(c){
-      var li = (c.items || []).map(function(it){
-        return '<li' + (it.none ? ' class="none"' : "") + "><b>" + esc(it.n) + "</b><span>" + esc(it.d) + "</span></li>";
-      }).join("");
-      return '<div class="pcard"><div class="h">' + icon(c.icon) + " " + esc(c.h) + "</div><ul>" + li + "</ul></div>";
-    }).join("") + "</div>");
-    P.push(capOf(po.caption), srcOf(po.src));
-  }
-
-  // 입주 예정
-  var pr = D.presales || {};
-  if((pr.rows || []).length){
-    P.push(h2("i-new", "주변에 곧 들어설 아파트", "3km 안"));
-    P.push(table(pr), capOf(pr.caption), srcOf(pr.src));
-  } else if(pr.columns && pr.columns.length){
-    P.push(h2("i-new", "주변에 곧 들어설 아파트", "3km 안"), empty("3km 안에 입주 예정 단지가 없습니다"));
-  }
-
-  // 함께 볼만한 아파트
-  var nb = D.nearby || {};
-  if((nb.rows || []).length){
-    P.push(h2("i-complex", "함께 볼만한 아파트", "1km 안"));
-    P.push(table(nb), capOf(nb.caption), srcOf(nb.src));
-  }
-
-  // 푸터
-  var f = D.footer || {};
-  if(f.sources || f.basis || f.counts || f.notice){
-    P.push('<div class="foot">' +
-      (f.sources ? '<div class="row">' + icon("i-db") + " <b>자료 출처</b> " + esc(f.sources) + "</div>" : "") +
-      (f.basis   ? '<div class="row">' + icon("i-calendar2") + " <b>기준 시점</b> " + esc(f.basis) + "</div>" : "") +
-      (f.counts  ? '<div class="row">' + icon("i-sample") + " <b>거래 건수</b> " + esc(f.counts) + "</div>" : "") +
-      (f.notice  ? "<b>꼭 읽어주세요.</b> " + esc(f.notice) : "") + "</div>");
-  }
-
-  document.getElementById("panel").innerHTML = P.filter(Boolean).join("") || empty("표시할 자료가 없습니다");
-})();
-
-/* 목적 맞춤 요약 — 내러티브 레일. 자기완결(자체 esc). ipzi-data JSON의 goal만 읽는다.
-   각 섹션은 배열 길이만큼 렌더, 빈 섹션은 레일 단계(노드)째 숨김. 상한 결론5·근거3·주의2·행동3. */
-(()=>{
-  var g = (function(){ try { return JSON.parse(document.getElementById("ipzi-data").textContent) || {}; } catch(e){ return {}; } })().goal;
-  if (!(g && (g.purpose || (g.conclusions || []).length))) return;
-  function esc(v){ return String(v).replace(/[&<>"']/g, function(c){
-    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
-  function useIcon(id){ return '<svg><use href="#' + esc(id) + '"/></svg>'; }
-  function item(kind, text){
-    var t = esc(text);
-    if (kind === "concl")  return '<div class="it-concl">' + t + "</div>";
-    if (kind === "bullet") return '<div class="it-bullet"><span class="dot"></span><span>' + t + "</span></div>";
-    if (kind === "warn")   return '<div class="it-warn">' + useIcon("i-warn") + "<span>" + t + "</span></div>";
-    return '<div class="it-action">' + useIcon("i-arrow") + "<span>" + t + "</span></div>";
-  }
-  var box = document.getElementById("goal-box"); if (!box) return;
-  box.style.display = "";
-  if (g.purpose){
-    var p = document.getElementById("goal-purpose"); if (p) p.style.display = "";
-    var pv = document.getElementById("goal-purpose-v"); if (pv) pv.textContent = g.purpose;
-  }
-  var CATS = [
-    { arr:g.conclusions, cap:5, cls:"c", lbl:"맞춤 결론",      hint:"핵심 답",     node:"solid",   icon:"i-check",    kind:"concl"  },
-    { arr:g.evidence,    cap:3, cls:"e", lbl:"근거",          hint:"뒷받침 수치", node:"chip",    icon:"i-evidence", kind:"bullet" },
-    { arr:g.cautions,    cap:2, cls:"w", lbl:"주의사항",       hint:"확인 필요",   node:"tint-o",  icon:"i-warn",     kind:"warn"   },
-    { arr:g.nextActions, cap:3, cls:"a", lbl:"다음 행동 제안", hint:"바로 할 일",  node:"solid-g", icon:"i-arrow",    kind:"action" }
-  ];
-  var steps = CATS.map(function(c){
-    var items = (c.arr || []).filter(function(x){ return x != null && x !== ""; }).slice(0, c.cap);
-    if (!items.length) return "";
-    return '<div class="step"><span class="node ' + c.node + '">' + useIcon(c.icon) + "</span>"
-      + '<div class="gbody"><div class="h"><span class="lbl ' + c.cls + '">' + esc(c.lbl) + "</span>"
-      + '<span class="hint">' + esc(c.hint) + "</span></div>"
-      + '<div class="items">' + items.map(function(x){ return item(c.kind, x); }).join("") + "</div></div></div>";
-  }).join("");
-  var rail = document.getElementById("goal-rail"); if (rail) rail.innerHTML = '<div class="line"></div>' + steps;
+  var notes=(D.notes||[]).map(function(n){return '<div>'+esc(n)+'</div>';}).join("");
+  var sources=(D.sources||[]).map(esc).join(" · ");
+  if(sources)notes+='<div>출처: '+sources+'</div>';
+  if(D.collectedAt)notes+='<div>기준일: '+esc(D.collectedAt)+'</div>';
+  document.getElementById("notes").innerHTML=notes;
 })();
 </script>
 </body>

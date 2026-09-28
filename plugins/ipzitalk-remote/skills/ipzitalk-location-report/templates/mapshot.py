@@ -21,7 +21,11 @@ CHROME_CANDIDATES = [
 
 # 지도 페이지 왼쪽의 마커 목록 패널 폭(px). 산출물에는 지도만 넣는다.
 SIDEBAR_PX = 280
-MAP_ORIGIN_HOST = "ipzi-talk.synergylabs.kr"
+MAP_ORIGIN_HOSTS = {
+    "ipji-talk.com",
+    "ipzi-talk.synergylabs.kr",
+    "presale-remote-mcp-loadtest.jinju-c67.workers.dev",
+}
 
 
 def validate_map_url(value):
@@ -30,7 +34,7 @@ def validate_map_url(value):
         return None
     try:
         parsed = urlsplit(value)
-        if parsed.scheme != "https" or parsed.hostname != MAP_ORIGIN_HOST:
+        if parsed.scheme != "https" or parsed.hostname not in MAP_ORIGIN_HOSTS:
             return None
         if parsed.port is not None or parsed.username or parsed.password:
             return None
